@@ -29,6 +29,8 @@ html:lang(zh-Hant) #intro h1,html:lang(ja) #intro h1,html:lang(ko) #intro h1{fon
 .langs button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--ink)}
 .langs.mini{margin:10px 0 0;gap:3px}.langs.mini button{padding:2px 6px;font-size:11px}
 .row{display:flex;gap:6px;flex-wrap:wrap}
+.musicrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 24px}.musicrow .langs{margin:0}
+.musicrow.mini{margin:8px 0 0;gap:6px}.musicrow.mini>span{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
 /* Intro */
@@ -76,6 +78,34 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 #reset:hover,#menu:hover{border-color:var(--gold)}
 #menu{border-color:rgba(238,196,100,.6);color:var(--gold)}
 
+/* While the walker moves, the tally card and minimap turn 7% transparent */
+.card,#mapwrap{transition:opacity .35s ease}
+body.moving .card,body.moving #mapwrap:not(.big){opacity:.93}
+@media (prefers-reduced-motion:reduce){.card,#mapwrap{transition:none}}
+#horseUI,#mountPrompt{position:fixed;z-index:5;left:50%;transform:translateX(-50%);bottom:calc(128px + env(safe-area-inset-bottom,0px));
+  background:var(--glass);border:1px solid var(--line);border-radius:4px;padding:8px 12px;font-size:12.5px;color:var(--parchment)}
+#horseUI{width:220px}
+#horseUI .hrow{display:flex;justify-content:space-between;letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:var(--muted);margin-bottom:6px}
+#hPct{color:var(--gold);font-variant-numeric:tabular-nums}
+.hbar{height:6px;border-radius:3px;background:rgba(244,236,216,.15);overflow:hidden}
+.hbar i{display:block;height:100%;width:100%;background:var(--gold);transition:width .2s linear}
+.hbar i.low{background:#c9604a}
+#mountPrompt{display:flex;gap:8px;align-items:center}
+#mountPrompt kbd{font-family:var(--body);font-size:12px;border:1px solid var(--gold);color:var(--gold);border-radius:3px;padding:1px 7px}
+#mpPct{color:var(--muted);font-variant-numeric:tabular-nums}
+#mountBtn{display:none;position:fixed;z-index:6;left:calc(22px + env(safe-area-inset-left,0px));bottom:calc(150px + env(safe-area-inset-bottom,0px));
+  background:var(--gold);color:var(--ink);border:0;border-radius:3px;padding:10px 16px;font-weight:600;font-size:14px}
+@media (pointer:coarse){#mountBtn:not([hidden]){display:block}#mountPrompt kbd{display:none}#horseUI,#mountPrompt{bottom:calc(215px + env(safe-area-inset-bottom,0px))}}
+#talk{position:fixed;z-index:7;left:50%;transform:translateX(-50%);bottom:calc(178px + env(safe-area-inset-bottom,0px));width:min(92vw,540px);
+  background:var(--parchment);color:var(--ink);border:2px solid var(--gold-deep);border-radius:4px;padding:14px 18px 12px;box-shadow:0 12px 40px rgba(0,0,0,.4)}
+#talk .who{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+#talkName{font-family:var(--display);font-size:24px;font-weight:700;color:var(--prussian)}
+#talkRole{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7a5a1e}
+#talkLine{font-family:var(--display);font-size:19px;line-height:1.4;margin:8px 0 10px;text-wrap:pretty}
+#talk .trow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#talk small{font-size:11px;color:#6d6458;font-style:italic}
+#talkNext{background:var(--prussian);color:var(--parchment);border:0;border-radius:2px;padding:6px 14px;font-size:13px}
+@media (pointer:coarse){#talk{bottom:calc(270px + env(safe-area-inset-bottom,0px))}}
 #mapwrap{position:fixed;z-index:5;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));
   padding:5px;background:var(--glass);border:1px solid var(--line);border-radius:4px;cursor:zoom-in}
 #mapwrap.big{top:50%;right:50%;transform:translate(50%,-50%);cursor:zoom-out;z-index:8}
@@ -83,7 +113,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 #mapwrap.big #map{width:min(88vw,960px);height:min(58.7vw,640px)}
 #mapwrap .lbl{position:absolute;left:10px;bottom:8px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(19,32,44,.7);pointer-events:none}
 
-#place{position:fixed;z-index:4;left:50%;transform:translateX(-50%);bottom:calc(26px + env(safe-area-inset-bottom,0px));text-align:center;pointer-events:none;
+#place{position:fixed;z-index:4;left:50%;transform:translateX(-50%);bottom:calc(58px + env(safe-area-inset-bottom,0px));text-align:center;pointer-events:none;
   text-shadow:0 1px 14px rgba(0,0,0,.7),0 1px 2px rgba(0,0,0,.6);width:min(90vw,560px)}
 #placeName{display:block;font-family:var(--display);font-size:32px;font-weight:600;color:var(--parchment);line-height:1.05}
 #placeSub{display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-top:5px}
@@ -128,12 +158,15 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
       <kbd data-i18n="kShift">Shift</kbd><span data-i18n="kRun"></span>
       <kbd data-i18n="kMouse">Mouse</kbd><span data-i18n="kLook"></span>
       <kbd>M</kbd><span data-i18n="kMap"></span>
+      <kbd>E</kbd><span data-i18n="kHorse"></span>
     </div>
     <div class="keys touch-only">
       <kbd data-i18n="kStick">Stick</kbd><span data-i18n="tWalk"></span>
       <kbd data-i18n="kDrag">Drag</kbd><span data-i18n="tLook"></span>
       <kbd data-i18n="kMapT">Map</kbd><span data-i18n="tMap"></span>
+      <kbd data-i18n="hMount">Mount</kbd><span data-i18n="kHorse"></span>
     </div>
+    <div class="musicrow"><span class="eyebrow" data-i18n="music">Music</span><div class="langs" id="musicIntro" role="group" aria-label="Music"></div></div>
     <button id="begin" type="button">Begin the walk</button>
     <small data-i18n="note"></small>
   </div>
@@ -151,12 +184,17 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
     <p id="euler"></p>
     <div class="row"><button id="menu" type="button" data-i18n="menu">Menu</button><button id="reset" type="button" data-i18n="reset">Start a new walk</button></div>
     <div class="langs mini" role="group" aria-label="Language" id="langHud"></div>
+    <div class="musicrow mini"><span data-i18n="music">Music</span><div class="langs mini" id="musicHud" role="group" aria-label="Music"></div></div>
   </section>
   <div id="mapwrap" title="Map (M)"><canvas id="map"></canvas><span class="lbl">Königsberg · N↑</span></div>
   <div id="place"><span id="placeName"></span><span id="placeSub"></span></div>
   <div id="cross"></div>
   <div id="hint" data-i18n="hint">WASD walk · Shift run · Click to look · M map</div>
   <div id="stick"><div id="knob"></div></div>
+  <div id="horseUI" hidden><div class="hrow"><span data-i18n="hLabel">Horse</span><span id="hPct">100%</span></div><div class="hbar"><i id="hFill"></i></div></div>
+  <div id="mountPrompt" hidden><kbd>E</kbd><span data-i18n="hMount">Mount</span><span id="mpPct"></span></div>
+  <button id="mountBtn" type="button" hidden>Mount</button>
+  <div id="talk" hidden role="dialog" aria-live="polite"><div class="who"><b id="talkName"></b><span id="talkRole"></span></div><p id="talkLine"></p><div class="trow"><small data-i18n="imagined">An imagined conversation</small><button id="talkNext" type="button">Next</button></div></div>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
 <footer id="credit">© 2026 Königsberger Brückeninstitut MTÜ. Follow on <a href="https://www.linkedin.com/company/kbi-eu/" target="_blank" rel="noopener">LinkedIn</a>.</footer>
@@ -234,7 +272,14 @@ const LANDMARKS=[
   {key:'dom',   name:'Königsberg Cathedral', sub:'Brick Gothic · begun 1333', x0:95, x1:176, z0:-47, z1:-17, ex:[80,200,-62,-6]},
   {key:'castle',name:'Königsberg Castle', sub:'Founded 1255 by the Teutonic Knights', x0:-5, x1:141, z0:-336, z1:-264, ex:[-14,154,-348,-228]},
   {key:'rath',  name:'Kneiphof Town Hall', sub:'Kneiphof', x0:22, x1:52, z0:-30, z1:-6, ex:[17,57,-36,-6]},
-  {key:'kirche',name:'Altstadt Church', sub:'Altstadt', x0:-113, x1:-60, z0:-253, z1:-233, ex:[-118,-52,-262,-226]}
+  {key:'kirche',name:'Altstadt Church', sub:'Altstadt', x0:-113, x1:-60, z0:-253, z1:-233, ex:[-118,-52,-262,-226]},
+  {key:'gericht',x0:19,x1:47,z0:-193,z1:-169,ex:[14,52,-198,-162]},
+  {key:'kaemmerei',x0:321,x1:351,z0:-205,z1:-185,ex:[316,356,-209,-180]},
+  {key:'steindamm',x0:-353,x1:-301,z0:-299,z1:-281,ex:[-358,-296,-304,-276]},
+  {key:'sackheim',x0:470,x1:521,z0:-293,z1:-275,ex:[465,526,-298,-270]},
+  {key:'schule',x0:-55,x1:-29,z0:-255,z1:-237,ex:[-60,-26,-260,-232]},
+  {key:'uni',x0:104,x1:171,z0:6,z1:28,ex:[100,176,6,33]},
+  {key:'packhof',x0:-256,x1:-199,z0:-97,z1:-73,ex:[-261,-194,-102,-70]}
 ];
 
 /* ---------------- Renderer & scene ---------------- */
@@ -490,6 +535,34 @@ const brickGable=lambert({map:T.brickTower,side:THREE.DoubleSide}),palaceGable=l
   addMesh(wbox(13,38,13,6,6),brickT,-106.5,y0+19,-243);
   spire(9.5,24,slate,-106.5,y0+38,-243,4);
 })();
+// More landmarks of 1736 (positions approximate)
+(function(){
+  const ochre=lambert({map:T.palace,color:'#f0d9a8'}),rose=lambert({map:T.palace,color:'#efd2c4'}),grey=lambert({map:T.palace,color:'#e6e2d6'}),cream=lambert({map:T.palace,color:'#f6ecd6'});
+  const gab=c=>lambert({map:T.palace,color:c,side:THREE.DoubleSide});
+  const timber=lambert({map:T.timber}),timberG=lambert({map:T.timber,side:THREE.DoubleSide});
+  const G=(x0,x1,z0,z1)=>minGround(x0,x1,z0,z1)-0.4;
+  function onion(x,y,z,r){const s=new THREE.Mesh(new THREE.SphereGeometry(r,12,8),copper);s.scale.set(1,1.3,1);s.position.set(x,y+r*1.1,z);s.castShadow=true;scene.add(s);spire(r*0.25,r*2,copper,x,y+r*2,z,8);}
+  // Stadtgericht (former Altstadt Town Hall)
+  {const y=G(20,46,-192,-170);addMesh(wbox(26,15,22,5,4.5),ochre,33,y+7.5,-181);roofAt(26,22,9,roofMat,gab('#f0d9a8'),33,y+15,-181,Math.PI/2);
+   addMesh(wbox(7,30,7,5,4.5),ochre,22.5,y+15,-181);onion(22.5,y+30,-181,3);}
+  // Stadtkämmerei (former Löbenicht Town Hall)
+  {const y=G(322,350,-204,-186);addMesh(wbox(28,13,18,5,4.5),rose,336,y+6.5,-195);roofAt(28,18,8,roofMat,gab('#efd2c4'),336,y+13,-195);
+   addMesh(wbox(4,5,4,5,4.5),rose,336,y+23.5,-195);spire(3,6,copper,336,y+26,-195,8);}
+  // Steindammer Kirche
+  {const y=G(-352,-300,-298,-282);addMesh(wbox(38,14,16,8,20),brickBay,-321,y+7,-290);roofAt(38,16,11,darkRoof,brickGable,-321,y+14,-290);
+   addMesh(wbox(12,30,12,6,6),brickT,-346,y+15,-290);spire(9,20,slate,-346,y+30,-290,4);}
+  // Sackheimer Kirche
+  {const y=G(468,520,-292,-276);addMesh(wbox(38,13,16,5,4.5),grey,501,y+6.5,-284);roofAt(38,16,10,roofMat,gab('#e6e2d6'),501,y+13,-284);
+   addMesh(wbox(10,26,10,5,4.5),grey,476,y+13,-284);onion(476,y+26,-284,4);}
+  // Altstädtische Schule
+  {const y=G(-54,-30,-254,-238);addMesh(wbox(24,11,16,5,4.5),cream,-42,y+5.5,-246);roofAt(24,16,9,roofMat,gab('#f6ecd6'),-42,y+11,-246);}
+  // Universität Königsberg (Collegium Albertinum) on the Kneiphof
+  {const y=G(105,170,9,27);addMesh(wbox(65,16,18,5,4.5),cream,137.5,y+8,18);roofAt(65,18,10,roofMat,gab('#f6ecd6'),137.5,y+16,18);
+   addMesh(wbox(10,22,4,5,4.5),cream,137.5,y+11,8.6);roofAt(10,4,5,roofMat,gab('#f6ecd6'),137.5,y+22,8.6);addMesh(wbox(4,6,4,5,4.5),cream,137.5,y+29,18);spire(3,8,copper,137.5,y+32,18,8);}
+  // Packhof: customs warehouse on the river
+  {const y=G(-255,-200,-96,-80);addMesh(wbox(55,12,16,7,8),timber,-227.5,y+6,-88);roofAt(55,16,10,darkRoof,timberG,-227.5,y+12,-88);
+   const wood=lambert({color:'#5a3c26'});addMesh(new THREE.BoxGeometry(0.5,16,0.5),wood,-205,y+8,-77);const arm=addMesh(new THREE.BoxGeometry(0.4,0.4,7),wood,-205,y+15.5,-74.5);}
+})();
 LANDMARKS.forEach(l=>{l.cx=(l.x0+l.x1)/2;l.cz=(l.z0+l.z1)/2;});
 const SOLIDS=LANDMARKS.map(l=>[l.x0,l.x1,l.z0,l.z1]);
 
@@ -546,11 +619,11 @@ const P={x:40,z:138,y:0,yaw:Math.atan2(-90,168),pitch:0.06};
 P.y=groundH(P.x,P.z)+1.7;
 const keys={};let started=false,everStarted=false;
 function bridgeAt(x,z){for(const b of BR){const l=bLocal(b,x,z);if(Math.abs(l.t)<=b.L/2&&Math.abs(l.s)<=b.W/2-0.45)return{b,t:l.t};}return null;}
-function canStand(x,z){
+function canStand(x,z,rad){
   if(x<-690||x>770||z<-470||z>470)return false;
   if(bridgeAt(x,z))return true;
   if(sdWater(x,z)<0.8)return false;
-  const r=0.35,ix=Math.floor(x/10),iz=Math.floor(z/10);
+  const r=rad||0.35,ix=Math.floor(x/10),iz=Math.floor(z/10);
   for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const list=grid.get((ix+a)+','+(iz+b));if(list)for(const o of list)if(Math.abs(x-o.x)<o.hx+r&&Math.abs(z-o.z)<o.hz+r)return false;}
   for(const q of SOLIDS)if(x>q[0]-r&&x<q[1]+r&&z>q[2]-r&&z<q[3]+r)return false;
   return true;}
@@ -691,23 +764,164 @@ ko:{eyebrow:'프로이센 쾨니히스베르크 · 1736',h1:'<em>七橋</em>의 
   gloss:['高橋','木橋','蜜橋','內臟橋','綠橋','商人橋','鍛冶橋'],dirs:['戰略','行政','疏通','革新','敎育','協力','運營'],
   river:{old:'舊프레겔江 위',new:'新프레겔江 위',main:'프레겔江 위'},localName:true}
 };
+const MUS={en:{music:'Music',mOff:'Off',mPrelude:'Bach: Prelude in C',mChorale:'Bach: Wachet auf (chorale)'},
+  de:{music:'Musik',mOff:'Aus',mPrelude:'Bach: Präludium C-Dur',mChorale:'Bach: Choral „Wachet auf“'},
+  fr:{music:'Musique',mOff:'Arrêt',mPrelude:'Bach : Prélude en ut majeur',mChorale:'Bach : choral « Wachet auf »'},
+  pl:{music:'Muzyka',mOff:'Wyłącz',mPrelude:'Bach: Preludium C-dur',mChorale:'Bach: chorał „Wachet auf”'},
+  ru:{music:'Музыка',mOff:'Выкл.',mPrelude:'Бах: Прелюдия до мажор',mChorale:'Бах: хорал «Wachet auf»'},
+  'zh-Hant':{music:'音樂',mOff:'關閉',mPrelude:'巴赫：C 大調前奏曲',mChorale:'巴赫：聖詠《醒來吧》'},
+  ja:{music:'音楽',mOff:'オフ',mPrelude:'バッハ：前奏曲 ハ長調',mChorale:'バッハ：コラール「目覚めよ」'},
+  ko:{music:'音樂',mOff:'끄기',mPrelude:'바흐: C長調 前奏曲',mChorale:'바흐: 코랄 「깨어라」'}};
+const HOR={en:{hMount:'Mount',hDismount:'Dismount',hLabel:'Horse',hTired:'<b>Your horse is tired.</b><br>Park it on grass to let it rest.',hPark:'<b>Parked on the street.</b><br>Park on grass so the horse can rest.',hGrazing:'<b>Parked on grass.</b><br>Your horse is grazing and resting.',kHorse:'Mount or dismount a horse',hShort:'horse'},
+  de:{hMount:'Aufsitzen',hDismount:'Absitzen',hLabel:'Pferd',hTired:'<b>Ihr Pferd ist müde.</b><br>Stellen Sie es auf einer Wiese ab, damit es sich erholt.',hPark:'<b>Auf der Straße abgestellt.</b><br>Nur auf einer Wiese kann sich das Pferd erholen.',hGrazing:'<b>Auf der Wiese abgestellt.</b><br>Ihr Pferd grast und erholt sich.',kHorse:'Auf ein Pferd aufsitzen oder absitzen',hShort:'Pferd'},
+  fr:{hMount:'Monter',hDismount:'Descendre',hLabel:'Cheval',hTired:'<b>Votre cheval est fatigué.</b><br>Laissez-le sur l’herbe pour qu’il se repose.',hPark:'<b>Laissé dans la rue.</b><br>Sur l’herbe, le cheval pourrait se reposer.',hGrazing:'<b>Laissé sur l’herbe.</b><br>Votre cheval broute et se repose.',kHorse:'Monter à cheval ou descendre',hShort:'cheval'},
+  pl:{hMount:'Dosiądź',hDismount:'Zsiądź',hLabel:'Koń',hTired:'<b>Koń jest zmęczony.</b><br>Zostaw go na trawie, aby odpoczął.',hPark:'<b>Koń stoi na ulicy.</b><br>Odpocznie tylko na trawie.',hGrazing:'<b>Koń stoi na trawie.</b><br>Pasie się i odpoczywa.',kHorse:'Dosiądź konia lub zsiądź',hShort:'koń'},
+  ru:{hMount:'Сесть верхом',hDismount:'Спешиться',hLabel:'Лошадь',hTired:'<b>Лошадь устала.</b><br>Оставьте её на траве, чтобы она отдохнула.',hPark:'<b>Лошадь оставлена на улице.</b><br>Отдохнуть она может только на траве.',hGrazing:'<b>Лошадь оставлена на траве.</b><br>Она пасётся и отдыхает.',kHorse:'Сесть на лошадь или спешиться',hShort:'лошадь'},
+  'zh-Hant':{hMount:'上馬',hDismount:'下馬',hLabel:'馬匹',hTired:'<b>你的馬累了。</b><br>把牠停在草地上休息。',hPark:'<b>馬停在街上。</b><br>停在草地上牠才能休息。',hGrazing:'<b>馬停在草地上。</b><br>牠正在吃草休息。',kHorse:'上馬或下馬',hShort:'騎馬'},
+  ja:{hMount:'乗る',hDismount:'降りる',hLabel:'馬',hTired:'<b>馬が疲れています。</b><br>草地に停めて休ませましょう。',hPark:'<b>通りに停めました。</b><br>草地でないと馬は休めません。',hGrazing:'<b>草地に停めました。</b><br>馬は草を食べて休んでいます。',kHorse:'馬に乗る・降りる',hShort:'馬'},
+  ko:{hMount:'말에 오르기',hDismount:'말에서 내리기',hLabel:'말',hTired:'<b>말이 지쳤습니다.</b><br>풀밭에 세워 쉬게 하십시오.',hPark:'<b>길에 세웠습니다.</b><br>풀밭에서만 말이 쉴 수 있습니다.',hGrazing:'<b>풀밭에 세웠습니다.</b><br>말이 풀을 뜯으며 쉬고 있습니다.',kHorse:'말에 오르거나 내리기',hShort:'말'}};
+const FAM={
+en:{talkNext:'Next',imagined:'An imagined conversation',wave:n=>`<b>${n}</b> is waving at you.<br>Go over and say hello.`,people:{
+  euler:{name:'Leonhard Euler',role:'Mathematician, 29',lines:[
+    'Ah, a fellow walker! Count the bridges that touch each district. If more than two of those counts are odd, no walk can cross each bridge once.',
+    'Kneiphof has five bridges; the other three districts have three each. Four odd numbers. So the answer is no — but what a beautiful no!',
+    'Forget the streets and the distances. Only the land and the bridges matter. I suspect this is a new kind of geometry: a geometry of position.',
+    'Build one more bridge between two of the odd districts, and the walk becomes possible. Tell the burgomaster!',
+    'My favourite number? I won’t say. But it begins 2.71828…',
+    'In St Petersburg I calculate all day. Counting bridges in the sunshine is a holiday.']},
+  kant:{name:'Immanuel Kant',role:'Pupil at the Collegium Fridericianum, 12',lines:[
+    'Good day! I walk this street at exactly the same time every day. You could set your watch by me.',
+    'At the Collegium we read Latin from morning to evening. Latin is fine. But I keep asking how we can know anything at all.',
+    'Here is my rule: only cross a bridge in a way you would want everyone to cross it. Otherwise the bridges get very crowded.',
+    'At night I watch the stars. I think the Milky Way is a great spinning disc of suns. Nobody believes me. Yet.',
+    'Why travel? Ships from all over the world come up the Pregel. The world comes to Königsberg.',
+    'Herr Euler says the walk is impossible. Perhaps we only know the bridges as they appear to us, not as they are in themselves.']}}},
+de:{talkNext:'Weiter',imagined:'Ein erfundenes Gespräch',wave:n=>`<b>${n}</b> winkt Ihnen zu.<br>Gehen Sie hin und sagen Sie Hallo.`,people:{
+  euler:{name:'Leonhard Euler',role:'Mathematiker, 29',lines:[
+    'Ah, ein Mitspaziergänger! Zählen Sie die Brücken, die jeden Stadtteil berühren. Sind mehr als zwei dieser Zahlen ungerade, gibt es keinen Weg über jede Brücke genau einmal.',
+    'Der Kneiphof hat fünf Brücken, die anderen drei Stadtteile je drei. Vier ungerade Zahlen. Die Antwort ist also nein – aber was für ein schönes Nein!',
+    'Vergessen Sie Straßen und Entfernungen. Es zählen nur das Land und die Brücken. Ich vermute, das ist eine neue Art Geometrie: eine Geometrie der Lage.',
+    'Baut man eine Brücke mehr zwischen zwei der ungeraden Stadtteile, wird der Weg möglich. Sagen Sie es dem Bürgermeister!',
+    'Meine Lieblingszahl? Verrate ich nicht. Aber sie beginnt mit 2,71828 …',
+    'In Sankt Petersburg rechne ich den ganzen Tag. Brücken zählen im Sonnenschein ist für mich Urlaub.']},
+  kant:{name:'Immanuel Kant',role:'Schüler am Collegium Fridericianum, 12',lines:[
+    'Guten Tag! Ich gehe diese Straße jeden Tag zur genau gleichen Zeit. Sie könnten Ihre Uhr nach mir stellen.',
+    'Im Collegium lesen wir von morgens bis abends Latein. Latein ist schön. Aber ich frage mich immer, wie wir überhaupt etwas wissen können.',
+    'Meine Regel: Überquere eine Brücke nur so, wie du willst, dass alle sie überqueren. Sonst wird es auf den Brücken sehr voll.',
+    'Nachts schaue ich die Sterne an. Ich glaube, die Milchstraße ist eine riesige, sich drehende Scheibe aus Sonnen. Niemand glaubt mir. Noch nicht.',
+    'Warum reisen? Schiffe aus aller Welt kommen den Pregel herauf. Die Welt kommt nach Königsberg.',
+    'Herr Euler sagt, der Weg sei unmöglich. Vielleicht kennen wir die Brücken nur, wie sie uns erscheinen, nicht wie sie an sich sind.']}}},
+fr:{talkNext:'Suite',imagined:'Une conversation imaginaire',wave:n=>`<b>${n}</b> vous fait signe.<br>Allez le saluer.`,people:{
+  euler:{name:'Leonhard Euler',role:'Mathématicien, 29 ans',lines:[
+    'Ah, un promeneur ! Comptez les ponts qui touchent chaque quartier. Si plus de deux de ces nombres sont impairs, aucune promenade ne franchit chaque pont une seule fois.',
+    'Le Kneiphof a cinq ponts, les trois autres quartiers trois chacun. Quatre nombres impairs. La réponse est donc non — mais quel beau non !',
+    'Oubliez les rues et les distances. Seuls comptent les terres et les ponts. Je soupçonne une nouvelle sorte de géométrie : une géométrie de position.',
+    'Construisez un pont de plus entre deux quartiers impairs, et la promenade devient possible. Dites-le au bourgmestre !',
+    'Mon nombre préféré ? Je ne le dirai pas. Mais il commence par 2,71828…',
+    'À Saint-Pétersbourg, je calcule toute la journée. Compter des ponts au soleil, ce sont des vacances.']},
+  kant:{name:'Immanuel Kant',role:'Élève du Collegium Fridericianum, 12 ans',lines:[
+    'Bonjour ! Je passe dans cette rue chaque jour exactement à la même heure. Vous pourriez régler votre montre sur moi.',
+    'Au Collegium, nous lisons du latin du matin au soir. Le latin, c’est bien. Mais je me demande sans cesse comment nous pouvons savoir quoi que ce soit.',
+    'Voici ma règle : ne traversez un pont que comme vous voudriez que tout le monde le traverse. Sinon, les ponts sont très encombrés.',
+    'La nuit, je regarde les étoiles. Je crois que la Voie lactée est un immense disque de soleils qui tourne. Personne ne me croit. Pas encore.',
+    'Pourquoi voyager ? Des navires du monde entier remontent le Pregel. Le monde vient à Königsberg.',
+    'Herr Euler dit que la promenade est impossible. Peut-être ne connaissons-nous les ponts que tels qu’ils nous apparaissent, et non tels qu’ils sont en eux-mêmes.']}}},
+pl:{talkNext:'Dalej',imagined:'Wyobrażona rozmowa',wave:n=>`<b>${n}</b> macha do ciebie.<br>Podejdź i przywitaj się.`,people:{
+  euler:{name:'Leonhard Euler',role:'Matematyk, 29 lat',lines:[
+    'Ach, współspacerowicz! Policz mosty dotykające każdej dzielnicy. Jeśli więcej niż dwie z tych liczb są nieparzyste, nie da się przejść każdego mostu dokładnie raz.',
+    'Knipawa ma pięć mostów, pozostałe trzy dzielnice po trzy. Cztery liczby nieparzyste. Odpowiedź brzmi więc: nie — ale jakże piękne to „nie”!',
+    'Zapomnij o ulicach i odległościach. Liczą się tylko lądy i mosty. Podejrzewam, że to nowy rodzaj geometrii: geometria położenia.',
+    'Zbudujcie jeszcze jeden most między dwiema nieparzystymi dzielnicami, a spacer stanie się możliwy. Powiedz to burmistrzowi!',
+    'Moja ulubiona liczba? Nie powiem. Ale zaczyna się od 2,71828…',
+    'W Petersburgu liczę cały dzień. Liczenie mostów w słońcu to dla mnie wakacje.']},
+  kant:{name:'Immanuel Kant',role:'Uczeń Collegium Fridericianum, 12 lat',lines:[
+    'Dzień dobry! Chodzę tą ulicą codziennie dokładnie o tej samej porze. Można by według mnie nastawiać zegarki.',
+    'W Collegium czytamy łacinę od rana do wieczora. Łacina jest w porządku. Ale wciąż się zastanawiam, skąd w ogóle cokolwiek wiemy.',
+    'Moja zasada: przechodź przez most tylko tak, jak chciałbyś, żeby przechodzili wszyscy. Inaczej na mostach robi się bardzo tłoczno.',
+    'Nocą patrzę w gwiazdy. Myślę, że Droga Mleczna to ogromny, wirujący dysk słońc. Nikt mi nie wierzy. Jeszcze.',
+    'Po co podróżować? Statki z całego świata płyną w górę Pregoły. Świat sam przychodzi do Królewca.',
+    'Pan Euler mówi, że taki spacer jest niemożliwy. Może znamy mosty tylko takimi, jakimi nam się jawią, a nie takimi, jakie są same w sobie.']}}},
+ru:{talkNext:'Дальше',imagined:'Воображаемый разговор',wave:n=>`<b>${n}</b> машет вам.<br>Подойдите поздороваться.`,people:{
+  euler:{name:'Леонард Эйлер',role:'Математик, 29 лет',lines:[
+    'А, ещё один любитель прогулок! Сосчитайте мосты, ведущие в каждую часть города. Если больше двух чисел нечётные, пройти по каждому мосту ровно один раз нельзя.',
+    'У Кнайпхофа пять мостов, у остальных трёх частей — по три. Четыре нечётных числа. Значит, ответ — нет. Но какое красивое «нет»!',
+    'Забудьте об улицах и расстояниях. Важны только участки суши и мосты. Подозреваю, это новая геометрия — геометрия положения.',
+    'Постройте ещё один мост между двумя «нечётными» частями — и прогулка станет возможной. Скажите бургомистру!',
+    'Моё любимое число? Не скажу. Но начинается оно с 2,71828…',
+    'В Петербурге я считаю целыми днями. Считать мосты на солнышке — для меня отдых.']},
+  kant:{name:'Иммануил Кант',role:'Ученик Collegium Fridericianum, 12 лет',lines:[
+    'Добрый день! Я прохожу по этой улице каждый день ровно в одно и то же время. По мне можно сверять часы.',
+    'В Коллегиуме мы с утра до вечера читаем латынь. Латынь — это хорошо. Но я всё думаю: как мы вообще можем что-то знать?',
+    'Моё правило: переходи мост только так, как хотел бы, чтобы переходили все. Иначе на мостах будет очень тесно.',
+    'По ночам я смотрю на звёзды. Мне кажется, Млечный Путь — это огромный вращающийся диск из солнц. Мне никто не верит. Пока.',
+    'Зачем путешествовать? Корабли со всего света поднимаются по Прегелю. Мир сам приходит в Кёнигсберг.',
+    'Господин Эйлер говорит, что такая прогулка невозможна. Может быть, мы знаем мосты лишь такими, какими они нам являются, а не такими, каковы они сами по себе.']}}},
+'zh-Hant':{talkNext:'下一句',imagined:'想像的對話',wave:n=>`<b>${n}</b>在向你招手。<br>過去打個招呼吧。`,people:{
+  euler:{name:'萊昂哈德・歐拉',role:'數學家，29 歲',lines:[
+    '啊，又一位散步的人！數一數通往每個城區的橋。如果有兩個以上的數字是奇數，就沒有一條路能讓每座橋恰好只走一次。',
+    '克奈普霍夫有五座橋，其他三個城區各有三座。四個奇數。所以答案是不行——但這是多麼美妙的「不行」！',
+    '忘掉街道和距離吧。重要的只有陸地和橋。我猜這是一種新的幾何：位置的幾何。',
+    '在兩個奇數城區之間再建一座橋，這趟散步就能成真。快去告訴市長！',
+    '我最喜歡的數字？我不說。不過它是 2.71828… 開頭的。',
+    '在聖彼得堡我整天都在計算。在陽光下數橋，對我來說就是度假。']},
+  kant:{name:'伊曼努爾・康德',role:'腓特烈公學學生，12 歲',lines:[
+    '你好！我每天都在完全相同的時間走這條街。你可以拿我來對錶。',
+    '在學院裡，我們從早到晚讀拉丁文。拉丁文還不錯。但我總是在想：我們究竟怎麼能知道任何事情？',
+    '我的規則是：只用你希望所有人都用的方式過橋。不然橋上會擠得要命。',
+    '晚上我看星星。我覺得銀河是一個由許多太陽組成、不停旋轉的巨大圓盤。沒人相信我。暫時還沒有。',
+    '為什麼要旅行？世界各地的船都沿著普雷格爾河駛來。是世界來到柯尼斯堡。',
+    '歐拉先生說這趟散步不可能。也許我們只知道橋在我們眼中顯現的樣子，而不是橋本身的樣子。']}}},
+ja:{talkNext:'次へ',imagined:'想像上の会話',wave:n=>`<b>${n}</b>があなたに手を振っています。<br>近づいて挨拶しましょう。`,people:{
+  euler:{name:'レオンハルト・オイラー',role:'数学者・29歳',lines:[
+    'おや、散歩仲間ですね！各地区につながる橋の数を数えてごらんなさい。奇数の地区が二つより多ければ、どの橋もちょうど一度ずつ渡る道はありません。',
+    'クナイプホーフには橋が五つ、ほかの三つの地区には三つずつ。奇数が四つ。だから答えは「否」です。でも、なんと美しい「否」でしょう！',
+    '通りや距離のことは忘れなさい。大切なのは陸地と橋だけ。これは新しい幾何学、位置の幾何学ではないかと思うのです。',
+    '奇数の地区どうしの間に橋をもう一本架ければ、散歩は可能になります。市長に伝えてください！',
+    '好きな数ですか？内緒です。でも 2.71828… で始まります。',
+    'サンクトペテルブルクでは一日じゅう計算しています。日なたで橋を数えるのは休暇のようなものです。']},
+  kant:{name:'イマヌエル・カント',role:'フリードリヒ学院の生徒・12歳',lines:[
+    'こんにちは！ぼくは毎日まったく同じ時刻にこの通りを歩きます。ぼくを見て時計を合わせられますよ。',
+    'コレギウムでは朝から晩までラテン語を読みます。ラテン語は好きです。でも、そもそも人はどうやって何かを知ることができるのか、ずっと考えてしまうんです。',
+    'ぼくの決まりはこうです。みんながそう渡ってほしいと思うやり方でだけ、橋を渡ること。そうしないと橋が大混雑します。',
+    '夜は星を見ています。天の川は、たくさんの太陽でできた巨大な回る円盤だと思うんです。誰も信じてくれません。今のところは。',
+    'どうして旅をするんですか？世界中の船がプレーゲル川をさかのぼってきます。世界のほうがケーニヒスベルクに来るんです。',
+    'オイラー先生はその散歩は不可能だと言います。ぼくたちが知っているのは、橋がぼくたちに現れる姿だけで、橋そのものではないのかもしれません。']}}},
+ko:{talkNext:'다음',imagined:'想像 속 對話',wave:n=>`<b>${n}</b>께서 손을 흔드십니다.<br>다가가서 人事하십시오.`,people:{
+  euler:{name:'레온하르트 오일러',role:'數學者, 29歲',lines:[
+    '아, 散策하는 분이군요! 各 地區에 닿는 다리의 數를 세어 보십시오. 그 數 中 둘보다 많은 것이 奇數라면, 모든 다리를 꼭 한 番씩 건너는 길은 없습니다.',
+    '크나이프호프에는 다리가 다섯, 나머지 세 地區에는 셋씩 있습니다. 奇數가 넷. 그러니 答은 「不可」입니다. 하지만 얼마나 아름다운 「不可」입니까!',
+    '길과 距離는 잊으십시오. 重要한 것은 땅과 다리뿐입니다. 이것은 새로운 幾何學, 곧 位置의 幾何學인 듯합니다.',
+    '奇數 地區 둘 사이에 다리를 하나 더 놓으면 散策이 可能해집니다. 市長께 알려 주십시오!',
+    '가장 좋아하는 數요? 秘密입니다. 하지만 2.71828…로 始作하지요.',
+    '상트페테르부르크에서는 하루 終日 計算만 합니다. 햇볕 아래에서 다리를 세는 것은 저에게 休暇입니다.']},
+  kant:{name:'임마누엘 칸트',role:'프리드리히 學院 學生, 12歲',lines:[
+    '안녕하세요! 저는 每日 꼭 같은 時刻에 이 길을 걷습니다. 저를 보고 時計를 맞추셔도 됩니다.',
+    '學院에서는 아침부터 저녁까지 라틴語를 읽습니다. 라틴語도 좋지만, 우리가 도대체 어떻게 무엇인가를 알 수 있는지 자꾸 궁금해집니다.',
+    '제 規則은 이렇습니다. 모든 사람이 그렇게 건너기를 바라는 方式으로만 다리를 건널 것. 그렇지 않으면 다리가 몹시 붐빕니다.',
+    '밤에는 별을 봅니다. 銀河는 수많은 太陽으로 이루어진, 빙빙 도는 巨大한 圓盤일 것 같습니다. 아무도 믿지 않지요. 아직은요.',
+    '왜 旅行을 합니까? 世界 곳곳의 배가 프레겔江을 거슬러 올라옵니다. 世界가 쾨니히스베르크로 오는 것이지요.',
+    '오일러 先生님은 그 散策이 不可能하다고 하십니다. 어쩌면 우리는 다리가 우리에게 나타나는 모습만 알 뿐, 다리 그 自體는 모르는지도 모릅니다.']}}}};
+const LM2={en:{gericht:['Stadtgericht','Former Altstadt Town Hall · city court'],kaemmerei:['Stadtkämmerei','Former Löbenicht Town Hall · city treasury'],steindamm:['Steindammer Kirche','Church of the Steindamm'],sackheim:['Sackheimer Kirche','Church of the Sackheim'],schule:['Altstädtische Schule','Altstadt Latin school'],uni:['University of Königsberg','The Albertina · founded 1544'],packhof:['Packhof','Customs warehouse on the Pregel']},
+de:{gericht:['Stadtgericht','Ehemaliges Altstädtisches Rathaus'],kaemmerei:['Stadtkämmerei','Ehemaliges Löbenichtsches Rathaus'],steindamm:['Steindammer Kirche','Steindamm'],sackheim:['Sackheimer Kirche','Sackheim'],schule:['Altstädtische Schule','Lateinschule der Altstadt'],uni:['Universität Königsberg','Albertina · gegründet 1544'],packhof:['Packhof','Zoll- und Lagerhaus am Pregel']},
+fr:{gericht:['Stadtgericht','Ancien hôtel de ville de l’Altstadt · tribunal'],kaemmerei:['Stadtkämmerei','Ancien hôtel de ville du Löbenicht · trésorerie'],steindamm:['Église du Steindamm','Steindamm'],sackheim:['Église du Sackheim','Sackheim'],schule:['École de l’Altstadt','École latine'],uni:['Université de Königsberg','L’Albertina · fondée en 1544'],packhof:['Packhof','Entrepôt des douanes sur le Pregel']},
+pl:{gericht:['Sąd Miejski','Dawny ratusz Starego Miasta'],kaemmerei:['Skarbiec Miejski','Dawny ratusz Lipnika'],steindamm:['Kościół na Steindammie','Steindamm'],sackheim:['Kościół na Sackheimie','Sackheim'],schule:['Szkoła Staromiejska','Szkoła łacińska'],uni:['Uniwersytet Królewiecki','Albertyna · założony w 1544 r.'],packhof:['Packhof','Skład celny nad Pregołą']},
+ru:{gericht:['Городской суд','Бывшая ратуша Альтштадта'],kaemmerei:['Городская казна','Бывшая ратуша Лёбенихта'],steindamm:['Штайндаммская кирха','Штайндамм'],sackheim:['Закхаймская кирха','Закхайм'],schule:['Альтштадтская школа','Латинская школа'],uni:['Кёнигсбергский университет','Альбертина · основан в 1544 году'],packhof:['Пакгауз','Таможенный склад на Прегеле']},
+'zh-Hant':{gericht:['市法院','舊城舊市政廳'],kaemmerei:['市財政局','勒貝尼希特舊市政廳'],steindamm:['施坦達姆教堂','施坦達姆'],sackheim:['薩克海姆教堂','薩克海姆'],schule:['舊城學校','拉丁學校'],uni:['柯尼斯堡大學','阿爾貝蒂娜・1544 年創立'],packhof:['海關倉庫','普雷格爾河畔的海關貨棧']},
+ja:{gericht:['市裁判所','旧アルトシュタット市庁舎'],kaemmerei:['市財務局','旧レーベニヒト市庁舎'],steindamm:['シュタインダム教会','シュタインダム'],sackheim:['ザックハイム教会','ザックハイム'],schule:['アルトシュタット学校','ラテン語学校'],uni:['ケーニヒスベルク大学','アルベルティーナ・1544年創立'],packhof:['パックホーフ','プレーゲル川沿いの税関倉庫']},
+ko:{gericht:['市法院','舊 알트슈타트 市廳舍'],kaemmerei:['市財務廳','舊 뢰베니히트 市廳舍'],steindamm:['슈타인담 敎會','슈타인담'],sackheim:['자크하임 敎會','자크하임'],schule:['알트슈타트 學校','라틴語 學校'],uni:['쾨니히스베르크 大學','알베르티나 · 1544年 創立'],packhof:['팍호프','프레겔江 邊 稅關 倉庫']}};
+for(const k in LM2)Object.assign(I18N[k].lm,LM2[k]);
 let LANG='en';
 try{const sv=localStorage.getItem('kb1736-lang');if(sv&&I18N[sv])LANG=sv;else{const nl=(navigator.language||'en').toLowerCase();
   if(nl.startsWith('de'))LANG='de';else if(nl.startsWith('fr'))LANG='fr';else if(nl.startsWith('pl'))LANG='pl';else if(nl.startsWith('ko'))LANG='ko';else if(nl.startsWith('ja'))LANG='ja';else if(nl.startsWith('ru'))LANG='ru';else if(/^zh-(tw|hk|mo|hant)/.test(nl))LANG='zh-Hant';}}catch(_){}
-const t=k=>{const v=I18N[LANG][k];return v===undefined?I18N.en[k]:v;};
+const t=k=>{let v=I18N[LANG][k];for(const X of[MUS,HOR,FAM]){if(v===undefined&&X[LANG])v=X[LANG][k];}if(v===undefined)v=I18N.en[k];for(const X of[MUS,HOR,FAM]){if(v===undefined)v=X.en[k];}return v;};
 const bName=b=>I18N[LANG].localName?I18N[LANG].gloss[b.i]:b.name;
 const bShort=b=>I18N[LANG].localName?I18N[LANG].gloss[b.i].replace(/ мост$/,'').replace(/^Most /,''):b.name.replace(' Brücke','').replace('brücke','');
 const bDir=b=>t('dirs')[b.i];
 function bSub(b){const L=I18N[LANG];const parts=[b.num];if(L.localName)parts.push(b.name);else if(L.gloss)parts.push(L.gloss[b.i]);parts.push(L.river[b.river]);return parts.join(' · ');}
 
 
-/* Citizens of 1736: tricorns, frock coats, gowns and a few Prussian soldiers, with emoji faces */
+/* Citizens of 1736: tricorns, frock coats and gowns; Prussian soldiers march in step, in squads */
 const npcs=[];const npcUpdate=(function(){
-  const EMO=['😀','😃','😄','😁','😆','😅','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😋','😛','😜','🤪','🤨','🧐','🤓','😎','😏','😒','🙄','😬','😌','😔','😪','😴','🤠','🥳','😮','😯','😲','😳','🥺','😶','😐','😑','😤','😺','🤡','😙','😚','🙂','😗'];
-  const faceMat={};
-  function face(e){if(faceMat[e])return faceMat[e];const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
-    g.textAlign='center';g.textBaseline='middle';g.font='104px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla",sans-serif';g.fillText(e,64,70);
-    const tx=new THREE.CanvasTexture(c);return faceMat[e]=new THREE.SpriteMaterial({map:tx,transparent:true,alphaTest:0.1});}
   // walking paths: streets (excluding wide plazas' edges) and bridge decks
   const paths=[];
   for(const s of SSEG){const mx=(s.ax+s.bx)/2,mz=(s.az+s.bz)/2;const d=Math.hypot(mx-60,mz+40);const w=s.len*Math.exp(-d/380)*(inCity(mx,mz)?1:0.25);
@@ -718,18 +932,25 @@ const npcs=[];const npcUpdate=(function(){
   const MEN=['#23395d','#5b3a29','#2f4a3a','#6b2230','#6a6a66','#262626','#7d6230','#3b4d6b','#4e3b5c'].map(C);
   const BREECH=['#cbb88c','#2a2a2a','#4a3626','#e6dcc2','#5a4a3a'].map(C);
   const GOWN=['#7a4b5a','#3f5f7a','#8a6d3b','#5d6b4a','#a65b45','#cdb99a','#4a3a5a','#9c3f3f','#6f8a8f'].map(C);
-  const SKIN=C('#f2c94c'),SOLDIER=C('#1b2d55'),STRAW=C('#d9c27a'),WHITE=C('#f1ede2'),BLACK=C('#1d1d1f'),WOOD=C('#5a3c26'),RED=C('#a3262a');
+  const SKINS=['#f1d2b6','#e8bf9b','#d9a77f','#c68c5f','#f5dcc4','#b97a52'].map(C),SOLDIER=C('#1b2d55'),STRAW=C('#d9c27a'),WHITE=C('#f1ede2'),BLACK=C('#1d1d1f'),WOOD=C('#5a3c26'),RED=C('#a3262a');
   const N=150;
-  for(let i=0;i<N;i++){const r=R();const kind=r<0.48?'man':r<0.88?'woman':'soldier';
+  for(let i=0;i<N;i++){const r=R();const kind=r<0.52?'man':'woman';
     const p=pickPath();const n={kind,p,t:R()*p.len,dir:R()<.5?1:-1,lat:(R()-.5)*Math.max(0,(p.hw-1.2)*2),sp:1.0+R()*0.5,pause:0,ph:R()*6.28,
       sc:R()<0.1?0.7:0.94+R()*0.12,coat:kind==='soldier'?SOLDIER:kind==='man'?pick(MEN):pick(GOWN),leg:kind==='soldier'?STRAW:pick(BREECH),x:0,z:0,y:0,yaw:0,stand:false};
     if(p.bridge)n.lat=(R()-.5)*(p.bridge.W-2.4);
-    n.face=new THREE.Sprite(face(pick(EMO)));n.face.scale.set(.44,.44,1);scene.add(n.face);npcs.push(n);}
+    npcs.push(n);}
   // a few groups standing and chatting on the squares
   [[84,-30],[80,-246],[26,-246],[14,-30],[18,40],[260,8],[-110,150]].forEach(([gx,gz])=>{const k=2+Math.floor(R()*2);
     for(let j=0;j<k;j++){const a=j/k*6.283+R()*.4;const kind=R()<.5?'man':'woman';const n={kind,p:null,stand:true,ph:R()*6.28,sc:0.94+R()*0.12,
       coat:kind==='man'?pick(MEN):pick(GOWN),leg:pick(BREECH),x:gx+Math.cos(a)*1.1,z:gz+Math.sin(a)*1.1,y:0,yaw:Math.atan2(-Math.cos(a),-Math.sin(a)),pause:0};
-      n.face=new THREE.Sprite(face(pick(EMO)));n.face.scale.set(.44,.44,1);scene.add(n.face);npcs.push(n);}});
+      npcs.push(n);}});
+  // squads of Prussian soldiers (4-8 men, two files) marching in step on the wider streets
+  const squads=[];const long=paths.filter(p=>!p.bridge&&p.hw>=5&&p.hw<=6&&p.len>=80&&inCity(p.ax+p.ux*p.len/2,p.az+p.uz*p.len/2));
+  [4,6,8,4,6,4,8].forEach((size,si)=>{const p=long[(si*5+3)%long.length];const rows=size/2;const half=(rows-1)*0.8+1;
+    const sq={p,t:half+R()*(p.len-2*half),dir:R()<.5?1:-1,sp:1.35,ph:0,halt:0,half,members:[]};
+    for(let k=0;k<size;k++){const r=Math.floor(k/2),c=k%2;const n={kind:'soldier',squad:sq,ra:(r-(rows-1)/2)*1.6,la:(c-0.5)*1.3,sc:0.97+R()*0.06,
+      coat:SOLDIER,leg:STRAW,x:0,z:0,y:0,yaw:0,ph:0,stand:false};sq.members.push(n);npcs.push(n);}
+    squads.push(sq);});
   const cnt=k=>npcs.filter(n=>k.includes(n.kind)).length;
   const box=new THREE.BoxGeometry(1,1,1);
   const torsoG=new THREE.CylinderGeometry(.19,.31,1,10),bodiceG=new THREE.CylinderGeometry(.16,.19,1,10),skirtG=new THREE.CylinderGeometry(.2,.5,1,14);
@@ -741,7 +962,7 @@ const npcs=[];const npcUpdate=(function(){
   // static per-instance colors
   const idx={};for(const k in M)idx[k]=0;
   for(const n of npcs){n.ix={};const take=(k,c,times)=>{n.ix[k]=idx[k];for(let j=0;j<(times||1);j++)M[k].setColorAt(idx[k]++,c);};
-    take('arms',n.coat,2);take('collar',WHITE);take('head',SKIN);
+    take('arms',n.coat,2);take('collar',WHITE);take('head',pick(SKINS));
     if(n.kind==='woman'){take('bodice',n.coat);take('skirt',n.coat);take('apron',R()<.6?WHITE:C('#d9cfb8'));take('cap',WHITE);}
     else{take('legs',n.leg,2);take('torso',n.coat);take('tri',BLACK);if(n.kind==='soldier'){take('musket',WOOD);take('cuff',RED,2);}}}
   const base=new THREE.Matrix4(),loc=new THREE.Matrix4(),out=new THREE.Matrix4(),q=new THREE.Quaternion(),pos=new THREE.Vector3(),scl=new THREE.Vector3(),UP=new THREE.Vector3(0,1,0);
@@ -750,8 +971,14 @@ const npcs=[];const npcUpdate=(function(){
   function part(mesh,i,px,py,pz,rx,oy,sx,sy,sz){loc.makeRotationX(rx);loc.scale(ps.set(sx,sy,sz));
     loc.elements[12]=px;loc.elements[13]=py+Math.cos(rx)*oy;loc.elements[14]=pz+Math.sin(rx)*oy;out.multiplyMatrices(base,loc);mesh.setMatrixAt(i,out);}
   return function(dt,time){
+    for(const sq of squads){if(sq.halt>0){sq.halt-=dt;sq.moving=false;continue;}
+      sq.t+=sq.dir*sq.sp*dt;const cx=sq.p.ax+sq.p.ux*sq.t,cz=sq.p.az+sq.p.uz*sq.t;
+      if(sq.t<sq.half||sq.t>sq.p.len-sq.half||sdWater(cx,cz)<4){sq.t-=sq.dir*sq.sp*dt;sq.dir*=-1;sq.halt=1.5;sq.moving=false;continue;}
+      sq.ph+=dt*sq.sp*4.6;sq.moving=true;if(R()<dt*0.01)sq.halt=3+R()*3;}
     for(const n of npcs){let moving=false;
-      if(!n.stand){
+      if(n.squad){const sq=n.squad,p=sq.p,tt=sq.t+n.ra;n.x=p.ax+p.ux*tt-p.uz*n.la;n.z=p.az+p.uz*tt+p.ux*n.la;n.y=groundH(n.x,n.z);
+        n.yaw=Math.atan2(p.ux*sq.dir,p.uz*sq.dir);moving=sq.moving;n.ph=sq.ph;}
+      else if(!n.stand){
         if(n.pause>0)n.pause-=dt;
         else{const p=n.p;n.t+=n.dir*n.sp*dt;
           if(n.t<0||n.t>p.len){n.dir*=-1;n.t=clamp(n.t,0,p.len);if(R()<.35)n.pause=1+R()*4;}
@@ -760,7 +987,7 @@ const npcs=[];const npcUpdate=(function(){
           n.yaw=Math.atan2(p.ux*n.dir,p.uz*n.dir);moving=true;if(R()<dt*0.02)n.pause=2+R()*5;}
         if(n.p.bridge){const l=bLocal(n.p.bridge,n.x,n.z);n.y=deckY(n.p.bridge,clamp(l.t,-n.p.bridge.L/2,n.p.bridge.L/2));}else n.y=groundH(n.x,n.z);
       }else if(!n.y){n.y=groundH(n.x,n.z);}
-      if(moving)n.ph+=dt*n.sp*4.2;
+      if(moving&&!n.squad)n.ph+=dt*n.sp*4.2;
       const sw=moving?Math.sin(n.ph)*0.5:0,bob=moving?Math.abs(Math.cos(n.ph))*0.04:Math.sin(time*1.3+n.ph)*0.01;
       pos.set(n.x,n.y+bob*n.sc,n.z);const fy=n.yaw+(n.stand?Math.sin(time*.4+n.ph)*0.15:0);q.setFromAxisAngle(UP,fy);scl.set(n.sc,n.sc,n.sc);base.compose(pos,q,scl);
       const I=n.ix;
@@ -775,13 +1002,139 @@ const npcs=[];const npcUpdate=(function(){
       }
       part(M.arms,I.arms,-0.26,1.46,0,-sw*0.8,-0.29,0.1,0.6,0.11);part(M.arms,I.arms+1,0.26,1.46,0,n.kind==='soldier'?-0.05:sw*0.8,-0.29,0.1,0.6,0.11);
       part(M.collar,I.collar,0,1.5,0.02,0,0,1,1,1);
-      part(M.head,I.head,0,1.73,0,0,0,1,1.05,1);
-      // the face shows only when the viewer is within 45 degrees of where the citizen faces
-      const vx=P.x-n.x,vz=P.z-n.z,vl=Math.hypot(vx,vz)||1;const facing=(Math.sin(fy)*vx+Math.cos(fy)*vz)/vl;
-      n.face.visible=facing>=0.7071&&vl<420;
-      if(n.face.visible){n.face.position.set(n.x+vx/vl*0.13*n.sc,n.y+(1.73+bob)*n.sc,n.z+vz/vl*0.13*n.sc);n.face.scale.set(.44*n.sc,.44*n.sc,1);}}
+      part(M.head,I.head,0,1.73,0,0,0,1,1.05,1);}
     for(const k in M){M[k].instanceMatrix.needsUpdate=true;}
   };})();
+
+/* Horses: ride for 3x speed; they tire, and rest by grazing when parked on grass. Plus mounted patrols. */
+const HORSE={mounted:null,speed:0};const horses=[];
+const onGrass=(x,z)=>{if(bridgeAt(x,z))return false;if(sdWater(x,z)<2)return false;return nearestStreet(x,z).d>0.3;};
+function nearestHorse(maxD){let best=null,bd=maxD;for(const h of horses){if(h.patrol||h===HORSE.mounted)continue;const d=Math.hypot(h.x-P.x,h.z-P.z);if(d<bd){bd=d;best=h;}}return best;}
+const horseUpdate=(function(){
+  const COATS=['#6b3f22','#8a4b25','#a3a19a','#2a2522','#a07c4f','#5a3420'].map(C),DARK=['#2a2522','#3b2a20','#4a2c1c'].map(C);
+  const CLOTH=['#1b2d55','#7b2230','#2f4a3a','#3d5a7a'].map(C);
+  // tether spots on grass just off the streets, spread across town; the first one is near the starting point
+  const cand=[];
+  for(const s of SSEG){if(s.hw>7)continue;for(let t=8;t<s.len-8;t+=17)for(const sg of[-1,1]){const off=s.hw+1.7;
+    const x=s.ax+s.ux*t-s.uz*sg*off,z=s.az+s.uz*t+s.ux*sg*off;if(!inCity(x,z)||!canStand(x,z,1.2)||!onGrass(x,z))continue;
+    cand.push({x,z,yaw:Math.atan2(s.ux,s.uz)+(R()<.5?0:Math.PI),d:Math.hypot(x-60,z+40)});}}
+  const spots=[];cand.sort((a,b)=>Math.hypot(a.x-40,a.z-138)-Math.hypot(b.x-40,b.z-138));if(cand.length)spots.push(cand[0]);
+  cand.sort((a,b)=>a.d-b.d);
+  for(const c of cand){if(spots.length>=12)break;if(spots.every(s=>Math.hypot(s.x-c.x,s.z-c.z)>110))spots.push(c);}
+  for(const sp of spots)horses.push({x:sp.x,z:sp.z,y:0,yaw:sp.yaw,energy:1,coat:pick(COATS),cloth:pick(CLOTH),ph:R()*6,onGrass:true,patrol:null,warned:false});
+  // mounted patrols: pairs of dragoons (light blue) and cuirassiers (white, black breastplate)
+  const pats=[];const long=SSEG.filter(s=>s.hw>=5&&s.hw<=6&&s.len>=150&&inCity(s.ax+s.ux*s.len/2,s.az+s.uz*s.len/2));
+  for(let k=0;k<5&&long.length;k++){const p=long[(k*7+2)%long.length];const pt={p,t:20+R()*(p.len-40),dir:R()<.5?1:-1,sp:3.4,halt:0,ph:R()*6,kind:k%2?'cuirassier':'dragoon',moving:true};pats.push(pt);
+    for(const lat of[-1.1,1.1])horses.push({x:0,z:0,y:0,yaw:0,energy:1,coat:pick(DARK),cloth:pt.kind==='dragoon'?C('#7b2230'):C('#1b2d55'),ph:0,patrol:pt,lat,onGrass:false});}
+  const nH=horses.length,riders=horses.filter(h=>h.patrol);
+  const box=new THREE.BoxGeometry(1,1,1);
+  const mk=(g,n,col,sh)=>{const m=inst(g,lambert({color:col||'#ffffff'}),n,sh);m.frustumCulled=false;return m;};
+  const M={body:mk(box,nH),neck:mk(box,nH,null,false),head:mk(box,nH,null,false),leg:mk(box,nH*4,null,false),tail:mk(box,nH,'#1e1a17',false),saddle:mk(box,nH,null,false),
+    rTorso:mk(new THREE.CylinderGeometry(.19,.27,1,10),riders.length),rHead:mk(new THREE.SphereGeometry(.2,12,8),riders.length,null,false),rTri:mk(new THREE.ConeGeometry(.29,.13,3),riders.length,'#1d1d1f',false),
+    rArm:mk(box,riders.length*2,null,false),rLeg:mk(box,riders.length*2,null,false),rPlate:mk(box,riders.length,'#1b1b1e',false)};
+  const SKINS=['#f1d2b6','#e8bf9b','#d9a77f','#c68c5f'].map(C);
+  horses.forEach((h,i)=>{M.body.setColorAt(i,h.coat);M.neck.setColorAt(i,h.coat);M.head.setColorAt(i,h.coat);M.saddle.setColorAt(i,h.cloth);
+    const dk=h.coat.clone().multiplyScalar(0.55);for(let k=0;k<4;k++)M.leg.setColorAt(i*4+k,dk);});
+  riders.forEach((h,j)=>{h.ri=j;const cu=h.patrol.kind==='cuirassier';const coat=cu?C('#e8e2cf'):C('#7fa6c9'),br=cu?C('#d9cfb0'):C('#d9c27a');
+    M.rTorso.setColorAt(j,coat);M.rHead.setColorAt(j,pick(SKINS));M.rArm.setColorAt(j*2,coat);M.rArm.setColorAt(j*2+1,coat);M.rLeg.setColorAt(j*2,br);M.rLeg.setColorAt(j*2+1,br);});
+  const base=new THREE.Matrix4(),loc=new THREE.Matrix4(),out=new THREE.Matrix4(),q=new THREE.Quaternion(),pos=new THREE.Vector3(),one=new THREE.Vector3(1,1,1),ps=new THREE.Vector3(),UP=new THREE.Vector3(0,1,0);
+  function part(mesh,i,px,py,pz,rx,oy,sx,sy,sz){loc.makeRotationX(rx);loc.scale(ps.set(sx,sy,sz));
+    loc.elements[12]=px;loc.elements[13]=py+Math.cos(rx)*oy;loc.elements[14]=pz+Math.sin(rx)*oy;out.multiplyMatrices(base,loc);mesh.setMatrixAt(i,out);}
+  const hy=(x,z)=>{const b=bridgeAt(x,z);return b?deckY(b.b,b.t):groundH(x,z);};
+  return function(dt,time){
+    for(const pt of pats){if(pt.halt>0){pt.halt-=dt;pt.moving=false;continue;}
+      pt.t+=pt.dir*pt.sp*dt;const cx=pt.p.ax+pt.p.ux*pt.t,cz=pt.p.az+pt.p.uz*pt.t;
+      if(pt.t<6||pt.t>pt.p.len-6||sdWater(cx,cz)<4){pt.t-=pt.dir*pt.sp*dt;pt.dir*=-1;pt.halt=2;pt.moving=false;continue;}
+      pt.ph+=dt*pt.sp*2.6;pt.moving=true;}
+    horses.forEach((h,i)=>{let moving=false,speed=0;
+      if(h.patrol){const pt=h.patrol,p=pt.p;h.x=p.ax+p.ux*pt.t-p.uz*h.lat;h.z=p.az+p.uz*pt.t+p.ux*h.lat;h.yaw=Math.atan2(p.ux*pt.dir,p.uz*pt.dir);moving=pt.moving;speed=pt.sp;h.ph=pt.ph;}
+      else if(h===HORSE.mounted){h.x=P.x;h.z=P.z;h.yaw=P.yaw+Math.PI;speed=HORSE.speed;moving=speed>0.3;if(moving)h.ph+=dt*(3+Math.min(speed,42)*0.32);}
+      else{if(h.onGrass)h.energy=Math.min(1,h.energy+dt/30);}
+      h.y=hy(h.x,h.z);
+      const grazing=!h.patrol&&h!==HORSE.mounted&&h.onGrass;
+      const sw=moving?Math.sin(h.ph)*0.42:0,bob=moving?Math.abs(Math.sin(h.ph))*0.07:0;
+      pos.set(h.x,h.y+bob,h.z);q.setFromAxisAngle(UP,h.yaw);base.compose(pos,q,one);
+      part(M.body,i,0,1.28,0,0,0,0.56,0.62,1.6);part(M.saddle,i,0,1.6,-0.05,0,0,0.76,0.1,0.82);
+      const a=grazing?2.0+Math.sin(time*0.7+h.ph)*0.08:0.55+(moving?Math.sin(h.ph*2)*0.05:Math.sin(time*0.5+h.ph)*0.04);
+      part(M.neck,i,0,1.42,0.62,a,0.42,0.26,0.85,0.36);
+      const ey=1.42+Math.cos(a)*0.85,ez=0.62+Math.sin(a)*0.85;part(M.head,i,0,ey+Math.cos(a)*0.08,ez+Math.sin(a)*0.08,a*0.5+0.35,0,0.22,0.27,0.6);
+      part(M.leg,i*4,-0.17,1.02,0.6,sw,-0.51,0.14,1.02,0.15);part(M.leg,i*4+1,0.17,1.02,0.6,-sw,-0.51,0.14,1.02,0.15);
+      part(M.leg,i*4+2,-0.17,1.02,-0.6,-sw,-0.51,0.15,1.02,0.16);part(M.leg,i*4+3,0.17,1.02,-0.6,sw,-0.51,0.15,1.02,0.16);
+      part(M.tail,i,0,1.5,-0.78,0.35+(moving?Math.sin(h.ph*2)*0.12:Math.sin(time*1.1+h.ph)*0.06),-0.38,0.1,0.75,0.1);
+      if(h.ri!==undefined){const j=h.ri,cu=h.patrol.kind==='cuirassier';
+        part(M.rTorso,j,0,1.7,-0.05,0,0.34,0.9,0.68,0.9);part(M.rHead,j,0,2.62,-0.05,0,0,1,1.05,1);part(M.rTri,j,0,2.8,-0.05,0,0,1,1,1);
+        part(M.rArm,j*2,-0.24,2.3,-0.02,-0.75,-0.3,0.1,0.6,0.11);part(M.rArm,j*2+1,0.24,2.3,-0.02,-0.75,-0.3,0.1,0.6,0.11);
+        part(M.rLeg,j*2,-0.33,1.78,0.02,-0.25,-0.44,0.14,0.88,0.15);part(M.rLeg,j*2+1,0.33,1.78,0.02,-0.25,-0.44,0.14,0.88,0.15);
+        if(cu)part(M.rPlate,j,0,2.1,0.16,0,0,0.44,0.44,0.08);else part(M.rPlate,j,0,2.1,0.16,0,0,0.001,0.001,0.001);}
+    });
+    for(const k in M)M[k].instanceMatrix.needsUpdate=true;};})();
+function toggleMount(){if(!started)return;const H=HORSE.mounted;
+  if(H){H.x=P.x;H.z=P.z;H.yaw=P.yaw+Math.PI;H.onGrass=onGrass(H.x,H.z);H.warned=false;HORSE.mounted=null;HORSE.speed=0;
+    for(const s of[1.9,-1.9]){const ox=P.x+Math.cos(P.yaw)*s,oz=P.z-Math.sin(P.yaw)*s;if(canStand(ox,oz)){P.x=ox;P.z=oz;break;}}
+    toast(H.onGrass?t('hGrazing'):t('hPark'));}
+  else{const h=nearestHorse(3.5);if(!h)return;HORSE.mounted=h;P.x=h.x;P.z=h.z;h.onGrass=false;}
+  updateHorseUI(true);}
+let horseUITick=0;
+function updateHorseUI(force){const H=HORSE.mounted;
+  $('horseUI').hidden=!H;
+  if(H){const pct=Math.round(H.energy*100);$('hPct').textContent=pct+'%';$('hFill').style.width=pct+'%';$('hFill').classList.toggle('low',H.energy<0.25);}
+  const near=!H&&started?nearestHorse(3.5):null;$('mountPrompt').hidden=!near;
+  if(near){$('mpPct').textContent=Math.round(near.energy*100)+'%';}
+  $('mountBtn').hidden=!(H||near);$('mountBtn').textContent=H?t('hDismount'):t('hMount');}
+
+/* Two famous townsfolk: Leonhard Euler (29) and young Immanuel Kant (12). Imagined conversations. */
+const FAMOUS=(function(){
+  const gold=new THREE.MeshBasicMaterial({color:'#f2c94c',fog:false});
+  const beamMat=new THREE.MeshBasicMaterial({color:'#f5d76e',transparent:true,opacity:0.22,depthWrite:false,fog:false});
+  const bubbleTex=(function(){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
+    g.fillStyle='#f4ecd8';g.strokeStyle='#b98a2a';g.lineWidth=6;g.beginPath();g.ellipse(64,56,50,42,0,0,7);g.fill();g.stroke();
+    g.beginPath();g.moveTo(52,92);g.lineTo(44,120);g.lineTo(72,94);g.fill();
+    g.fillStyle='#003153';g.font='bold 70px Georgia,serif';g.textAlign='center';g.textBaseline='middle';g.fillText('!',64,58);return new THREE.CanvasTexture(c);})();
+  const L=c=>lambert({color:c});
+  function box(w,h,d,m){const x=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);x.castShadow=true;return x;}
+  function build(o){const g=new THREE.Group();const coat=L(o.coat),br=L(o.breeches),skin=L('#ecc8a8'),white=L('#f4f1e8');
+    const limbs={};
+    for(const[k,x]of[['legL',-0.1],['legR',0.1]]){const p=new THREE.Group();p.position.set(x,0.86,0);const m=box(0.13,0.86,0.14,br);m.position.y=-0.43;p.add(m);
+      const shoe=box(0.15,0.08,0.26,L('#1d1a18'));shoe.position.set(0,-0.84,0.05);p.add(shoe);g.add(p);limbs[k]=p;}
+    const torso=new THREE.Mesh(new THREE.CylinderGeometry(.19,.32,.88,12),coat);torso.position.y=1.06;torso.castShadow=true;g.add(torso);
+    const vest=box(0.22,0.5,0.06,L(o.vest));vest.position.set(0,1.18,0.2);g.add(vest);
+    for(const[k,x]of[['armL',-0.27],['armR',0.27]]){const p=new THREE.Group();p.position.set(x,1.46,0);const m=box(0.11,0.6,0.12,coat);m.position.y=-0.29;p.add(m);
+      const cuff=box(0.15,0.12,0.15,L(o.trim));cuff.position.y=-0.5;p.add(cuff);g.add(p);limbs[k]=p;}
+    const collar=new THREE.Mesh(new THREE.CylinderGeometry(.09,.12,.12,8),white);collar.position.y=1.5;g.add(collar);
+    const head=new THREE.Mesh(new THREE.SphereGeometry(.2,16,12),skin);head.position.y=1.74;head.scale.set(1,1.06,1);g.add(head);
+    const hair=new THREE.Mesh(new THREE.SphereGeometry(.225,16,12),L(o.hair));hair.position.set(0,1.78,-0.05);hair.scale.set(1,0.95,1.02);g.add(hair);
+    if(o.curls)for(const x of[-0.2,0.2]){const cu=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.2,8),L(o.hair));cu.rotation.x=Math.PI/2;cu.position.set(x,1.68,-0.02);g.add(cu);}
+    if(o.hat){const tri=new THREE.Mesh(new THREE.ConeGeometry(.31,.14,3),L('#1d1d1f'));tri.position.y=1.97;g.add(tri);const lace=new THREE.Mesh(new THREE.TorusGeometry(.2,.015,4,3),L(o.trim));lace.rotation.x=Math.PI/2;lace.position.y=1.92;g.add(lace);}
+    if(o.carry){const b=box(0.26,0.05,0.34,L(o.carry));b.position.set(0,-0.5,0.12);b.rotation.x=0.3;limbs.armL.add(b);}
+    const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.17),gold);gem.position.y=2.42;g.add(gem);
+    const beam=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,60,8,1,true),beamMat);beam.position.y=32.6;g.add(beam);
+    const bubble=new THREE.Sprite(new THREE.SpriteMaterial({map:bubbleTex,transparent:true,depthTest:false}));bubble.scale.set(.7,.7,1);bubble.position.set(0.35,2.9,0);bubble.visible=false;g.add(bubble);
+    g.scale.setScalar(o.scale);scene.add(g);return{g,limbs,gem,bubble};}
+  const chars=[
+    {key:'euler',initial:'E',route:[[10,-48],[10,48]],sp:1.15,ph:0,...build({coat:'#8e2433',breeches:'#e6dcc2',vest:'#d8b24a',trim:'#d8b24a',hair:'#eeeae0',curls:true,hat:true,carry:'#5a3b24',scale:1})},
+    {key:'kant',initial:'K',route:[[-110,-205],[-18,-205]],sp:1.25,ph:2,...build({coat:'#3b4a5e',breeches:'#2f2f33',vest:'#e8e2cf',trim:'#e8e2cf',hair:'#6b4a2e',curls:false,hat:false,carry:'#7b2230',scale:0.74})}];
+  for(const c of chars){c.t=0;c.dir=1;c.pause=0;c.line=0;c.greeted=false;c.x=c.route[0][0];c.z=c.route[0][1];c.yaw=0;c.len=Math.hypot(c.route[1][0]-c.route[0][0],c.route[1][1]-c.route[0][1]);}
+  let talking=null;
+  function showTalk(c){const L=t('people')[c.key];$('talkName').textContent=L.name;$('talkRole').textContent=L.role;$('talkLine').textContent=L.lines[c.line%L.lines.length];
+    $('talkNext').textContent=t('talkNext')+(isTouch?'':' (F)');$('talk').hidden=false;}
+  function next(){if(!talking)return;talking.line++;showTalk(talking);}
+  $('talkNext').addEventListener('click',e=>{e.stopPropagation();next();});
+  function update(dt,time){let near=null,nd=4.6;
+    for(const c of chars){const d=Math.hypot(P.x-c.x,P.z-c.z),sc=c.g.scale.x;let walking=false;
+      if(!started||d>=45){c.bubble.visible=false;
+        if(c.pause>0)c.pause-=dt;else{c.t+=c.dir*c.sp*dt;if(c.t<0||c.t>c.len){c.dir*=-1;c.t=clamp(c.t,0,c.len);c.pause=3+R()*3;}
+          const[a,b]=c.route,ux=(b[0]-a[0])/c.len,uz=(b[1]-a[1])/c.len;c.x=a[0]+ux*c.t;c.z=a[1]+uz*c.t;c.yaw=Math.atan2(ux*c.dir,uz*c.dir);walking=true;}}
+      else{c.yaw=Math.atan2(P.x-c.x,P.z-c.z);if(!c.greeted){c.greeted=true;toast(t('wave')(t('people')[c.key].name),3600);}
+        c.bubble.visible=d>=4.6;if(d<nd){nd=d;near=c;}}
+      if(d>90)c.greeted=false;
+      if(walking)c.ph+=dt*c.sp*4.2;
+      const sw=walking?Math.sin(c.ph)*0.5:0,waving=started&&d<45&&d>=4.6;
+      c.limbs.legL.rotation.x=sw;c.limbs.legR.rotation.x=-sw;c.limbs.armL.rotation.x=-sw*0.6;
+      if(waving){c.limbs.armR.rotation.x=-2.75;c.limbs.armR.rotation.z=0.35*Math.sin(time*9);}else{c.limbs.armR.rotation.x=sw*0.6;c.limbs.armR.rotation.z=0;}
+      const y=groundH(c.x,c.z)+(walking?Math.abs(Math.cos(c.ph))*0.04*sc:0);
+      c.g.position.set(c.x,y,c.z);c.g.rotation.y=c.yaw;c.gem.rotation.y=time*1.6;c.gem.position.y=2.42+Math.sin(time*2)*0.06;}
+    if(near!==talking){talking=near;if(near){near.line=near.seen?near.line+1:0;near.seen=true;showTalk(near);}else $('talk').hidden=true;}}
+  return{update,next,chars,refresh(){if(talking)showTalk(talking);},hide(){talking=null;$('talk').hidden=true;}};})();
 
 /* ---------------- Tally ---------------- */
 const counts=BR.map(()=>0);let total=0,broken=-1,allDone=false;
@@ -819,6 +1172,55 @@ function updatePlace(onB){let name,sub;const L=I18N[LANG];
   BR.forEach(b=>{if(!onB||onB.b!==b)b.li.classList.remove('here');});
   const key=LANG+name+sub;if(key!==lastPlace){lastPlace=key;$('placeName').textContent=name;$('placeSub').textContent=sub;$('regionTag').textContent=L.reg[region(P.x,P.z)][0].split(/ & | и | i | et |と|與|와/)[0];}}
 
+/* ---------------- Music (generated in the browser) ---------------- */
+const PRELUDE_DATA=[0,8,60,1,3,64,2,1,67,3,1,72,4,1,76,4,4,64,5,1,67,6,1,72,7,1,76,8,8,60,9,3,64,10,1,67,11,1,72,12,1,76,12,4,64,13,1,67,14,1,72,15,1,76,16,8,60,17,3,62,18,1,69,19,1,74,20,1,77,20,4,62,21,1,69,22,1,74,23,1,77,24,8,60,25,3,62,26,1,69,27,1,74,28,1,77,28,4,62,29,1,69,30,1,74,31,1,77,32,8,59,33,3,62,34,1,67,35,1,74,36,1,77,36,4,62,37,1,67,38,1,74,39,1,77,40,8,59,41,3,62,42,1,67,43,1,74,44,1,77,44,4,62,45,1,67,46,1,74,47,1,77,48,8,60,49,3,64,50,1,67,51,1,72,52,1,76,52,4,64,53,1,67,54,1,72,55,1,76,56,8,60,57,3,64,58,1,67,59,1,72,60,1,76,60,4,64,61,1,67,62,1,72,63,1,76,64,8,60,65,3,64,66,1,69,67,1,76,68,1,81,68,4,64,69,1,69,70,1,76,71,1,81,72,8,60,73,3,64,74,1,69,75,1,76,76,1,81,76,4,64,77,1,69,78,1,76,79,1,81,80,8,60,81,3,62,82,1,66,83,1,69,84,1,74,84,4,62,85,1,66,86,1,69,87,1,74,88,8,60,89,3,62,90,1,66,91,1,69,92,1,74,92,4,62,93,1,66,94,1,69,95,1,74,96,8,59,97,3,62,98,1,67,99,1,74,100,1,79,100,4,62,101,1,67,102,1,74,103,1,79,104,8,59,105,3,62,106,1,67,107,1,74,108,1,79,108,4,62,109,1,67,110,1,74,111,1,79,112,8,59,113,3,60,114,1,64,115,1,67,116,1,72,116,4,60,117,1,64,118,1,67,119,1,72,120,8,59,121,3,60,122,1,64,123,1,67,124,1,72,124,4,60,125,1,64,126,1,67,127,1,72,128,8,57,129,3,60,130,1,64,131,1,67,132,1,72,132,4,60,133,1,64,134,1,67,135,1,72,136,8,57,137,3,60,138,1,64,139,1,67,140,1,72,140,4,60,141,1,64,142,1,67,143,1,72,144,8,50,145,3,57,146,1,62,147,1,66,148,1,72,148,4,57,149,1,62,150,1,66,151,1,72,152,8,50,153,3,57,154,1,62,155,1,66,156,1,72,156,4,57,157,1,62,158,1,66,159,1,72,160,8,55,161,3,59,162,1,62,163,1,67,164,1,71,164,4,59,165,1,62,166,1,67,167,1,71,168,8,55,169,3,59,170,1,62,171,1,67,172,1,71,172,4,59,173,1,62,174,1,67,175,1,71,176,8,55,177,3,58,178,1,64,179,1,67,180,1,73,180,4,58,181,1,64,182,1,67,183,1,73,184,8,55,185,3,58,186,1,64,187,1,67,188,1,73,188,4,58,189,1,64,190,1,67,191,1,73,192,8,53,193,3,57,194,1,62,195,1,69,196,1,74,196,4,57,197,1,62,198,1,69,199,1,74,200,8,53,201,3,57,202,1,62,203,1,69,204,1,74,204,4,57,205,1,62,206,1,69,207,1,74,208,8,53,209,3,56,210,1,62,211,1,65,212,1,71,212,4,56,213,1,62,214,1,65,215,1,71,216,8,53,217,3,56,218,1,62,219,1,65,220,1,71,220,4,56,221,1,62,222,1,65,223,1,71,224,8,52,225,3,55,226,1,60,227,1,67,228,1,72,228,4,55,229,1,60,230,1,67,231,1,72,232,8,52,233,3,55,234,1,60,235,1,67,236,1,72,236,4,55,237,1,60,238,1,67,239,1,72,240,8,52,241,3,53,242,1,57,243,1,60,244,1,65,244,4,53,245,1,57,246,1,60,247,1,65,248,8,52,249,3,53,250,1,57,251,1,60,252,1,65,252,4,53,253,1,57,254,1,60,255,1,65,256,8,50,257,3,53,258,1,57,259,1,60,260,1,65,260,4,53,261,1,57,262,1,60,263,1,65,264,8,50,265,3,53,266,1,57,267,1,60,268,1,65,268,4,53,269,1,57,270,1,60,271,1,65,272,8,43,273,3,50,274,1,55,275,1,59,276,1,65,276,4,50,277,1,55,278,1,59,279,1,65,280,8,43,281,3,50,282,1,55,283,1,59,284,1,65,284,4,50,285,1,55,286,1,59,287,1,65,288,8,48,289,3,52,290,1,55,291,1,60,292,1,64,292,4,52,293,1,55,294,1,60,295,1,64,296,8,48,297,3,52,298,1,55,299,1,60,300,1,64,300,4,52,301,1,55,302,1,60,303,1,64,304,8,48,305,3,55,306,1,58,307,1,60,308,1,64,308,4,55,309,1,58,310,1,60,311,1,64,312,8,48,313,3,55,314,1,58,315,1,60,316,1,64,316,4,55,317,1,58,318,1,60,319,1,64,320,8,41,321,3,53,322,1,57,323,1,60,324,1,64,324,4,53,325,1,57,326,1,60,327,1,64,328,8,41,329,3,53,330,1,57,331,1,60,332,1,64,332,4,53,333,1,57,334,1,60,335,1,64,336,8,42,337,3,48,338,1,57,339,1,60,340,1,63,340,4,48,341,1,57,342,1,60,343,1,63,344,8,42,345,3,48,346,1,57,347,1,60,348,1,63,348,4,48,349,1,57,350,1,60,351,1,63,352,8,44,353,3,53,354,1,59,355,1,60,356,1,62,356,4,53,357,1,59,358,1,60,359,1,62,360,8,44,361,3,53,362,1,59,363,1,60,364,1,62,364,4,53,365,1,59,366,1,60,367,1,62,368,8,43,369,3,53,370,1,55,371,1,59,372,1,62,372,4,53,373,1,55,374,1,59,375,1,62,376,8,43,377,3,53,378,1,55,379,1,59,380,1,62,380,4,53,381,1,55,382,1,59,383,1,62,384,8,43,385,3,52,386,1,55,387,1,60,388,1,64,388,4,52,389,1,55,390,1,60,391,1,64,392,8,43,393,3,52,394,1,55,395,1,60,396,1,64,396,4,52,397,1,55,398,1,60,399,1,64,400,8,43,401,3,50,402,1,55,403,1,59,404,1,65,404,4,50,405,1,55,406,1,59,407,1,65,408,8,43,409,3,50,410,1,55,411,1,59,412,1,65,412,4,50,413,1,55,414,1,59,415,1,65,416,8,43,417,3,51,418,1,57,419,1,60,420,1,66,420,4,51,421,1,57,422,1,60,423,1,66,424,8,43,425,3,51,426,1,57,427,1,60,428,1,66,428,4,51,429,1,57,430,1,60,431,1,66,432,8,43,433,3,52,434,1,55,435,1,60,436,1,67,436,4,52,437,1,55,438,1,60,439,1,67,440,8,43,441,3,52,442,1,55,443,1,60,444,1,67,444,4,52,445,1,55,446,1,60,447,1,67,448,8,43,449,3,50,450,1,55,451,1,60,452,1,65,452,4,50,453,1,55,454,1,60,455,1,65,456,8,43,457,3,50,458,1,55,459,1,60,460,1,65,460,4,50,461,1,55,462,1,60,463,1,65,464,8,43,465,3,50,466,1,55,467,1,59,468,1,65,468,4,50,469,1,55,470,1,59,471,1,65,472,8,43,473,3,50,474,1,55,475,1,59,476,1,65,476,4,50,477,1,55,478,1,59,479,1,65];
+const CHORALE_DATA=[0,4,55,0,4,58,0,4,63,0,8,51,4,4,58,4,4,63,4,4,67,8,2,51,8,4,63,8,4,67,8,6,70,10,2,55,12,2,58,12,4,62,12,4,65,14,2,56,14,2,70,16,2,55,16,4,63,16,4,67,16,4,70,18,2,53,20,2,51,20,4,58,20,4,65,20,4,70,22,2,50,24,2,51,24,4,58,24,4,67,24,8,72,26,2,48,28,4,53,28,4,57,28,4,65,32,11,46,32,11,62,32,11,65,32,11,70,47,2,58,47,4,62,47,4,65,47,4,70,49,2,56,51,2,55,51,4,63,51,4,75,51,6,70,53,2,56,55,2,55,55,4,63,55,4,70,57,2,53,57,2,68,59,2,67,59,2,75,59,4,51,59,4,58,61,2,68,61,2,77,63,4,63,63,4,63,63,4,70,63,4,79,67,2,62,67,4,65,67,4,70,67,4,77,69,2,60,71,2,58,71,4,65,71,4,75,71,6,72,73,2,57,75,4,58,75,4,74,75,6,65,77,4,70,79,4,53,79,4,72,81,2,60,81,2,69,83,11,46,83,11,62,83,11,65,83,11,70,98,2,51,98,4,63,98,4,67,98,4,70,100,2,49,102,2,48,102,4,68,102,4,75,102,6,63,104,2,50,106,4,51,106,4,67,106,4,70,108,2,61,110,2,44,110,4,60,110,4,63,110,4,72,112,2,46,114,4,48,114,4,60,114,4,63,114,4,67,118,2,60,118,2,68,118,4,41,118,4,63,120,2,58,120,2,67,122,4,46,122,4,56,122,4,62,122,4,65,126,7,39,126,7,55,126,7,58,126,7,63,133,4,50,133,4,58,133,4,65,133,4,70,137,2,63,137,4,51,137,6,67,137,6,70,139,2,62,141,2,60,141,4,53,143,2,62,143,2,65,143,2,68,145,2,55,145,2,58,145,4,63,145,4,67,147,2,56,147,2,60,149,2,58,149,2,58,149,4,62,149,4,65,151,2,46,151,2,56,153,11,48,153,11,55,153,11,60,153,11,63,168,2,62,168,4,55,168,4,58,168,4,70,170,2,63,172,2,50,172,2,58,172,4,65,172,6,70,174,2,48,174,2,60,176,4,46,176,4,62,176,6,65,178,2,68,180,2,51,180,2,58,180,4,67,182,2,48,182,4,60,182,4,63,184,2,44,184,4,65,186,2,46,186,2,58,186,2,62,188,11,51,188,11,55,188,11,58,188,11,63,203,2,58,203,4,58,203,4,62,203,4,65,205,2,56,207,4,55,207,4,58,207,4,67,207,6,63,211,2,60,211,4,53,211,4,68,213,2,56,213,2,62,215,7,51,215,7,58,215,7,63,215,7,67,222,4,63,222,4,63,222,4,67,222,4,70,226,2,67,226,4,57,226,4,63,226,4,72,228,4,65,230,4,59,230,4,62,230,4,74,232,2,67,234,7,60,234,7,60,234,7,67,234,7,75,241,2,67,241,2,75,241,4,60,241,4,63,243,2,68,243,2,77,245,2,55,245,4,63,245,4,79,245,6,70,247,2,56,249,4,58,249,4,62,249,4,77,251,2,68,253,7,48,253,7,63,253,7,67,253,7,75,260,2,51,260,2,67,260,4,63,260,4,70,262,2,53,262,2,68,264,2,55,264,2,70,264,4,58,264,4,75,266,2,53,266,2,68,268,2,55,268,2,70,268,4,63,268,4,70,270,2,51,270,2,67,272,2,44,272,4,68,272,4,72,272,6,63,274,2,46,276,4,48,276,4,63,276,4,67,278,2,60,280,2,60,280,2,68,280,4,41,280,4,63,282,2,58,282,2,67,284,4,46,284,4,56,284,4,62,284,4,65,288,8,39,288,8,55,288,8,58,288,8,63],CHORALE_LOOPQ=74.75;
+const Music=(function(){
+  const TRACKS=['off','prelude','chorale'];
+  let track='prelude',ctx=null,master,bus,timer=null,idx=0,loopStart=0;
+  try{const sv=localStorage.getItem('kb1736-music');if(TRACKS.includes(sv))track=sv;}catch(_){}
+  const SPQ=60/62,LOOPQ=120,VOL=0.9;      // Prelude in C, bars 1-30 (ends on G7, returns to C)
+  const hz=m=>440*Math.pow(2,(m-69)/12);
+  function init(){if(ctx)return true;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;
+    try{ctx=new AC();}catch(_){return false;}
+    master=ctx.createGain();master.gain.value=0;master.connect(ctx.destination);
+    const len=Math.floor(ctx.sampleRate*2.8),ir=ctx.createBuffer(2,len,ctx.sampleRate);
+    for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6);}
+    const verb=ctx.createConvolver();verb.buffer=ir;const wet=ctx.createGain();wet.gain.value=0.3;const dry=ctx.createGain();dry.gain.value=0.85;
+    bus=ctx.createGain();bus.connect(dry);bus.connect(verb);verb.connect(wet);wet.connect(master);dry.connect(master);
+    document.addEventListener('visibilitychange',()=>{if(!ctx)return;if(document.hidden)ctx.suspend();else if(track!=='off')ctx.resume();});
+    return true;}
+  function harpsi(t,m,d,v){const f=hz(m);const o1=ctx.createOscillator(),o2=ctx.createOscillator(),g2=ctx.createGain(),lp=ctx.createBiquadFilter(),g=ctx.createGain();
+    o1.type='sawtooth';o1.frequency.value=f;o2.type='square';o2.frequency.value=f*2;o2.detune.value=5;g2.gain.value=0.22;
+    lp.type='lowpass';lp.Q.value=1.6;lp.frequency.setValueAtTime(Math.min(9000,f*10),t);lp.frequency.exponentialRampToValueAtTime(Math.max(500,f*2.4),t+0.4);
+    const pk=0.075*v*(m<50?1.3:1),end=t+Math.min(Math.max(d,0.35)+0.35,3.5);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(pk,t+0.004);g.gain.exponentialRampToValueAtTime(pk*0.4,t+0.22);g.gain.exponentialRampToValueAtTime(0.0001,end);
+    o1.connect(lp);o2.connect(g2);g2.connect(lp);lp.connect(g);g.connect(bus);o1.start(t);o2.start(t);o1.stop(end+0.05);o2.stop(end+0.05);}
+  // Organ voice for the chorale: additive pipes with a soft attack
+  function organ(t,m,d,v){const f=hz(m),end=t+d,g=ctx.createGain();const pk=0.032*v*(m<52?1.2:1);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(pk,t+0.05);g.gain.setValueAtTime(pk,Math.max(t+0.06,end-0.04));g.gain.exponentialRampToValueAtTime(0.0001,end+0.18);g.connect(bus);
+    [[1,1],[2,0.45],[3,0.18],[4,0.14],[0.5,m<55?0.35:0.12]].forEach(([r,a])=>{const o=ctx.createOscillator();o.type='sine';o.frequency.value=f*r;o.detune.value=(Math.random()-.5)*4;
+      const og=ctx.createGain();og.gain.value=a;o.connect(og);og.connect(g);o.start(t);o.stop(end+0.25);});}
+  function tick(){if(!ctx||track==='off')return;const ahead=ctx.currentTime+0.3;
+    if(track==='prelude'){let guard=0;while(guard++<64){const e=idx*3,t=loopStart+PRELUDE_DATA[e]/4*SPQ;if(t>ahead)break;
+        const on=PRELUDE_DATA[e];harpsi(t,PRELUDE_DATA[e+2],PRELUDE_DATA[e+1]/4*SPQ,on%16===0?1:0.78);idx++;if(idx*3>=PRELUDE_DATA.length){idx=0;loopStart+=LOOPQ*SPQ;}}}
+    else if(track==='chorale'){const SQ=60/66;let guard=0;while(guard++<64){const e=idx*3,t=loopStart+CHORALE_DATA[e]/4*SQ;if(t>ahead)break;
+        organ(t,CHORALE_DATA[e+2],CHORALE_DATA[e+1]/4*SQ*0.97,1);idx++;if(idx*3>=CHORALE_DATA.length){idx=0;loopStart+=CHORALE_LOOPQ*SQ;}}}}
+  function begin(){if(track==='off'||!init())return;if(ctx.state==='suspended')ctx.resume();const t=ctx.currentTime+0.15;
+    idx=0;loopStart=t;
+    master.gain.cancelScheduledValues(ctx.currentTime);master.gain.setValueAtTime(master.gain.value,ctx.currentTime);master.gain.linearRampToValueAtTime(VOL,t+0.6);
+    if(!timer)timer=setInterval(tick,60);tick();}
+  function stop(){if(!ctx)return;master.gain.cancelScheduledValues(ctx.currentTime);master.gain.setValueAtTime(master.gain.value,ctx.currentTime);master.gain.linearRampToValueAtTime(0,ctx.currentTime+0.3);
+}
+  return{get track(){return track;},
+    set(code){if(!TRACKS.includes(code))return;stop();track=code;try{localStorage.setItem('kb1736-music',code);}catch(_){}
+      if(code!=='off'){if(ctx)setTimeout(begin,350);else begin();}},
+    start(){if(!ctx||master.gain.value<0.01)begin();}};
+})();
+
+function renderMusic(){for(const id of['musicIntro','musicHud']){const box=$(id);box.innerHTML='';
+  for(const[code,key]of[['off','mOff'],['prelude','mPrelude'],['chorale','mChorale']]){const bt=document.createElement('button');bt.type='button';bt.textContent=t(key);
+    bt.setAttribute('aria-pressed',Music.track===code);bt.addEventListener('click',()=>{Music.set(code);renderMusic();});box.appendChild(bt);}}}
 /* Language switching */
 function renderLangButtons(){for(const id of['langIntro','langHud']){const box=$(id);box.innerHTML='';
   for(const[code,full,short]of LANGS){const bt=document.createElement('button');bt.type='button';bt.lang=code;bt.textContent=id==='langHud'?short:full;bt.title=full;
@@ -827,7 +1229,8 @@ function setLang(code){LANG=code;try{localStorage.setItem('kb1736-lang',code);}c
   document.documentElement.lang=code;
   document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=t(el.dataset.i18n);});
   document.title=({ru:'Кёнигсберг 1736',pl:'Królewiec 1736','zh-Hant':'柯尼斯堡 1736',ja:'ケーニヒスベルク 1736',ko:'쾨니히스베르크 1736'})[code]||'Königsberg 1736';
-  renderLangButtons();renderList();updateHUD();lastPlace='';if(typeof setBeginLabel==='function')setBeginLabel();if(started)updatePlace(bridgeAt(P.x,P.z));}
+  $('hint').textContent=t('hint').replace(/(\s?(?:·|・)\s?)M /,(m,sep)=>sep+'E '+t('hShort')+sep+'M ');
+  renderLangButtons();renderMusic();renderList();if(typeof updateHorseUI==='function')updateHorseUI();if(typeof FAMOUS!=='undefined')FAMOUS.refresh();updateHUD();lastPlace='';if(typeof setBeginLabel==='function')setBeginLabel();if(started)updatePlace(bridgeAt(P.x,P.z));}
 
 /* ---------------- Minimap ---------------- */
 const MAP={x0:-650,x1:710,z0:-460,z1:447};
@@ -859,6 +1262,11 @@ function drawMap(){const W=mapC.width,H=mapC.height;if(!W)return;const big=$('ma
     if(big){const dpr=W/mapC.getBoundingClientRect().width;const fs=Math.round(15*dpr);mctx.font=`700 ${fs}px "Cormorant Garamond", Georgia, serif`;mctx.textAlign='center';
       const lx=X(b.x)+(b.ux?0:(b.num==='VI'||b.num==='V'?1:-1)*fs*1.3),lz=Z(b.z)+(b.ux?-fs*1.1:fs*0.35);const txt=b.num+(c?' ×'+c:'');
       mctx.lineWidth=4*dpr;mctx.strokeStyle='rgba(244,236,216,.9)';mctx.strokeText(txt,lx,lz);mctx.fillStyle='#13202c';mctx.fillText(txt,lx,lz);}}
+  const hr=Math.max(2.5,3*(W/mapC.getBoundingClientRect().width||1));
+  for(const h of horses){if(h.patrol||h===HORSE.mounted)continue;mctx.beginPath();mctx.arc(X(h.x),Z(h.z),hr,0,7);mctx.fillStyle=h.energy<0.25?'#c9604a':'#6b3f22';mctx.fill();mctx.lineWidth=Math.max(1,hr*0.45);mctx.strokeStyle='#f4ecd8';mctx.stroke();}
+  {const dp=W/(mapC.getBoundingClientRect().width||1),fr=Math.max(5,6.5*dp);mctx.font=`700 ${Math.round(fr*1.25)}px "Cormorant Garamond", Georgia, serif`;mctx.textAlign='center';mctx.textBaseline='middle';
+   for(const c of FAMOUS.chars){const cx=X(c.x),cz=Z(c.z);mctx.beginPath();mctx.arc(cx,cz,fr,0,7);mctx.fillStyle='#f2c94c';mctx.fill();mctx.lineWidth=Math.max(1.5,dp);mctx.strokeStyle='#13202c';mctx.stroke();mctx.fillStyle='#13202c';mctx.fillText(c.initial,cx,cz+fr*0.08);}
+   mctx.textBaseline='alphabetic';}
   const px=X(P.x),pz=Z(P.z),fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw);const s=Math.max(5,7*u*(big?.55:1));
   mctx.fillStyle='rgba(178,58,42,.18)';mctx.beginPath();mctx.moveTo(px,pz);const a0=Math.atan2(fz,fx);mctx.arc(px,pz,s*5,a0-0.6,a0+0.6);mctx.closePath();mctx.fill();
   mctx.save();mctx.translate(px,pz);mctx.rotate(a0+Math.PI/2);mctx.fillStyle='#b23a2a';mctx.strokeStyle='#fff';mctx.lineWidth=1.5;
@@ -881,7 +1289,9 @@ window.addEventListener('pointerup',e=>{if(e.pointerType==='mouse')mouseDown=fal
 window.addEventListener('pointercancel',e=>{if(e.pointerId===lookId)lookId=null;});
 window.addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;keys[e.code]=true;
   if(started&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();
-  if(started&&e.code==='KeyM')toggleMap();});
+  if(started&&e.code==='KeyM')toggleMap();
+  if(started&&e.code==='KeyE'&&!e.repeat)toggleMount();
+  if(started&&e.code==='KeyF'&&!e.repeat)FAMOUS.next();});
 window.addEventListener('keyup',e=>{keys[e.code]=false;});
 window.addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
 const stick=$('stick'),knob=$('knob');const joy={id:null,x:0,y:0};
@@ -896,17 +1306,19 @@ $('begin').addEventListener('click',()=>{const first=!everStarted;started=true;e
   if(first)P.pitch=0.02;
   if(!isTouch&&cvs.requestPointerLock){try{const p=cvs.requestPointerLock();if(p&&p.catch)p.catch(()=>{});}catch(_){}}
   cvs.focus();
+  Music.start();
   if(first)setTimeout(()=>toast(t('welcome')),600);});
 function openMenu(){started=false;mouseDown=false;lookId=null;joy.id=null;joy.x=joy.y=0;knob.style.transform='';for(const k in keys)keys[k]=false;
   if(locked()&&document.exitPointerLock)document.exitPointerLock();
   $('mapwrap').classList.remove('big');$('toast').classList.remove('show');$('hud').hidden=true;$('intro').hidden=false;setBeginLabel();$('begin').focus();}
-$('menu').addEventListener('click',openMenu);
+$('menu').addEventListener('click',()=>{FAMOUS.hide();openMenu();});
+$('mountBtn').addEventListener('click',e=>{e.stopPropagation();toggleMount();});
 setLang(LANG);
 
 window.addEventListener('resize',()=>{renderer.setSize(app.clientWidth,app.clientHeight);camera.aspect=app.clientWidth/app.clientHeight;camera.updateProjectionMatrix();sizeMap();});
 
 /* ---------------- Loop ---------------- */
-const clock=new THREE.Clock();let time=0,mapTick=0;
+const clock=new THREE.Clock();let time=0,mapTick=0,movedAt=-9,isMoving=false;
 const baseYaw=P.yaw;
 function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),0.05);time+=dt;
   if(started){
@@ -917,16 +1329,21 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
     mf+=-joy.y;ms+=joy.x;
     const m=Math.hypot(mf,ms);if(m>1){mf/=m;ms/=m;}
     const run=keys.ShiftLeft||keys.ShiftRight||Math.hypot(joy.x,joy.y)>0.92;
-    const sp=(run?42:19.5)*dt;
+    const H=HORSE.mounted,tired=H&&H.energy<=0,gallop=H&&run&&!tired;
+    const sp=(H?(tired?6.5:gallop?42:19.5):(run?14:6.5))*dt;
     const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw),rx=Math.cos(P.yaw),rz=-Math.sin(P.yaw);
     const dx=(fx*mf+rx*ms)*sp,dz=(fz*mf+rz*ms)*sp;
     const sub=Math.max(1,Math.ceil(Math.hypot(dx,dz)/0.4));
-    for(let k=0;k<sub;k++){if(dx&&canStand(P.x+dx/sub,P.z))P.x+=dx/sub;if(dz&&canStand(P.x,P.z+dz/sub))P.z+=dz/sub;trackBridges();}
+    const ox=P.x,oz=P.z;
+    const rr=H?0.9:0.35;
+    for(let k=0;k<sub;k++){if(dx&&canStand(P.x+dx/sub,P.z,rr))P.x+=dx/sub;if(dz&&canStand(P.x,P.z+dz/sub,rr))P.z+=dz/sub;trackBridges();}
+    const moved=Math.hypot(P.x-ox,P.z-oz);if(moved>0)movedAt=time;
+    if(H){HORSE.speed=dt>0?moved/dt:0;if(moved>0){H.energy=Math.max(0,H.energy-dt*(gallop?1/60:1/180));if(H.energy<=0&&!H.warned){H.warned=true;toast(t('hTired'),4200);}}}
   }else if(!everStarted&&!reduceMotion){P.yaw=baseYaw+Math.sin(time*0.12)*0.28;}
   const onB=bridgeAt(P.x,P.z);
-  const gy=(onB?deckY(onB.b,onB.t):groundH(P.x,P.z))+1.7;
+  const gy=(onB?deckY(onB.b,onB.t):groundH(P.x,P.z))+(HORSE.mounted?2.75:1.7);
   P.y+=(gy-P.y)*Math.min(1,dt*10);
-  camera.position.set(P.x,P.y,P.z);camera.rotation.set(P.pitch,P.yaw,0);
+  if(HORSE.mounted)camera.position.set(P.x+Math.sin(P.yaw)*0.35,P.y,P.z+Math.cos(P.yaw)*0.35);else camera.position.set(P.x,P.y,P.z);camera.rotation.set(P.pitch,P.yaw,0);
   sky.position.copy(camera.position);
   sun.position.set(P.x+SUN.x*500,SUN.y*500,P.z+SUN.z*500);sun.target.position.set(P.x,0,P.z);sun.target.updateMatrixWorld();
   if(!reduceMotion){
@@ -936,11 +1353,13 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
     for(const c of clouds){c.position.x+=dt*4;if(c.position.x>2400)c.position.x=-2400;}
     animateBirds(time,dt);
   }
-  npcUpdate(dt,time);
+  npcUpdate(dt,time);horseUpdate(dt,time);FAMOUS.update(dt,time);
+  horseUITick+=dt;if(started&&horseUITick>0.15){horseUITick=0;updateHorseUI();}
+  const mv=started&&time-movedAt<0.25;if(mv!==isMoving){isMoving=mv;document.body.classList.toggle('moving',mv);}
   if(started){updatePlace(onB);mapTick+=dt;if(mapTick>1/20){mapTick=0;drawMap();}}
   renderer.render(scene,camera);}
 frame();
-window.__kb={P,BR,houses,trees,counts,canStand,step(){trackBridges();}};
+window.__kb={FAMOUS,P,BR,houses,trees,counts,canStand,npcs,horses,HORSE,toggleMount,step(){trackBridges();}};
 })();
 </script>
 
