@@ -32,7 +32,7 @@ html:lang(zh-Hant) #intro h1,html:lang(ja) #intro h1,html:lang(ko) #intro h1{fon
 button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
 /* Intro */
-#intro{position:fixed;inset:0;display:flex;overflow-y:auto;padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));
+#intro{position:fixed;inset:0;display:flex;overflow-y:auto;padding:24px max(16px,env(safe-area-inset-right,0px)) 52px max(16px,env(safe-area-inset-left,0px));
   background:radial-gradient(ellipse at 50% 40%,rgba(0,49,83,.35),rgba(3,14,26,.86) 70%);z-index:20}
 #intro .panel{max-width:540px;width:100%;text-align:left;margin:auto}
 .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
@@ -93,6 +93,10 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 #toast.show{transform:translate(-50%,0);visibility:visible;transition:transform .35s ease}
 #toast b{font-family:var(--display);font-size:17px;color:var(--prussian)}
 
+#credit{position:fixed;z-index:21;left:calc(14px + env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));font-size:12px;color:rgba(244,236,216,.78);text-shadow:0 1px 6px rgba(0,0,0,.85);max-width:calc(100vw - 28px)}
+#credit a{color:var(--gold);text-decoration:underline;text-underline-offset:2px}
+#credit a:hover{color:#f5d585}
+@media (pointer:coarse){#credit{left:auto;right:calc(14px + env(safe-area-inset-right,0px));text-align:right;max-width:55vw}}
 #cross{position:fixed;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:rgba(244,236,216,.75);z-index:3;pointer-events:none;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
 #hint{position:fixed;z-index:4;right:calc(14px + env(safe-area-inset-right,0px));text-align:right;bottom:calc(14px + env(safe-area-inset-bottom,0px));font-size:12px;color:rgba(244,236,216,.75);text-shadow:0 1px 6px rgba(0,0,0,.8);pointer-events:none;line-height:1.6}
 #stick{display:none;position:fixed;z-index:6;left:calc(22px + env(safe-area-inset-left,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));width:116px;height:116px;border-radius:50%;
@@ -155,6 +159,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
   <div id="stick"><div id="knob"></div></div>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
+<footer id="credit">© 2026 Königsberger Brückeninstitut MTÜ. Follow on <a href="https://www.linkedin.com/company/kbi-eu/" target="_blank" rel="noopener">LinkedIn</a>.</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -320,7 +325,7 @@ function roofParts(L,S,H,oL,oS,tu,tv){const P=[],U=[];const a=L/2+oL,b=S/2+oS,e=
   for(let i=0;i<G.length;i+=3)GU.push((G[i+2]+s)/tu,G[i+1]/tv);
   return{slopes:geoFrom(P,U),gables:geoFrom(G,GU)};}
 const D=new THREE.Object3D();
-function inst(geo,mat,n,shadow){const m=new THREE.InstancedMesh(geo,mat,Math.max(n,1));m.count=n;if(shadow!==false){m.castShadow=true;m.receiveShadow=true;}scene.add(m);return m;}
+function inst(geo,mat,n,shadow){const m=new THREE.InstancedMesh(geo,mat,Math.max(n,1));m.count=n;m.frustumCulled=false;if(shadow!==false){m.castShadow=true;m.receiveShadow=true;}scene.add(m);return m;}
 function put(m,i,x,y,z,ry,sx,sy,sz,col,rz){D.position.set(x,y,z);D.rotation.order='YZX';D.rotation.set(0,ry||0,rz||0);D.scale.set(sx,sy,sz);D.updateMatrix();m.setMatrixAt(i,D.matrix);if(col)m.setColorAt(i,col);}
 const C=h=>new THREE.Color(h);
 function lambert(o){return new THREE.MeshLambertMaterial(o);}
@@ -695,6 +700,89 @@ const bShort=b=>I18N[LANG].localName?I18N[LANG].gloss[b.i].replace(/ мост$/,
 const bDir=b=>t('dirs')[b.i];
 function bSub(b){const L=I18N[LANG];const parts=[b.num];if(L.localName)parts.push(b.name);else if(L.gloss)parts.push(L.gloss[b.i]);parts.push(L.river[b.river]);return parts.join(' · ');}
 
+
+/* Citizens of 1736: tricorns, frock coats, gowns and a few Prussian soldiers, with emoji faces */
+const npcs=[];const npcUpdate=(function(){
+  const EMO=['😀','😃','😄','😁','😆','😅','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😋','😛','😜','🤪','🤨','🧐','🤓','😎','😏','😒','🙄','😬','😌','😔','😪','😴','🤠','🥳','😮','😯','😲','😳','🥺','😶','😐','😑','😤','😺','🤡','😙','😚','🙂','😗'];
+  const faceMat={};
+  function face(e){if(faceMat[e])return faceMat[e];const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
+    g.textAlign='center';g.textBaseline='middle';g.font='104px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla",sans-serif';g.fillText(e,64,70);
+    const tx=new THREE.CanvasTexture(c);return faceMat[e]=new THREE.SpriteMaterial({map:tx,transparent:true,alphaTest:0.1});}
+  // walking paths: streets (excluding wide plazas' edges) and bridge decks
+  const paths=[];
+  for(const s of SSEG){const mx=(s.ax+s.bx)/2,mz=(s.az+s.bz)/2;const d=Math.hypot(mx-60,mz+40);const w=s.len*Math.exp(-d/380)*(inCity(mx,mz)?1:0.25);
+    paths.push({ax:s.ax,az:s.az,ux:s.ux,uz:s.uz,len:s.len,hw:s.hw,w,bridge:null});}
+  for(const b of BR)paths.push({ax:b.x-b.ux*b.L/2,az:b.z-b.uz*b.L/2,ux:b.ux,uz:b.uz,len:b.L,hw:b.W/2,w:b.L*1.6,bridge:b});
+  const tw=paths.reduce((a,p)=>a+p.w,0);
+  const pickPath=()=>{let r=R()*tw;for(const p of paths){r-=p.w;if(r<=0)return p;}return paths[0];};
+  const MEN=['#23395d','#5b3a29','#2f4a3a','#6b2230','#6a6a66','#262626','#7d6230','#3b4d6b','#4e3b5c'].map(C);
+  const BREECH=['#cbb88c','#2a2a2a','#4a3626','#e6dcc2','#5a4a3a'].map(C);
+  const GOWN=['#7a4b5a','#3f5f7a','#8a6d3b','#5d6b4a','#a65b45','#cdb99a','#4a3a5a','#9c3f3f','#6f8a8f'].map(C);
+  const SKIN=C('#f2c94c'),SOLDIER=C('#1b2d55'),STRAW=C('#d9c27a'),WHITE=C('#f1ede2'),BLACK=C('#1d1d1f'),WOOD=C('#5a3c26'),RED=C('#a3262a');
+  const N=150;
+  for(let i=0;i<N;i++){const r=R();const kind=r<0.48?'man':r<0.88?'woman':'soldier';
+    const p=pickPath();const n={kind,p,t:R()*p.len,dir:R()<.5?1:-1,lat:(R()-.5)*Math.max(0,(p.hw-1.2)*2),sp:1.0+R()*0.5,pause:0,ph:R()*6.28,
+      sc:R()<0.1?0.7:0.94+R()*0.12,coat:kind==='soldier'?SOLDIER:kind==='man'?pick(MEN):pick(GOWN),leg:kind==='soldier'?STRAW:pick(BREECH),x:0,z:0,y:0,yaw:0,stand:false};
+    if(p.bridge)n.lat=(R()-.5)*(p.bridge.W-2.4);
+    n.face=new THREE.Sprite(face(pick(EMO)));n.face.scale.set(.44,.44,1);scene.add(n.face);npcs.push(n);}
+  // a few groups standing and chatting on the squares
+  [[84,-30],[80,-246],[26,-246],[14,-30],[18,40],[260,8],[-110,150]].forEach(([gx,gz])=>{const k=2+Math.floor(R()*2);
+    for(let j=0;j<k;j++){const a=j/k*6.283+R()*.4;const kind=R()<.5?'man':'woman';const n={kind,p:null,stand:true,ph:R()*6.28,sc:0.94+R()*0.12,
+      coat:kind==='man'?pick(MEN):pick(GOWN),leg:pick(BREECH),x:gx+Math.cos(a)*1.1,z:gz+Math.sin(a)*1.1,y:0,yaw:Math.atan2(-Math.cos(a),-Math.sin(a)),pause:0};
+      n.face=new THREE.Sprite(face(pick(EMO)));n.face.scale.set(.44,.44,1);scene.add(n.face);npcs.push(n);}});
+  const cnt=k=>npcs.filter(n=>k.includes(n.kind)).length;
+  const box=new THREE.BoxGeometry(1,1,1);
+  const torsoG=new THREE.CylinderGeometry(.19,.31,1,10),bodiceG=new THREE.CylinderGeometry(.16,.19,1,10),skirtG=new THREE.CylinderGeometry(.2,.5,1,14);
+  const triG=new THREE.ConeGeometry(.29,.13,3),capG=new THREE.SphereGeometry(.17,10,6,0,6.283,0,1.6),collarG=new THREE.CylinderGeometry(.09,.12,.1,8);
+  const L=lambert,mk=(g,n,sh)=>{const m=inst(g,L({color:'#ffffff'}),n,sh);m.frustumCulled=false;return m;};
+  const M={legs:mk(box,cnt(['man','soldier'])*2,false),arms:mk(box,npcs.length*2,false),torso:mk(torsoG,cnt(['man','soldier'])),bodice:mk(bodiceG,cnt(['woman']),false),
+    skirt:mk(skirtG,cnt(['woman'])),apron:mk(box,cnt(['woman']),false),collar:mk(collarG,npcs.length,false),head:mk(new THREE.SphereGeometry(.2,14,10),npcs.length,false),tri:mk(triG,cnt(['man','soldier']),false),
+    cap:mk(capG,cnt(['woman']),false),musket:mk(box,cnt(['soldier']),false),cuff:mk(box,cnt(['soldier'])*2,false)};
+  // static per-instance colors
+  const idx={};for(const k in M)idx[k]=0;
+  for(const n of npcs){n.ix={};const take=(k,c,times)=>{n.ix[k]=idx[k];for(let j=0;j<(times||1);j++)M[k].setColorAt(idx[k]++,c);};
+    take('arms',n.coat,2);take('collar',WHITE);take('head',SKIN);
+    if(n.kind==='woman'){take('bodice',n.coat);take('skirt',n.coat);take('apron',R()<.6?WHITE:C('#d9cfb8'));take('cap',WHITE);}
+    else{take('legs',n.leg,2);take('torso',n.coat);take('tri',BLACK);if(n.kind==='soldier'){take('musket',WOOD);take('cuff',RED,2);}}}
+  const base=new THREE.Matrix4(),loc=new THREE.Matrix4(),out=new THREE.Matrix4(),q=new THREE.Quaternion(),pos=new THREE.Vector3(),scl=new THREE.Vector3(),UP=new THREE.Vector3(0,1,0);
+  // part = base * T(px,py,pz) * Rx(rx) * T(0,oy,0) * S(sx,sy,sz)
+  const ps=new THREE.Vector3();
+  function part(mesh,i,px,py,pz,rx,oy,sx,sy,sz){loc.makeRotationX(rx);loc.scale(ps.set(sx,sy,sz));
+    loc.elements[12]=px;loc.elements[13]=py+Math.cos(rx)*oy;loc.elements[14]=pz+Math.sin(rx)*oy;out.multiplyMatrices(base,loc);mesh.setMatrixAt(i,out);}
+  return function(dt,time){
+    for(const n of npcs){let moving=false;
+      if(!n.stand){
+        if(n.pause>0)n.pause-=dt;
+        else{const p=n.p;n.t+=n.dir*n.sp*dt;
+          if(n.t<0||n.t>p.len){n.dir*=-1;n.t=clamp(n.t,0,p.len);if(R()<.35)n.pause=1+R()*4;}
+          const x=p.ax+p.ux*n.t-p.uz*n.lat,z=p.az+p.uz*n.t+p.ux*n.lat;
+          if(!p.bridge&&sdWater(x,z)<1.2){n.dir*=-1;n.t+=n.dir*n.sp*dt*2;}else{n.x=x;n.z=z;}
+          n.yaw=Math.atan2(p.ux*n.dir,p.uz*n.dir);moving=true;if(R()<dt*0.02)n.pause=2+R()*5;}
+        if(n.p.bridge){const l=bLocal(n.p.bridge,n.x,n.z);n.y=deckY(n.p.bridge,clamp(l.t,-n.p.bridge.L/2,n.p.bridge.L/2));}else n.y=groundH(n.x,n.z);
+      }else if(!n.y){n.y=groundH(n.x,n.z);}
+      if(moving)n.ph+=dt*n.sp*4.2;
+      const sw=moving?Math.sin(n.ph)*0.5:0,bob=moving?Math.abs(Math.cos(n.ph))*0.04:Math.sin(time*1.3+n.ph)*0.01;
+      pos.set(n.x,n.y+bob*n.sc,n.z);const fy=n.yaw+(n.stand?Math.sin(time*.4+n.ph)*0.15:0);q.setFromAxisAngle(UP,fy);scl.set(n.sc,n.sc,n.sc);base.compose(pos,q,scl);
+      const I=n.ix;
+      if(n.kind==='woman'){
+        part(M.skirt,I.skirt,0,0,0,0,0.52,1,1.04,1);part(M.apron,I.apron,0,0.1,0.29,-0.36,0.44,0.36,0.8,0.02);
+        part(M.bodice,I.bodice,0,1.03,0,0,0.24,1,0.48,1);part(M.cap,I.cap,0,1.87,-0.02,0,0,1.15,0.6,1.15);
+      }else{
+        part(M.legs,I.legs,-0.1,0.86,0,sw,-0.43,0.13,0.86,0.14);part(M.legs,I.legs+1,0.1,0.86,0,-sw,-0.43,0.13,0.86,0.14);
+        part(M.torso,I.torso,0,0.62,0,0,0.43,1,0.86,1);part(M.tri,I.tri,0,1.9,0,0,0,1,1,1);
+        if(n.kind==='soldier'){part(M.musket,I.musket,0.3,1.45,0.02,-0.1,0.15,0.05,1.5,0.05);
+          part(M.cuff,I.cuff,-0.26,1.46,0,-sw*0.8,-0.52,0.13,0.1,0.13);part(M.cuff,I.cuff+1,0.26,1.46,0,-0.05,-0.52,0.13,0.1,0.13);}
+      }
+      part(M.arms,I.arms,-0.26,1.46,0,-sw*0.8,-0.29,0.1,0.6,0.11);part(M.arms,I.arms+1,0.26,1.46,0,n.kind==='soldier'?-0.05:sw*0.8,-0.29,0.1,0.6,0.11);
+      part(M.collar,I.collar,0,1.5,0.02,0,0,1,1,1);
+      part(M.head,I.head,0,1.73,0,0,0,1,1.05,1);
+      // the face shows only when the viewer is within 45 degrees of where the citizen faces
+      const vx=P.x-n.x,vz=P.z-n.z,vl=Math.hypot(vx,vz)||1;const facing=(Math.sin(fy)*vx+Math.cos(fy)*vz)/vl;
+      n.face.visible=facing>=0.7071&&vl<420;
+      if(n.face.visible){n.face.position.set(n.x+vx/vl*0.13*n.sc,n.y+(1.73+bob)*n.sc,n.z+vz/vl*0.13*n.sc);n.face.scale.set(.44*n.sc,.44*n.sc,1);}}
+    for(const k in M){M[k].instanceMatrix.needsUpdate=true;}
+  };})();
+
 /* ---------------- Tally ---------------- */
 const counts=BR.map(()=>0);let total=0,broken=-1,allDone=false;
 const blist=$('blist');
@@ -829,12 +917,11 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
     mf+=-joy.y;ms+=joy.x;
     const m=Math.hypot(mf,ms);if(m>1){mf/=m;ms/=m;}
     const run=keys.ShiftLeft||keys.ShiftRight||Math.hypot(joy.x,joy.y)>0.92;
-    const sp=(run?14:6.5)*dt;
+    const sp=(run?42:19.5)*dt;
     const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw),rx=Math.cos(P.yaw),rz=-Math.sin(P.yaw);
     const dx=(fx*mf+rx*ms)*sp,dz=(fz*mf+rz*ms)*sp;
-    if(dx&&canStand(P.x+dx,P.z))P.x+=dx;
-    if(dz&&canStand(P.x,P.z+dz))P.z+=dz;
-    trackBridges();
+    const sub=Math.max(1,Math.ceil(Math.hypot(dx,dz)/0.4));
+    for(let k=0;k<sub;k++){if(dx&&canStand(P.x+dx/sub,P.z))P.x+=dx/sub;if(dz&&canStand(P.x,P.z+dz/sub))P.z+=dz/sub;trackBridges();}
   }else if(!everStarted&&!reduceMotion){P.yaw=baseYaw+Math.sin(time*0.12)*0.28;}
   const onB=bridgeAt(P.x,P.z);
   const gy=(onB?deckY(onB.b,onB.t):groundH(P.x,P.z))+1.7;
@@ -849,6 +936,7 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
     for(const c of clouds){c.position.x+=dt*4;if(c.position.x>2400)c.position.x=-2400;}
     animateBirds(time,dt);
   }
+  npcUpdate(dt,time);
   if(started){updatePlace(onB);mapTick+=dt;if(mapTick>1/20){mapTick=0;drawMap();}}
   renderer.render(scene,camera);}
 frame();
