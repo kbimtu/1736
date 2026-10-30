@@ -78,14 +78,14 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 #reset:hover,#menu:hover{border-color:var(--gold)}
 #menu{border-color:rgba(238,196,100,.6);color:var(--gold)}
 
-/* While the walker moves, the tally card and minimap turn 7% transparent */
+/* While the walker moves, the tally card and minimap fade to 27% visible */
 .card,#mapwrap{transition:opacity .35s ease}
-body.moving .card,body.moving #mapwrap:not(.big){opacity:.93}
+body.moving .card,body.moving #mapwrap:not(.big){opacity:.27}
 @media (prefers-reduced-motion:reduce){.card,#mapwrap{transition:none}}
 #horseUI,#mountPrompt{position:fixed;z-index:5;left:50%;transform:translateX(-50%);bottom:calc(128px + env(safe-area-inset-bottom,0px));
   background:var(--glass);border:1px solid var(--line);border-radius:4px;padding:8px 12px;font-size:12.5px;color:var(--parchment)}
 #horseUI{width:220px}
-#horseUI .hrow{display:flex;justify-content:space-between;letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:var(--muted);margin-bottom:6px}
+#horseUI .hrow,#gearUI .hrow{display:flex;justify-content:space-between;letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:var(--muted);margin-bottom:6px}
 #hPct{color:var(--gold);font-variant-numeric:tabular-nums}
 .hbar{height:6px;border-radius:3px;background:rgba(244,236,216,.15);overflow:hidden}
 .hbar i{display:block;height:100%;width:100%;background:var(--gold);transition:width .2s linear}
@@ -106,6 +106,19 @@ body.moving .card,body.moving #mapwrap:not(.big){opacity:.93}
 #talk small{font-size:11px;color:#6d6458;font-style:italic}
 #talkNext{background:var(--prussian);color:var(--parchment);border:0;border-radius:2px;padding:6px 14px;font-size:13px}
 @media (pointer:coarse){#talk{bottom:calc(270px + env(safe-area-inset-bottom,0px))}}
+#gearUI{position:fixed;z-index:5;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(40px + env(safe-area-inset-bottom,0px));width:170px;
+  background:var(--glass);border:1px solid rgba(159,208,255,.45);border-radius:4px;padding:8px 12px;font-size:12px}
+#gearUI .hbar i{background:#9fd0ff}#gearUI .hbar i.low{background:#c9604a}#gPct{color:#9fd0ff;font-variant-numeric:tabular-nums}
+#gearHelpBtn{background:none;border:1px solid #9fd0ff;color:#9fd0ff;border-radius:50%;width:18px;height:18px;font-size:11px;line-height:1;padding:0;margin-left:4px}
+#gearHelp{position:fixed;z-index:9;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,480px);background:var(--parchment);color:var(--ink);border:2px solid #2b5c8a;border-radius:4px;padding:16px 20px;box-shadow:0 14px 44px rgba(0,0,0,.45)}
+#gearHelp .gh-title{font-family:var(--display);font-size:26px;color:#2b5c8a}
+#gearHelp p{font-size:14.5px;line-height:1.6;margin:8px 0 12px}
+#gearHelpOk{background:#2b5c8a;color:#fff;border:0;border-radius:2px;padding:7px 16px;font-size:13px}
+#gearBtns{position:fixed;z-index:6;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(96px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;touch-action:none}
+#gearBtns button{background:rgba(43,92,138,.85);color:#fff;border:1px solid #9fd0ff;border-radius:50%;width:64px;height:64px;font-size:11px;font-weight:600;line-height:1.1;padding:4px}
+#gearBtns button.on{background:#9fd0ff;color:var(--ink)}
+#cross.ok{width:10px;height:10px;margin:-5px 0 0 -5px;background:transparent;border:2px solid #9fd0ff;box-shadow:none}
+#cross.miss{background:#c9604a}
 #mapwrap{position:fixed;z-index:5;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));
   padding:5px;background:var(--glass);border:1px solid var(--line);border-radius:4px;cursor:zoom-in}
 #mapwrap.big{top:50%;right:50%;transform:translate(50%,-50%);cursor:zoom-out;z-index:8}
@@ -159,16 +172,17 @@ body.moving .card,body.moving #mapwrap:not(.big){opacity:.93}
       <kbd data-i18n="kMouse">Mouse</kbd><span data-i18n="kLook"></span>
       <kbd>M</kbd><span data-i18n="kMap"></span>
       <kbd>E</kbd><span data-i18n="kHorse"></span>
+      <kbd class="gearOnly" hidden>Q R ␣</kbd><span class="gearOnly" hidden data-i18n="kGear"></span>
     </div>
     <div class="keys touch-only">
       <kbd data-i18n="kStick">Stick</kbd><span data-i18n="tWalk"></span>
       <kbd data-i18n="kDrag">Drag</kbd><span data-i18n="tLook"></span>
       <kbd data-i18n="kMapT">Map</kbd><span data-i18n="tMap"></span>
       <kbd data-i18n="hMount">Mount</kbd><span data-i18n="kHorse"></span>
+      <kbd class="gearOnly" hidden data-i18n="thrust">Thrust</kbd><span class="gearOnly" hidden data-i18n="kGear"></span>
     </div>
     <div class="musicrow"><span class="eyebrow" data-i18n="music">Music</span><div class="langs" id="musicIntro" role="group" aria-label="Music"></div></div>
     <button id="begin" type="button">Begin the walk</button>
-    <small data-i18n="note"></small>
   </div>
 </div>
 
@@ -194,6 +208,9 @@ body.moving .card,body.moving #mapwrap:not(.big){opacity:.93}
   <div id="horseUI" hidden><div class="hrow"><span data-i18n="hLabel">Horse</span><span id="hPct">100%</span></div><div class="hbar"><i id="hFill"></i></div></div>
   <div id="mountPrompt" hidden><kbd>E</kbd><span data-i18n="hMount">Mount</span><span id="mpPct"></span></div>
   <button id="mountBtn" type="button" hidden>Mount</button>
+  <div id="gearUI" hidden><div class="hrow"><span data-i18n="gGas">Gas</span><span><span id="gPct">100%</span> <button id="gearHelpBtn" type="button" aria-label="Help">?</button></span></div><div class="hbar"><i id="gFill"></i></div></div>
+  <div id="gearHelp" hidden role="dialog"><b class="gh-title" data-i18n="gearName">Freiheitsfluggerät</b><p id="gearHelpText"></p><button id="gearHelpOk" type="button" data-i18n="gOk">Got it</button></div>
+  <div id="gearBtns" hidden><button type="button" id="bHookL" data-i18n="hookL">Hook L</button><button type="button" id="bThrust" data-i18n="thrust">Thrust</button><button type="button" id="bHookR" data-i18n="hookR">Hook R</button></div>
   <div id="talk" hidden role="dialog" aria-live="polite"><div class="who"><b id="talkName"></b><span id="talkRole"></span></div><p id="talkLine"></p><div class="trow"><small data-i18n="imagined">An imagined conversation</small><button id="talkNext" type="button">Next</button></div></div>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
@@ -374,7 +391,7 @@ function inst(geo,mat,n,shadow){const m=new THREE.InstancedMesh(geo,mat,Math.max
 function put(m,i,x,y,z,ry,sx,sy,sz,col,rz){D.position.set(x,y,z);D.rotation.order='YZX';D.rotation.set(0,ry||0,rz||0);D.scale.set(sx,sy,sz);D.updateMatrix();m.setMatrixAt(i,D.matrix);if(col)m.setColorAt(i,col);}
 const C=h=>new THREE.Color(h);
 function lambert(o){return new THREE.MeshLambertMaterial(o);}
-function addMesh(geo,mat,x,y,z,ry){const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);if(ry)m.rotation.y=ry;m.castShadow=true;m.receiveShadow=true;scene.add(m);return m;}
+function addMesh(geo,mat,x,y,z,ry){const m=new THREE.Mesh(geo,mat);m.userData.hook=true;m.position.set(x,y,z);if(ry)m.rotation.y=ry;m.castShadow=true;m.receiveShadow=true;scene.add(m);return m;}
 function minGround(x0,x1,z0,z1){let m=1e9;for(let i=0;i<=4;i++)for(let j=0;j<=4;j++){m=Math.min(m,groundH(x0+(x1-x0)*i/4,z0+(z1-z0)*j/4));}return m;}
 
 /* ---------------- Ground ---------------- */
@@ -419,7 +436,7 @@ const water=new THREE.Mesh(new THREE.PlaneGeometry(3400,2200).rotateX(-Math.PI/2
 
 /* ---------------- Houses & trees on lots ---------------- */
 const grid=new Map();
-function addSolid(x,z,hx,hz){const k=Math.floor(x/10)+','+Math.floor(z/10);let a=grid.get(k);if(!a)grid.set(k,a=[]);a.push({x,z,hx,hz});}
+function addSolid(x,z,hx,hz,top){const k=Math.floor(x/10)+','+Math.floor(z/10);let a=grid.get(k);if(!a)grid.set(k,a=[]);a.push({x,z,hx,hz,top:top===undefined?1e9:top});}
 const inRect=(x,z,r,m)=>x>r[0]-m&&x<r[1]+m&&z>r[2]-m&&z<r[3]+m;
 function nearBridge(x,z,m){for(const b of BR){const l=bLocal(b,x,z);if(Math.abs(l.t)<b.L/2+m&&Math.abs(l.s)<b.W/2+m)return true;}return false;}
 const houses=[],trees=[];
@@ -437,10 +454,10 @@ for(let gx=-700;gx<700;gx+=10)for(let gz=-480;gz<480;gz+=10){
     const hx=along?w/2:d/2,hz=along?d/2:w/2;
     const pl=R()<0.36;const h=pl?9.5+R()*4.5:7.2+R()*5;
     const y=minGround(cx-hx,cx+hx,cz-hz,cz+hz)-0.25;
-    houses.push({x:cx,z:cz,th,w,d,h,y,pl,rh:w*(0.75+R()*0.3),hx,hz});addSolid(cx,cz,hx,hz);
-  }else if(R()<0.42){const x=cx+(R()-.5)*5,z=cz+(R()-.5)*5;trees.push({x,z,y:groundH(x,z)});addSolid(x,z,.45,.45);}
+    const rh=w*(0.75+R()*0.3);houses.push({x:cx,z:cz,th,w,d,h,y,pl,rh,hx,hz});addSolid(cx,cz,hx,hz,y+h+rh*0.8);
+  }else if(R()<0.42){const x=cx+(R()-.5)*5,z=cz+(R()-.5)*5;trees.push({x,z,y:groundH(x,z)});addSolid(x,z,.45,.45,groundH(x,z)+7);}
 }
-for(let gx=-1150;gx<1150;gx+=13)for(let gz=-780;gz<780;gz+=13){const x=gx+R()*9,z=gz+R()*9;if(inCity(x,z)||R()>0.05||sdWater(x,z)<5)continue;trees.push({x,z,y:groundH(x,z)});addSolid(x,z,.45,.45);}
+for(let gx=-1150;gx<1150;gx+=13)for(let gz=-780;gz<780;gz+=13){const x=gx+R()*9,z=gz+R()*9;if(inCity(x,z)||R()>0.05||sdWater(x,z)<5)continue;trees.push({x,z,y:groundH(x,z)});addSolid(x,z,.45,.45,groundH(x,z)+7);}
 (function(){
   const box=new THREE.BoxGeometry(1,1,1);box.translate(0,.5,0);
   const rp=roofParts(1,1,1,0.05,0.06,1/5,1/6);rp.slopes.rotateY(Math.PI/2);rp.gables.rotateY(Math.PI/2);
@@ -450,10 +467,10 @@ for(let gx=-1150;gx<1150;gx+=13)for(let gz=-780;gz<780;gz+=13){const x=gx+R()*9,
   const htCols=['#f6eedc','#f1e2c3','#f3dccb','#e8e4d4','#f4e7bb','#efe0cf'].map(C);
   const plCols=['#e8c79c','#d6b086','#c6d1cc','#e6d3ae','#d9a68a','#b9c6ae','#efe2c4','#c9b7cf','#e3bfa0','#a8bfc9'].map(C);
   const roofCols=['#a4442e','#8f3a28','#b6573b','#7b392b','#5f4b44','#9b5a3a','#874030'].map(C);
-  function build(list,bm,gm,cols){const B=inst(box,bm,list.length),G=inst(rp.gables,gm,list.length);
+  function build(list,bm,gm,cols){const B=inst(box,bm,list.length),G=inst(rp.gables,gm,list.length);B.userData.hook=G.userData.hook=true;
     list.forEach((h,i)=>{const c=pick(cols);put(B,i,h.x,h.y,h.z,h.th,h.w,h.h,h.d,c);put(G,i,h.x,h.y+h.h,h.z,h.th,h.w,h.rh,h.d,c);});}
   build(ht,mats.tb,mats.tg,htCols);build(pl,mats.pb,mats.pg,plCols);
-  const RF=inst(rp.slopes,mats.roof,houses.length);houses.forEach((h,i)=>put(RF,i,h.x,h.y+h.h,h.z,h.th,h.w,h.rh,h.d,pick(roofCols)));
+  const RF=inst(rp.slopes,mats.roof,houses.length);RF.userData.hook=true;houses.forEach((h,i)=>put(RF,i,h.x,h.y+h.h,h.z,h.th,h.w,h.rh,h.d,pick(roofCols)));
   // trees
   const trunk=new THREE.CylinderGeometry(.22,.34,1,6);trunk.translate(0,.5,0);
   const crown=new THREE.IcosahedronGeometry(1,1);
@@ -764,14 +781,14 @@ ko:{eyebrow:'프로이센 쾨니히스베르크 · 1736',h1:'<em>七橋</em>의 
   gloss:['高橋','木橋','蜜橋','內臟橋','綠橋','商人橋','鍛冶橋'],dirs:['戰略','行政','疏通','革新','敎育','協力','運營'],
   river:{old:'舊프레겔江 위',new:'新프레겔江 위',main:'프레겔江 위'},localName:true}
 };
-const MUS={en:{music:'Music',mOff:'Off',mPrelude:'Bach: Prelude in C',mChorale:'Bach: Wachet auf (chorale)'},
-  de:{music:'Musik',mOff:'Aus',mPrelude:'Bach: Präludium C-Dur',mChorale:'Bach: Choral „Wachet auf“'},
-  fr:{music:'Musique',mOff:'Arrêt',mPrelude:'Bach : Prélude en ut majeur',mChorale:'Bach : choral « Wachet auf »'},
-  pl:{music:'Muzyka',mOff:'Wyłącz',mPrelude:'Bach: Preludium C-dur',mChorale:'Bach: chorał „Wachet auf”'},
-  ru:{music:'Музыка',mOff:'Выкл.',mPrelude:'Бах: Прелюдия до мажор',mChorale:'Бах: хорал «Wachet auf»'},
-  'zh-Hant':{music:'音樂',mOff:'關閉',mPrelude:'巴赫：C 大調前奏曲',mChorale:'巴赫：聖詠《醒來吧》'},
-  ja:{music:'音楽',mOff:'オフ',mPrelude:'バッハ：前奏曲 ハ長調',mChorale:'バッハ：コラール「目覚めよ」'},
-  ko:{music:'音樂',mOff:'끄기',mPrelude:'바흐: C長調 前奏曲',mChorale:'바흐: 코랄 「깨어라」'}};
+const MUS={en:{music:'Music',mOff:'Off',mPrelude:'Bach: Prelude in C',mChorale:'Bach: Wachet auf',mFred:'Fridericus Rex',mSturm:'Freiheitsflieger'},
+  de:{music:'Musik',mOff:'Aus',mPrelude:'Bach: Präludium C-Dur',mChorale:'Bach: Wachet auf',mFred:'Fridericus Rex',mSturm:'Freiheitsflieger'},
+  fr:{music:'Musique',mOff:'Arrêt',mPrelude:'Bach : Prélude en ut majeur',mChorale:'Bach : Wachet auf',mFred:'Fridericus Rex',mSturm:'Freiheitsflieger'},
+  pl:{music:'Muzyka',mOff:'Wyłącz',mPrelude:'Bach: Preludium C-dur',mChorale:'Bach: Wachet auf',mFred:'Fridericus Rex',mSturm:'Freiheitsflieger'},
+  ru:{music:'Музыка',mOff:'Выкл.',mPrelude:'Бах: Прелюдия до мажор',mChorale:'Бах: «Wachet auf»',mFred:'«Фридерикус Рекс»',mSturm:'Freiheitsflieger'},
+  'zh-Hant':{music:'音樂',mOff:'關閉',mPrelude:'巴赫：C 大調前奏曲',mChorale:'巴赫：《醒來吧》',mFred:'Fridericus Rex',mSturm:'Freiheitsflieger'},
+  ja:{music:'音楽',mOff:'オフ',mPrelude:'バッハ：前奏曲 ハ長調',mChorale:'バッハ：「目覚めよ」',mFred:'フリデリクス・レックス',mSturm:'Freiheitsflieger'},
+  ko:{music:'音樂',mOff:'끄기',mPrelude:'바흐: C長調 前奏曲',mChorale:'바흐: 「깨어라」',mFred:'Fridericus Rex',mSturm:'Freiheitsflieger'}};
 const HOR={en:{hMount:'Mount',hDismount:'Dismount',hLabel:'Horse',hTired:'<b>Your horse is tired.</b><br>Park it on grass to let it rest.',hPark:'<b>Parked on the street.</b><br>Park on grass so the horse can rest.',hGrazing:'<b>Parked on grass.</b><br>Your horse is grazing and resting.',kHorse:'Mount or dismount a horse',hShort:'horse'},
   de:{hMount:'Aufsitzen',hDismount:'Absitzen',hLabel:'Pferd',hTired:'<b>Ihr Pferd ist müde.</b><br>Stellen Sie es auf einer Wiese ab, damit es sich erholt.',hPark:'<b>Auf der Straße abgestellt.</b><br>Nur auf einer Wiese kann sich das Pferd erholen.',hGrazing:'<b>Auf der Wiese abgestellt.</b><br>Ihr Pferd grast und erholt sich.',kHorse:'Auf ein Pferd aufsitzen oder absitzen',hShort:'Pferd'},
   fr:{hMount:'Monter',hDismount:'Descendre',hLabel:'Cheval',hTired:'<b>Votre cheval est fatigué.</b><br>Laissez-le sur l’herbe pour qu’il se repose.',hPark:'<b>Laissé dans la rue.</b><br>Sur l’herbe, le cheval pourrait se reposer.',hGrazing:'<b>Laissé sur l’herbe.</b><br>Votre cheval broute et se repose.',kHorse:'Monter à cheval ou descendre',hShort:'cheval'},
@@ -910,10 +927,28 @@ ru:{gericht:['Городской суд','Бывшая ратуша Альтшт
 ja:{gericht:['市裁判所','旧アルトシュタット市庁舎'],kaemmerei:['市財務局','旧レーベニヒト市庁舎'],steindamm:['シュタインダム教会','シュタインダム'],sackheim:['ザックハイム教会','ザックハイム'],schule:['アルトシュタット学校','ラテン語学校'],uni:['ケーニヒスベルク大学','アルベルティーナ・1544年創立'],packhof:['パックホーフ','プレーゲル川沿いの税関倉庫']},
 ko:{gericht:['市法院','舊 알트슈타트 市廳舍'],kaemmerei:['市財務廳','舊 뢰베니히트 市廳舍'],steindamm:['슈타인담 敎會','슈타인담'],sackheim:['자크하임 敎會','자크하임'],schule:['알트슈타트 學校','라틴語 學校'],uni:['쾨니히스베르크 大學','알베르티나 · 1544年 創立'],packhof:['팍호프','프레겔江 邊 稅關 倉庫']}};
 for(const k in LM2)Object.assign(I18N[k].lm,LM2[k]);
+const GEARI={en:{gPick:'<b>You found the Freiheitsfluggerät.</b><br>Invented here at the University. Hold Q or R to fire a hook, Space for gas thrust.',gGas:'Gas',gRefill:'<b>Gas refilled.</b>',gEmpty:'<b>Out of gas.</b><br>Refill at the docks, a marketplace or the castle.',gSplash:'<b>Splash!</b><br>You climbed out of the Pregel.',hookL:'Hook L',hookR:'Hook R',thrust:'Thrust',gearName:'Freiheitsfluggerät',kGear:'Freiheitsfluggerät (find it at the University): Q/R hooks, Space thrust',
+    eAll7:'All seven, each <b>exactly once</b> — by flying over the river! Herr Euler would call it cheating. It still counts.',tAll7:'<b>All seven bridges, each exactly once!</b><br>Only possible with wings. Euler is speechless.'},
+  de:{gPick:'<b>Sie haben das Freiheitsfluggerät gefunden.</b><br>Erfunden hier an der Universität. Q oder R halten für einen Haken, Leertaste für Gasschub.',gGas:'Gas',gRefill:'<b>Gas aufgefüllt.</b>',gEmpty:'<b>Kein Gas mehr.</b><br>Auffüllen am Hafen, auf einem Markt oder am Schloss.',gSplash:'<b>Platsch!</b><br>Sie sind aus dem Pregel geklettert.',hookL:'Haken L',hookR:'Haken R',thrust:'Schub',gearName:'Freiheitsfluggerät',kGear:'Freiheitsfluggerät (an der Universität zu finden): Q/R Haken, Leertaste Schub',
+    eAll7:'Alle sieben, jede <b>genau einmal</b> – mit einem Flug über den Fluss! Herr Euler würde das Schummeln nennen. Es zählt trotzdem.',tAll7:'<b>Alle sieben Brücken, jede genau einmal!</b><br>Nur mit Flügeln möglich. Euler ist sprachlos.'},
+  fr:{gPick:'<b>Vous avez trouvé le Freiheitsfluggerät.</b><br>Inventé ici, à l’Université. Maintenez Q ou R (A ou R en AZERTY) pour lancer un grappin, Espace pour la poussée.',gGas:'Gaz',gRefill:'<b>Gaz rechargé.</b>',gEmpty:'<b>Plus de gaz.</b><br>Rechargez au port, sur une place du marché ou au château.',gSplash:'<b>Plouf !</b><br>Vous êtes sorti du Pregel.',hookL:'Grappin G',hookR:'Grappin D',thrust:'Poussée',gearName:'Freiheitsfluggerät',kGear:'Freiheitsfluggerät (à trouver à l’Université) : Q/R grappins (A/R en AZERTY), Espace poussée',
+    eAll7:'Les sept, chacun <b>une seule fois</b> — en survolant le fleuve ! Herr Euler parlerait de tricherie. Ça compte quand même.',tAll7:'<b>Les sept ponts, chacun une seule fois !</b><br>Possible seulement avec des ailes. Euler en reste sans voix.'},
+  pl:{gPick:'<b>Znaleziono Freiheitsfluggerät.</b><br>Wynaleziony tutaj, na Uniwersytecie. Przytrzymaj Q lub R, aby wystrzelić hak, spację dla ciągu gazu.',gGas:'Gaz',gRefill:'<b>Gaz uzupełniony.</b>',gEmpty:'<b>Brak gazu.</b><br>Uzupełnij w porcie, na rynku lub na zamku.',gSplash:'<b>Plusk!</b><br>Udało się wyjść z Pregoły.',hookL:'Hak L',hookR:'Hak P',thrust:'Ciąg',gearName:'Freiheitsfluggerät',kGear:'Freiheitsfluggerät (do znalezienia na Uniwersytecie): Q/R haki, spacja ciąg',
+    eAll7:'Wszystkie siedem, każdy <b>dokładnie raz</b> — dzięki lotowi nad rzeką! Pan Euler nazwałby to oszustwem. I tak się liczy.',tAll7:'<b>Wszystkie siedem mostów, każdy dokładnie raz!</b><br>Możliwe tylko ze skrzydłami. Euler zaniemówił.'},
+  ru:{gPick:'<b>Вы нашли Freiheitsfluggerät.</b><br>Изобретён здесь, в университете. Удерживайте Q или R, чтобы выпустить крюк, пробел — газовая тяга.',gGas:'Газ',gRefill:'<b>Газ пополнен.</b>',gEmpty:'<b>Газ закончился.</b><br>Пополните его в порту, на рынке или в замке.',gSplash:'<b>Плюх!</b><br>Вы выбрались из Прегеля.',hookL:'Крюк Л',hookR:'Крюк П',thrust:'Тяга',gearName:'Freiheitsfluggerät',kGear:'Freiheitsfluggerät (найдите в университете): Q/R — крюки, пробел — тяга',
+    eAll7:'Все семь, каждый <b>ровно один раз</b> — благодаря полёту над рекой! Господин Эйлер назвал бы это жульничеством. Но засчитано.',tAll7:'<b>Все семь мостов, каждый ровно один раз!</b><br>Возможно только с крыльями. Эйлер потерял дар речи.'},
+  'zh-Hant':{gPick:'<b>你找到了 Freiheitsfluggerät（自由飛行裝置）。</b><br>就是在這所大學發明的。按住 Q 或 R 發射鉤索，空白鍵噴氣推進。',gGas:'燃氣',gRefill:'<b>燃氣已補充。</b>',gEmpty:'<b>燃氣用完了。</b><br>到碼頭、市集或城堡補充。',gSplash:'<b>撲通！</b><br>你從普雷格爾河爬上岸了。',hookL:'左鉤',hookR:'右鉤',thrust:'推進',gearName:'Freiheitsfluggerät',kGear:'Freiheitsfluggerät（在大學取得）：Q/R 鉤索，空白鍵推進',
+    eAll7:'七座橋都<b>恰好只走一次</b>——靠的是飛越河面！歐拉先生會說這是作弊。但照樣算數。',tAll7:'<b>七座橋，每座恰好一次！</b><br>只有長了翅膀才辦得到。歐拉啞口無言。'},
+  ja:{gPick:'<b>Freiheitsfluggerät（自由飛行装置）を見つけました。</b><br>この大学で発明されたものです。Q か R を押し続けるとフックを発射、スペースでガス噴射。',gGas:'ガス',gRefill:'<b>ガスを補充しました。</b>',gEmpty:'<b>ガス切れです。</b><br>港、市場、または城で補充できます。',gSplash:'<b>ドボン！</b><br>プレーゲル川から這い上がりました。',hookL:'左フック',hookR:'右フック',thrust:'噴射',gearName:'Freiheitsfluggerät',kGear:'Freiheitsfluggerät（大学で入手）：Q/R でフック、スペースで噴射',
+    eAll7:'七つの橋をすべて<b>ちょうど一度ずつ</b>——川を飛び越えて！オイラー先生ならずるいと言うでしょう。でも記録は記録です。',tAll7:'<b>七つの橋をすべて一度ずつ！</b><br>翼がなければ不可能です。オイラーも言葉を失いました。'},
+  ko:{gPick:'<b>Freiheitsfluggerät(自由 飛行 裝置)를 찾았습니다.</b><br>바로 이 大學에서 發明된 것입니다. Q나 R을 누르고 있으면 갈고리를 쏘고, 스페이스는 가스 推進입니다.',gGas:'가스',gRefill:'<b>가스를 補充했습니다.</b>',gEmpty:'<b>가스가 떨어졌습니다.</b><br>埠頭, 市場, 또는 城에서 補充하십시오.',gSplash:'<b>풍덩!</b><br>프레겔江에서 기어 나왔습니다.',hookL:'左 갈고리',hookR:'右 갈고리',thrust:'推進',gearName:'Freiheitsfluggerät',kGear:'Freiheitsfluggerät (大學에서 入手): Q/R 갈고리, 스페이스 推進',
+    eAll7:'일곱 다리를 모두 <b>꼭 한 番씩</b> — 江 위를 날아서! 오일러 先生이라면 反則이라 하겠지만, 그래도 認定입니다.',tAll7:'<b>일곱 다리를 모두 한 番씩!</b><br>날개가 있어야만 可能합니다. 오일러도 할 말을 잃었습니다.'}};
+const GHELP={"en": {"gHelp": "<b>Q</b> / <b>R</b> (hold): fire the left / right hook at what you aim at, and swing.<br><b>Space</b>: jump; hold for gas thrust. Look up to climb.<br>Roofs: you stop at the edge. Jump or hook to leave.<br>Gas refills at the docks, the markets and the castle (blue flags on the map).<br>On phones: the round Hook and Thrust buttons.", "gOk": "Got it", "hintGear": "Q/R hooks · Space thrust"}, "de": {"gHelp": "<b>Q</b> / <b>R</b> (halten): linken / rechten Haken auf das Ziel schießen und schwingen.<br><b>Leertaste</b>: springen; gedrückt halten für Gasschub. Nach oben schauen zum Steigen.<br>Dächer: Am Rand bleiben Sie stehen. Springen oder Haken, um herunterzukommen.<br>Gas gibt es am Hafen, auf den Märkten und am Schloss (blaue Fahnen auf der Karte).<br>Auf dem Handy: die runden Haken- und Schub-Knöpfe.", "gOk": "Verstanden", "hintGear": "Q/R Haken · Leertaste Schub"}, "fr": {"gHelp": "<b>Q</b> / <b>R</b> (maintenir ; A / R en AZERTY) : lancer le grappin gauche / droit sur la cible et se balancer.<br><b>Espace</b> : sauter ; maintenir pour la poussée. Regardez vers le haut pour monter.<br>Toits : vous vous arrêtez au bord. Sautez ou lancez un grappin pour en partir.<br>Le gaz se recharge au port, sur les marchés et au château (drapeaux bleus sur la carte).<br>Sur téléphone : les boutons ronds Grappin et Poussée.", "gOk": "Compris", "hintGear": "Q/R grappins · Espace poussée"}, "pl": {"gHelp": "<b>Q</b> / <b>R</b> (przytrzymaj): wystrzel lewy / prawy hak w cel i bujaj się.<br><b>Spacja</b>: skok; przytrzymaj, by użyć ciągu gazu. Spójrz w górę, by się wznieść.<br>Dachy: zatrzymujesz się na krawędzi. Skocz albo użyj haka, by zejść.<br>Gaz uzupełnisz w porcie, na rynkach i na zamku (niebieskie flagi na mapie).<br>Na telefonie: okrągłe przyciski haków i ciągu.", "gOk": "Rozumiem", "hintGear": "Q/R haki · spacja ciąg"}, "ru": {"gHelp": "<b>Q</b> / <b>R</b> (удерживать): выпустить левый / правый крюк в цель и раскачиваться.<br><b>Пробел</b>: прыжок; удерживайте для газовой тяги. Посмотрите вверх, чтобы набрать высоту.<br>Крыши: у края вы останавливаетесь. Чтобы спуститься, прыгните или используйте крюк.<br>Газ пополняется в порту, на рынках и в замке (синие флаги на карте).<br>На телефоне: круглые кнопки крюков и тяги.", "gOk": "Понятно", "hintGear": "Q/R — крюки · пробел — тяга"}, "zh-Hant": {"gHelp": "<b>Q</b> / <b>R</b>（按住）：向瞄準處發射左／右鉤索並擺盪。<br><b>空白鍵</b>：跳躍；按住噴氣推進。往上看即可爬升。<br>屋頂：走到邊緣會停下。要離開就跳躍或發射鉤索。<br>燃氣可在碼頭、市集和城堡補充（地圖上的藍旗）。<br>手機：使用圓形的鉤索與推進按鈕。", "gOk": "知道了", "hintGear": "Q/R 鉤索・空白鍵推進"}, "ja": {"gHelp": "<b>Q</b> / <b>R</b>（長押し）：狙った場所に左／右のフックを撃ち、振り子のように飛ぶ。<br><b>スペース</b>：ジャンプ。長押しでガス噴射。上を向くと上昇します。<br>屋根：端で止まります。降りるにはジャンプかフックを使います。<br>ガスは港、市場、城で補充できます（地図の青い旗）。<br>スマートフォン：丸いフックと噴射のボタン。", "gOk": "わかった", "hintGear": "Q/R フック・スペース 噴射"}, "ko": {"gHelp": "<b>Q</b> / <b>R</b> (누르고 있기): 겨냥한 곳에 左 / 右 갈고리를 쏘고 그네처럼 날아갑니다.<br><b>스페이스</b>: 점프; 누르고 있으면 가스 推進. 위를 보면 上昇합니다.<br>지붕: 가장자리에서 멈춥니다. 내려가려면 점프하거나 갈고리를 쓰십시오.<br>가스는 埠頭, 市場, 城에서 補充합니다 (地圖의 파란 旗).<br>携帶電話: 둥근 갈고리·推進 버튼.", "gOk": "알겠습니다", "hintGear": "Q/R 갈고리 · 스페이스 推進"}};
+for(const k in GHELP)Object.assign(GEARI[k],GHELP[k]);
 let LANG='en';
 try{const sv=localStorage.getItem('kb1736-lang');if(sv&&I18N[sv])LANG=sv;else{const nl=(navigator.language||'en').toLowerCase();
   if(nl.startsWith('de'))LANG='de';else if(nl.startsWith('fr'))LANG='fr';else if(nl.startsWith('pl'))LANG='pl';else if(nl.startsWith('ko'))LANG='ko';else if(nl.startsWith('ja'))LANG='ja';else if(nl.startsWith('ru'))LANG='ru';else if(/^zh-(tw|hk|mo|hant)/.test(nl))LANG='zh-Hant';}}catch(_){}
-const t=k=>{let v=I18N[LANG][k];for(const X of[MUS,HOR,FAM]){if(v===undefined&&X[LANG])v=X[LANG][k];}if(v===undefined)v=I18N.en[k];for(const X of[MUS,HOR,FAM]){if(v===undefined)v=X.en[k];}return v;};
+const t=k=>{let v=I18N[LANG][k];for(const X of[MUS,HOR,FAM,GEARI]){if(v===undefined&&X[LANG])v=X[LANG][k];}if(v===undefined)v=I18N.en[k];for(const X of[MUS,HOR,FAM,GEARI]){if(v===undefined)v=X.en[k];}return v;};
 const bName=b=>I18N[LANG].localName?I18N[LANG].gloss[b.i]:b.name;
 const bShort=b=>I18N[LANG].localName?I18N[LANG].gloss[b.i].replace(/ мост$/,'').replace(/^Most /,''):b.name.replace(' Brücke','').replace('brücke','');
 const bDir=b=>t('dirs')[b.i];
@@ -1069,10 +1104,10 @@ const horseUpdate=(function(){
     });
     for(const k in M)M[k].instanceMatrix.needsUpdate=true;};})();
 function toggleMount(){if(!started)return;const H=HORSE.mounted;
-  if(H){H.x=P.x;H.z=P.z;H.yaw=P.yaw+Math.PI;H.onGrass=onGrass(H.x,H.z);H.warned=false;HORSE.mounted=null;HORSE.speed=0;
+  if(H){H.vx=H.vz=0;H.x=P.x;H.z=P.z;H.yaw=P.yaw+Math.PI;H.onGrass=onGrass(H.x,H.z);H.warned=false;HORSE.mounted=null;HORSE.speed=0;
     for(const s of[1.9,-1.9]){const ox=P.x+Math.cos(P.yaw)*s,oz=P.z-Math.sin(P.yaw)*s;if(canStand(ox,oz)){P.x=ox;P.z=oz;break;}}
     toast(H.onGrass?t('hGrazing'):t('hPark'));}
-  else{const h=nearestHorse(3.5);if(!h)return;HORSE.mounted=h;P.x=h.x;P.z=h.z;h.onGrass=false;}
+  else{const h=nearestHorse(3.5);if(!h)return;HORSE.mounted=h;h.vx=h.vz=0;P.x=h.x;P.z=h.z;h.onGrass=false;}
   updateHorseUI(true);}
 let horseUITick=0;
 function updateHorseUI(force){const H=HORSE.mounted;
@@ -1136,6 +1171,82 @@ const FAMOUS=(function(){
     if(near!==talking){talking=near;if(near){near.line=near.seen?near.line+1:0;near.seen=true;showTalk(near);}else $('talk').hidden=true;}}
   return{update,next,chars,refresh(){if(talking)showTalk(talking);},hide(){talking=null;$('talk').hidden=true;}};})();
 
+/* Freiheitsfluggerät: an original grappling-hook harness with gas thrust. Picked up at the University. */
+const GEAR={has:false,gas:1,hooks:[null,null],air:false,vx:0,vy:0,vz:0,safe:{x:P.x,z:P.z,f:0},inL:false,inR:false,inT:false,warnedEmpty:false,atStation:false};
+P.feet=groundH(P.x,P.z);GEAR.safe.f=P.feet;
+LANDMARKS.forEach((l,i)=>{const tops={dom:34,castle:28,rath:23,kirche:28,gericht:24,kaemmerei:21,steindamm:25,sackheim:23,schule:20,uni:26,packhof:22};SOLIDS[i][4]=minGround(l.x0,l.x1,l.z0,l.z1)+(tops[l.key]||22);});
+const eyeH=()=>HORSE.mounted?2.75:1.7;
+// ground or deck under (x,z), raised by any roof the feet are already above; block=true if a wall is in the way
+let STEP=0.7;
+function surfaceAt(x,z,feet,r){const b=bridgeAt(x,z);let g=b?deckY(b.b,b.t):groundH(x,z),block=false;
+  const ix=Math.floor(x/10),iz=Math.floor(z/10);
+  for(let a=-1;a<=1;a++)for(let c=-1;c<=1;c++){const list=grid.get((ix+a)+','+(iz+c));if(list)for(const o of list)if(Math.abs(x-o.x)<o.hx+r&&Math.abs(z-o.z)<o.hz+r){if(o.top<=feet+STEP)g=Math.max(g,o.top);else block=true;}}
+  for(const q of SOLIDS)if(x>q[0]-r&&x<q[1]+r&&z>q[2]-r&&z<q[3]+r){if(q[4]<=feet+STEP)g=Math.max(g,q[4]);else block=true;}
+  return{g,block,bridge:!!b};}
+const inBounds=(x,z)=>!(x<-690||x>770||z<-470||z>470);
+// pick-up point in front of the University, and gas stations at the docks, the markets and the castle
+const GEAR_SPOT={x:137,z:3.5};
+const STATIONS=[[-227,-66],[100,141],[470,6],[30,-2],[4,-185],[336,-213],[80,-240]].map(([x,z])=>({x,z}));
+(function(){const wood=lambert({color:'#5a3c26'}),brass=lambert({color:'#c9a14a'}),blue=lambert({color:'#2b5c8a',side:THREE.DoubleSide});
+  const y=groundH(GEAR_SPOT.x,GEAR_SPOT.z);const g=new THREE.Group();g.position.set(GEAR_SPOT.x,y,GEAR_SPOT.z);
+  const tb=new THREE.Mesh(new THREE.BoxGeometry(1.4,0.9,0.9),wood);tb.position.y=0.45;g.add(tb);
+  const harness=new THREE.Mesh(new THREE.TorusGeometry(0.32,0.07,8,16),brass);harness.position.y=1.15;g.add(harness);
+  for(const s of[-1,1]){const can=new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.11,0.6,10),brass);can.rotation.z=Math.PI/2;can.position.set(s*0.4,1.0,0);g.add(can);}
+  scene.add(g);GEAR.spotObj=g;GEAR.spotSpin=harness;
+  for(const st of STATIONS){const sy=groundH(st.x,st.z);for(const[ox,oz]of[[0,0],[0.7,0.2],[0.3,0.75]]){const bar=new THREE.Mesh(new THREE.CylinderGeometry(0.32,0.32,0.9,10),wood);bar.position.set(st.x+ox,sy+0.45,st.z+oz);bar.castShadow=true;scene.add(bar);}
+    const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,4,6),wood);pole.position.set(st.x-0.6,sy+2,st.z);scene.add(pole);
+    const flag=new THREE.Mesh(new THREE.PlaneGeometry(1.1,0.7),blue);flag.position.set(st.x-0.05,sy+3.6,st.z);scene.add(flag);st.flag=flag;}
+})();
+// ropes
+const ropeMat=new THREE.LineBasicMaterial({color:'#2a2018'});
+const ropes=[0,1].map(()=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0,0,0,0],3));const l=new THREE.Line(g,ropeMat);l.frustumCulled=false;l.visible=false;scene.add(l);return l;});
+const anchors=[0,1].map(()=>{const m=new THREE.Mesh(new THREE.SphereGeometry(0.18,8,6),lambert({color:'#3a3a3a'}));m.visible=false;scene.add(m);return m;});
+let HOOK_TARGETS=null;const ray=new THREE.Raycaster();ray.far=75;const camDir=new THREE.Vector3();
+function aimHit(){if(!HOOK_TARGETS)HOOK_TARGETS=scene.children.filter(o=>o.userData&&o.userData.hook);camera.getWorldDirection(camDir);ray.set(camera.position,camDir);const h=ray.intersectObjects(HOOK_TARGETS,false);return h.length?h[0].point:null;}
+function fireHook(i){if(!GEAR.has||!started)return;
+  if(GEAR.gas<=0){toast(t('gEmpty'),3200);return;}
+  if(HORSE.mounted)toggleMount();
+  const p=aimHit();if(!p){$('cross').classList.add('miss');setTimeout(()=>$('cross').classList.remove('miss'),250);return;}
+  const d=Math.hypot(p.x-P.x,p.y-(P.feet+1.4),p.z-P.z);GEAR.hooks[i]={x:p.x,y:p.y,z:p.z,len:d};GEAR.gas=Math.max(0,GEAR.gas-0.0033);
+  if(!GEAR.air){GEAR.air=true;GEAR.vy=Math.max(GEAR.vy,6);}}
+function releaseHook(i){GEAR.hooks[i]=null;}
+function gearJump(){if(!GEAR.has||!started||GEAR.air||HORSE.mounted)return;GEAR.air=true;GEAR.vy=7;}
+function splash(){GEAR.hooks=[null,null];GEAR.air=false;GEAR.vx=GEAR.vy=GEAR.vz=0;P.x=GEAR.safe.x;P.z=GEAR.safe.z;P.feet=GEAR.safe.f;P.y=P.feet+eyeH();toast(t('gSplash'),3000);}
+// one physics step while airborne
+function flightStep(h,mf,ms){
+  let ax=0,ay=-20,az=0;
+  for(const hk of GEAR.hooks)if(hk){const dx=hk.x-P.x,dy=hk.y-(P.feet+1.4),dz=hk.z-P.z,d=Math.hypot(dx,dy,dz)||1,ux=dx/d,uy=dy/d,uz=dz/d;
+    if(GEAR.gas>0){ax+=ux*40;ay+=uy*40+6;az+=uz*40;GEAR.gas=Math.max(0,GEAR.gas-h/210);}
+    hk.len=Math.min(hk.len,d);if(d>hk.len+0.05){const vr=GEAR.vx*ux+GEAR.vy*uy+GEAR.vz*uz;if(vr<0){GEAR.vx-=ux*vr;GEAR.vy-=uy*vr;GEAR.vz-=uz*vr;}}
+    if(d<2.2){ax-=ux*30;ay-=uy*30;az-=uz*30;}}
+  if(GEAR.inT&&GEAR.gas>0){const cp=Math.cos(P.pitch);ax+=-Math.sin(P.yaw)*cp*26;ay+=Math.sin(P.pitch)*26+18;az+=-Math.cos(P.yaw)*cp*26;GEAR.gas=Math.max(0,GEAR.gas-h/27);}
+  const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw),rx=Math.cos(P.yaw),rz=-Math.sin(P.yaw);ax+=(fx*mf+rx*ms)*7;az+=(fz*mf+rz*ms)*7;
+  GEAR.vx+=ax*h;GEAR.vy+=ay*h;GEAR.vz+=az*h;const dr=1-0.06*h;GEAR.vx*=dr;GEAR.vy*=dr;GEAR.vz*=dr;
+  const sp=Math.hypot(GEAR.vx,GEAR.vy,GEAR.vz);if(sp>55){const k=55/sp;GEAR.vx*=k;GEAR.vy*=k;GEAR.vz*=k;}
+  const nx=P.x+GEAR.vx*h,nz=P.z+GEAR.vz*h;
+  if(inBounds(nx,P.z)&&!surfaceAt(nx,P.z,P.feet,0.35).block)P.x=nx;else GEAR.vx*=-0.2;
+  if(inBounds(P.x,nz)&&!surfaceAt(P.x,nz,P.feet,0.35).block)P.z=nz;else GEAR.vz*=-0.2;
+  const nf=Math.min(160,P.feet+GEAR.vy*h);const s=surfaceAt(P.x,P.z,Math.max(P.feet,nf),0.6);
+  if(nf<=s.g){P.feet=s.g;if(GEAR.vy<0){GEAR.vy=0;if(!GEAR.hooks[0]&&!GEAR.hooks[1]&&!(GEAR.inT&&GEAR.gas>0)){GEAR.air=false;GEAR.vx=GEAR.vz=0;}}}else P.feet=nf;
+  if(!s.bridge&&sdWater(P.x,P.z)<0&&P.feet<WATER_Y+0.4){splash();return false;}
+  trackBridges();return true;}
+function gearUpdate(dt,time){
+  if(!GEAR.has){GEAR.spotSpin.rotation.y=time*1.5;if(started&&Math.hypot(P.x-GEAR_SPOT.x,P.z-GEAR_SPOT.z)<2.6){GEAR.has=true;GEAR.spotObj.visible=false;toast(t('gPick'),6500);updateGearUI();showGearHelp();}}
+  for(const st of STATIONS)st.flag.rotation.y=Math.sin(time*2+st.x)*0.25;
+  let near=false;if(GEAR.has&&!GEAR.air)for(const st of STATIONS)if(Math.hypot(P.x-st.x,P.z-st.z)<7){near=true;break;}
+  if(near){const before=GEAR.gas;GEAR.gas=Math.min(1,GEAR.gas+dt/4);if(before<1&&!GEAR.atStation)toast(t('gRefill'),1800);GEAR.warnedEmpty=false;}
+  GEAR.atStation=near;
+  if(GEAR.has&&GEAR.gas<=0&&!GEAR.warnedEmpty){GEAR.warnedEmpty=true;toast(t('gEmpty'),3600);}
+  // ropes
+  const right=new THREE.Vector3(Math.cos(P.yaw),0,-Math.sin(P.yaw));
+  GEAR.hooks.forEach((hk,i)=>{ropes[i].visible=anchors[i].visible=!!hk;if(!hk)return;const s=i?0.28:-0.28;const a=ropes[i].geometry.attributes.position;
+    a.setXYZ(0,camera.position.x+right.x*s,camera.position.y-0.45,camera.position.z+right.z*s);a.setXYZ(1,hk.x,hk.y,hk.z);a.needsUpdate=true;anchors[i].position.set(hk.x,hk.y,hk.z);});}
+let aimTick=0;
+function showGearHelp(){$('gearHelpText').innerHTML=t('gHelp');$('gearHelp').hidden=false;if(locked()&&document.exitPointerLock)document.exitPointerLock();}
+function hideGearHelp(){$('gearHelp').hidden=true;}
+let HINTBASE='';
+function updateGearUI(){if(HINTBASE)$('hint').textContent=HINTBASE+(GEAR.has?' · '+t('hintGear'):'');if(!$('gearHelp').hidden)$('gearHelpText').innerHTML=t('gHelp');document.querySelectorAll('.gearOnly').forEach(e=>{e.hidden=!GEAR.has;});$('gearUI').hidden=!GEAR.has;$('gearBtns').hidden=!(GEAR.has&&isTouch);if(!GEAR.has)return;const pct=Math.round(GEAR.gas*100);$('gPct').textContent=pct+'%';$('gFill').style.width=pct+'%';$('gFill').classList.toggle('low',GEAR.gas<0.2);}
+
 /* ---------------- Tally ---------------- */
 const counts=BR.map(()=>0);let total=0,broken=-1,allDone=false;
 const blist=$('blist');
@@ -1145,7 +1256,7 @@ function updateHUD(){const distinct=counts.filter(c=>c>0).length;$('distinct').t
   BR.forEach((b,i)=>{b.li.classList.toggle('on',counts[i]>0);b.li.classList.toggle('twice',counts[i]>1);b.li.querySelector('.ct').textContent='×'+counts[i];});
   let msg;
   if(total===0)msg=t('eStart');
-  else if(allDone)msg=total===8?t('eAll8'):t('eAllN')(total);
+  else if(allDone)msg=total===7?t('eAll7'):total===8?t('eAll8'):t('eAllN')(total);
   else if(broken>=0)msg=t('eBroken')(bName(BR[broken]));
   else msg=t('eProg')(distinct);
   $('euler').innerHTML=msg;}
@@ -1153,10 +1264,10 @@ let toastTimer=0;
 function toast(html,ms){const el=$('toast');el.innerHTML=html;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),ms||2600);}
 function crossed(b){counts[b.i]++;total++;if(counts[b.i]===2&&broken<0&&!allDone)broken=b.i;
   const distinct=counts.filter(c=>c>0).length;
-  if(distinct===7&&!allDone){allDone=true;toast(total===8?t('tAll8'):t('tAllN')(total),5200);}
+  if(distinct===7&&!allDone){allDone=true;toast(total===7?t('tAll7'):total===8?t('tAll8'):t('tAllN')(total),5200);}
   else toast(`<b>${b.num} · ${bName(b)}</b><br>${counts[b.i]===1?t('first'):t('nth')(counts[b.i])} · ${bDir(b)}`);
   updateHUD();}
-function trackBridges(){for(const b of BR){const l=bLocal(b,P.x,P.z);const inside=Math.abs(l.t)<b.L/2&&Math.abs(l.s)<b.W/2+0.6;
+function trackBridges(){for(const b of BR){const l=bLocal(b,P.x,P.z);const inside=Math.abs(l.t)<b.L/2&&Math.abs(l.s)<b.W/2+0.6&&(P.feet===undefined||P.feet-deckY(b,clamp(l.t,-b.L/2,b.L/2))<2.5);
   if(inside&&!b.inside){b.inside=true;b.entry=Math.sign(l.t)||1;}
   else if(!inside&&b.inside){b.inside=false;const ex=Math.sign(l.t);if(ex!==0&&ex!==b.entry&&Math.abs(l.t)>b.L/2-12)crossed(b);}}}
 $('reset').addEventListener('click',()=>{counts.fill(0);total=0;broken=-1;allDone=false;updateHUD();toast(t('newWalk'));});
@@ -1175,8 +1286,34 @@ function updatePlace(onB){let name,sub;const L=I18N[LANG];
 /* ---------------- Music (generated in the browser) ---------------- */
 const PRELUDE_DATA=[0,8,60,1,3,64,2,1,67,3,1,72,4,1,76,4,4,64,5,1,67,6,1,72,7,1,76,8,8,60,9,3,64,10,1,67,11,1,72,12,1,76,12,4,64,13,1,67,14,1,72,15,1,76,16,8,60,17,3,62,18,1,69,19,1,74,20,1,77,20,4,62,21,1,69,22,1,74,23,1,77,24,8,60,25,3,62,26,1,69,27,1,74,28,1,77,28,4,62,29,1,69,30,1,74,31,1,77,32,8,59,33,3,62,34,1,67,35,1,74,36,1,77,36,4,62,37,1,67,38,1,74,39,1,77,40,8,59,41,3,62,42,1,67,43,1,74,44,1,77,44,4,62,45,1,67,46,1,74,47,1,77,48,8,60,49,3,64,50,1,67,51,1,72,52,1,76,52,4,64,53,1,67,54,1,72,55,1,76,56,8,60,57,3,64,58,1,67,59,1,72,60,1,76,60,4,64,61,1,67,62,1,72,63,1,76,64,8,60,65,3,64,66,1,69,67,1,76,68,1,81,68,4,64,69,1,69,70,1,76,71,1,81,72,8,60,73,3,64,74,1,69,75,1,76,76,1,81,76,4,64,77,1,69,78,1,76,79,1,81,80,8,60,81,3,62,82,1,66,83,1,69,84,1,74,84,4,62,85,1,66,86,1,69,87,1,74,88,8,60,89,3,62,90,1,66,91,1,69,92,1,74,92,4,62,93,1,66,94,1,69,95,1,74,96,8,59,97,3,62,98,1,67,99,1,74,100,1,79,100,4,62,101,1,67,102,1,74,103,1,79,104,8,59,105,3,62,106,1,67,107,1,74,108,1,79,108,4,62,109,1,67,110,1,74,111,1,79,112,8,59,113,3,60,114,1,64,115,1,67,116,1,72,116,4,60,117,1,64,118,1,67,119,1,72,120,8,59,121,3,60,122,1,64,123,1,67,124,1,72,124,4,60,125,1,64,126,1,67,127,1,72,128,8,57,129,3,60,130,1,64,131,1,67,132,1,72,132,4,60,133,1,64,134,1,67,135,1,72,136,8,57,137,3,60,138,1,64,139,1,67,140,1,72,140,4,60,141,1,64,142,1,67,143,1,72,144,8,50,145,3,57,146,1,62,147,1,66,148,1,72,148,4,57,149,1,62,150,1,66,151,1,72,152,8,50,153,3,57,154,1,62,155,1,66,156,1,72,156,4,57,157,1,62,158,1,66,159,1,72,160,8,55,161,3,59,162,1,62,163,1,67,164,1,71,164,4,59,165,1,62,166,1,67,167,1,71,168,8,55,169,3,59,170,1,62,171,1,67,172,1,71,172,4,59,173,1,62,174,1,67,175,1,71,176,8,55,177,3,58,178,1,64,179,1,67,180,1,73,180,4,58,181,1,64,182,1,67,183,1,73,184,8,55,185,3,58,186,1,64,187,1,67,188,1,73,188,4,58,189,1,64,190,1,67,191,1,73,192,8,53,193,3,57,194,1,62,195,1,69,196,1,74,196,4,57,197,1,62,198,1,69,199,1,74,200,8,53,201,3,57,202,1,62,203,1,69,204,1,74,204,4,57,205,1,62,206,1,69,207,1,74,208,8,53,209,3,56,210,1,62,211,1,65,212,1,71,212,4,56,213,1,62,214,1,65,215,1,71,216,8,53,217,3,56,218,1,62,219,1,65,220,1,71,220,4,56,221,1,62,222,1,65,223,1,71,224,8,52,225,3,55,226,1,60,227,1,67,228,1,72,228,4,55,229,1,60,230,1,67,231,1,72,232,8,52,233,3,55,234,1,60,235,1,67,236,1,72,236,4,55,237,1,60,238,1,67,239,1,72,240,8,52,241,3,53,242,1,57,243,1,60,244,1,65,244,4,53,245,1,57,246,1,60,247,1,65,248,8,52,249,3,53,250,1,57,251,1,60,252,1,65,252,4,53,253,1,57,254,1,60,255,1,65,256,8,50,257,3,53,258,1,57,259,1,60,260,1,65,260,4,53,261,1,57,262,1,60,263,1,65,264,8,50,265,3,53,266,1,57,267,1,60,268,1,65,268,4,53,269,1,57,270,1,60,271,1,65,272,8,43,273,3,50,274,1,55,275,1,59,276,1,65,276,4,50,277,1,55,278,1,59,279,1,65,280,8,43,281,3,50,282,1,55,283,1,59,284,1,65,284,4,50,285,1,55,286,1,59,287,1,65,288,8,48,289,3,52,290,1,55,291,1,60,292,1,64,292,4,52,293,1,55,294,1,60,295,1,64,296,8,48,297,3,52,298,1,55,299,1,60,300,1,64,300,4,52,301,1,55,302,1,60,303,1,64,304,8,48,305,3,55,306,1,58,307,1,60,308,1,64,308,4,55,309,1,58,310,1,60,311,1,64,312,8,48,313,3,55,314,1,58,315,1,60,316,1,64,316,4,55,317,1,58,318,1,60,319,1,64,320,8,41,321,3,53,322,1,57,323,1,60,324,1,64,324,4,53,325,1,57,326,1,60,327,1,64,328,8,41,329,3,53,330,1,57,331,1,60,332,1,64,332,4,53,333,1,57,334,1,60,335,1,64,336,8,42,337,3,48,338,1,57,339,1,60,340,1,63,340,4,48,341,1,57,342,1,60,343,1,63,344,8,42,345,3,48,346,1,57,347,1,60,348,1,63,348,4,48,349,1,57,350,1,60,351,1,63,352,8,44,353,3,53,354,1,59,355,1,60,356,1,62,356,4,53,357,1,59,358,1,60,359,1,62,360,8,44,361,3,53,362,1,59,363,1,60,364,1,62,364,4,53,365,1,59,366,1,60,367,1,62,368,8,43,369,3,53,370,1,55,371,1,59,372,1,62,372,4,53,373,1,55,374,1,59,375,1,62,376,8,43,377,3,53,378,1,55,379,1,59,380,1,62,380,4,53,381,1,55,382,1,59,383,1,62,384,8,43,385,3,52,386,1,55,387,1,60,388,1,64,388,4,52,389,1,55,390,1,60,391,1,64,392,8,43,393,3,52,394,1,55,395,1,60,396,1,64,396,4,52,397,1,55,398,1,60,399,1,64,400,8,43,401,3,50,402,1,55,403,1,59,404,1,65,404,4,50,405,1,55,406,1,59,407,1,65,408,8,43,409,3,50,410,1,55,411,1,59,412,1,65,412,4,50,413,1,55,414,1,59,415,1,65,416,8,43,417,3,51,418,1,57,419,1,60,420,1,66,420,4,51,421,1,57,422,1,60,423,1,66,424,8,43,425,3,51,426,1,57,427,1,60,428,1,66,428,4,51,429,1,57,430,1,60,431,1,66,432,8,43,433,3,52,434,1,55,435,1,60,436,1,67,436,4,52,437,1,55,438,1,60,439,1,67,440,8,43,441,3,52,442,1,55,443,1,60,444,1,67,444,4,52,445,1,55,446,1,60,447,1,67,448,8,43,449,3,50,450,1,55,451,1,60,452,1,65,452,4,50,453,1,55,454,1,60,455,1,65,456,8,43,457,3,50,458,1,55,459,1,60,460,1,65,460,4,50,461,1,55,462,1,60,463,1,65,464,8,43,465,3,50,466,1,55,467,1,59,468,1,65,468,4,50,469,1,55,470,1,59,471,1,65,472,8,43,473,3,50,474,1,55,475,1,59,476,1,65,476,4,50,477,1,55,478,1,59,479,1,65];
 const CHORALE_DATA=[0,4,55,0,4,58,0,4,63,0,8,51,4,4,58,4,4,63,4,4,67,8,2,51,8,4,63,8,4,67,8,6,70,10,2,55,12,2,58,12,4,62,12,4,65,14,2,56,14,2,70,16,2,55,16,4,63,16,4,67,16,4,70,18,2,53,20,2,51,20,4,58,20,4,65,20,4,70,22,2,50,24,2,51,24,4,58,24,4,67,24,8,72,26,2,48,28,4,53,28,4,57,28,4,65,32,11,46,32,11,62,32,11,65,32,11,70,47,2,58,47,4,62,47,4,65,47,4,70,49,2,56,51,2,55,51,4,63,51,4,75,51,6,70,53,2,56,55,2,55,55,4,63,55,4,70,57,2,53,57,2,68,59,2,67,59,2,75,59,4,51,59,4,58,61,2,68,61,2,77,63,4,63,63,4,63,63,4,70,63,4,79,67,2,62,67,4,65,67,4,70,67,4,77,69,2,60,71,2,58,71,4,65,71,4,75,71,6,72,73,2,57,75,4,58,75,4,74,75,6,65,77,4,70,79,4,53,79,4,72,81,2,60,81,2,69,83,11,46,83,11,62,83,11,65,83,11,70,98,2,51,98,4,63,98,4,67,98,4,70,100,2,49,102,2,48,102,4,68,102,4,75,102,6,63,104,2,50,106,4,51,106,4,67,106,4,70,108,2,61,110,2,44,110,4,60,110,4,63,110,4,72,112,2,46,114,4,48,114,4,60,114,4,63,114,4,67,118,2,60,118,2,68,118,4,41,118,4,63,120,2,58,120,2,67,122,4,46,122,4,56,122,4,62,122,4,65,126,7,39,126,7,55,126,7,58,126,7,63,133,4,50,133,4,58,133,4,65,133,4,70,137,2,63,137,4,51,137,6,67,137,6,70,139,2,62,141,2,60,141,4,53,143,2,62,143,2,65,143,2,68,145,2,55,145,2,58,145,4,63,145,4,67,147,2,56,147,2,60,149,2,58,149,2,58,149,4,62,149,4,65,151,2,46,151,2,56,153,11,48,153,11,55,153,11,60,153,11,63,168,2,62,168,4,55,168,4,58,168,4,70,170,2,63,172,2,50,172,2,58,172,4,65,172,6,70,174,2,48,174,2,60,176,4,46,176,4,62,176,6,65,178,2,68,180,2,51,180,2,58,180,4,67,182,2,48,182,4,60,182,4,63,184,2,44,184,4,65,186,2,46,186,2,58,186,2,62,188,11,51,188,11,55,188,11,58,188,11,63,203,2,58,203,4,58,203,4,62,203,4,65,205,2,56,207,4,55,207,4,58,207,4,67,207,6,63,211,2,60,211,4,53,211,4,68,213,2,56,213,2,62,215,7,51,215,7,58,215,7,63,215,7,67,222,4,63,222,4,63,222,4,67,222,4,70,226,2,67,226,4,57,226,4,63,226,4,72,228,4,65,230,4,59,230,4,62,230,4,74,232,2,67,234,7,60,234,7,60,234,7,67,234,7,75,241,2,67,241,2,75,241,4,60,241,4,63,243,2,68,243,2,77,245,2,55,245,4,63,245,4,79,245,6,70,247,2,56,249,4,58,249,4,62,249,4,77,251,2,68,253,7,48,253,7,63,253,7,67,253,7,75,260,2,51,260,2,67,260,4,63,260,4,70,262,2,53,262,2,68,264,2,55,264,2,70,264,4,58,264,4,75,266,2,53,266,2,68,268,2,55,268,2,70,268,4,63,268,4,70,270,2,51,270,2,67,272,2,44,272,4,68,272,4,72,272,6,63,274,2,46,276,4,48,276,4,63,276,4,67,278,2,60,280,2,60,280,2,68,280,4,41,280,4,63,282,2,58,282,2,67,284,4,46,284,4,56,284,4,62,284,4,65,288,8,39,288,8,55,288,8,58,288,8,63],CHORALE_LOOPQ=74.75;
+// "Fridericus Rex": the full verse melody (Böhme's folk-song collection via the Essen corpus), looped, with a simple march band
+const FRED_BEATS=48;
+const FRED=(function(){const mel=[0,3,65,3,1,65,4,4,70,8,4,70,12,4,70,16,2,74,18,2,74,20,3,72,23,1,70,24,2,69,26,2,67,28,6,65,34,2,65,36,4,65,40,2,72,42,2,72,44,2,72,46,2,72,48,2,77,50,2,75,52,4,74,56,3,72,59,1,72,60,4,70,64,4,77,68,3,74,71,1,74,72,2,74,74,2,74,76,3,74,79,1,77,80,2,75,82,2,74,84,3,72,87,1,70,88,2,69,90,2,70,92,4,72,96,2,70,98,2,72,100,3,74,103,1,74,104,2,74,106,2,74,108,3,77,111,1,75,112,2,74,114,2,72,116,4,74,120,3,72,123,1,72,124,4,70,128,4,77,132,3,74,135,1,74,136,2,74,138,2,74,140,3,74,143,1,77,144,2,75,146,2,74,148,3,72,151,1,70,152,2,69,154,2,70,156,4,72,160,2,70,162,2,72,164,3,74,167,1,74,168,2,74,170,2,74,172,3,77,175,1,75,176,2,74,178,2,72,180,4,74,184,3,72,187,1,72,188,4,70];
+  const CH={Bb:{root:46,fifth:41,stab:[50,53,58]},F:{root:41,fifth:36,stab:[48,51,57]}};const HALF=['Bb','Bb','F','Bb','F','F','Bb','Bb','Bb','Bb','F','F','Bb','F','Bb','Bb','Bb','Bb','F','F','Bb','F','Bb','Bb'];
+  const ev=[];for(let i=0;i<mel.length;i+=3)ev.push([mel[i],'mel',mel[i+1],mel[i+2]]);
+  for(let q=0;q<FRED_BEATS;q++){const r=(q+FRED_BEATS-1)%FRED_BEATS,c=CH[HALF[Math.floor(r/2)]],s16=q*4;
+    if(r%2===0){ev.push([s16,'bass',4,r%4===0?c.root:c.fifth]);ev.push([s16,'kick']);}
+    else{for(const m of c.stab)ev.push([s16,'stab',2,m]);ev.push([s16,'snare',1]);if(r%4===3)ev.push([s16+2,'snare',0.6]);}}
+  ev.sort((a,b)=>a[0]-b[0]);return ev;})();
+// "Freiheitsflieger": original fast battle music (E minor, 160 bpm, 16-bar loop: drum kit, synth bass, power-chord guitar, string stabs, lead)
+const STURM=(function(){
+  const R={Em:40,C:36,D:38,Bm:35,G:43,B:35};
+  const prog=['Em','C','D','Bm','Em','C','D','D','C','D','Em','Em','C','D','B','B'];
+  const lead=[[0,1,76],[1,1,79],[2,1.5,81],[3.5,.5,79],[4,2,78],[6,1,74],[7,1,78],[8,1.5,79],[9.5,.5,78],[10,1,76],[11,1,71],[12,4,76],
+              [16,1,76],[17,1,79],[18,1.5,84],[19.5,.5,83],[20,2,81],[22,1,78],[23,1,86],[24,3,83],[27,.5,81],[27.5,.5,79],[28,2,78],[30,2,75]];
+  const ev=[];
+  for(let bar=0;bar<16;bar++){const b0=bar*16,root=R[prog[bar]],chorus=bar>=8,third=prog[bar]==='B'?3+1:0;
+    for(const k of[0,6,8,10])ev.push([b0+k,'kick']);for(const k of[4,12])ev.push([b0+k,'sn']);
+    for(let k=0;k<16;k+=2)ev.push([b0+k,'hat',k%4===0?1:0.6]);
+    for(let k=0;k<16;k+=2)ev.push([b0+k,'bass',2,root+(k%4===2?12:0)]);
+    if(chorus){ev.push([b0,'gtr',16,root+12]);ev.push([b0,'pad',16,[root+24,root+28-(prog[bar]==='Em'||prog[bar]==='Bm'?1:0),root+31]]);}
+    else for(let k=0;k<16;k+=2)ev.push([b0+k,'gtr',k%8===6?2:1.2,root+12]);
+    if(bar===15)for(const k of[8,10,12,13,14,15])ev.push([b0+k,'sn']);
+    if(bar===0||bar===8)ev.push([b0,'crash']);}
+  for(const[o,d,m]of lead)ev.push([128+o*4,'lead',d*4,m]);
+  ev.sort((a,b)=>a[0]-b[0]);return ev;})();
 const Music=(function(){
-  const TRACKS=['off','prelude','chorale'];
+  const TRACKS=['off','prelude','chorale','fred','sturm'];
   let track='prelude',ctx=null,master,bus,timer=null,idx=0,loopStart=0;
   try{const sv=localStorage.getItem('kb1736-music');if(TRACKS.includes(sv))track=sv;}catch(_){}
   const SPQ=60/62,LOOPQ=120,VOL=0.9;      // Prelude in C, bars 1-30 (ends on G7, returns to C)
@@ -1196,6 +1333,51 @@ const Music=(function(){
     const pk=0.075*v*(m<50?1.3:1),end=t+Math.min(Math.max(d,0.35)+0.35,3.5);
     g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(pk,t+0.004);g.gain.exponentialRampToValueAtTime(pk*0.4,t+0.22);g.gain.exponentialRampToValueAtTime(0.0001,end);
     o1.connect(lp);o2.connect(g2);g2.connect(lp);lp.connect(g);g.connect(bus);o1.start(t);o2.start(t);o1.stop(end+0.05);o2.stop(end+0.05);}
+  let noiseBuf=null;
+  function brass(t,m,d){const f=hz(m),end=t+d;const g=ctx.createGain(),lp=ctx.createBiquadFilter();lp.type='lowpass';lp.Q.value=1;
+    lp.frequency.setValueAtTime(f*2,t);lp.frequency.linearRampToValueAtTime(f*5,t+0.05);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.06,t+0.03);
+    g.gain.setValueAtTime(0.055,Math.max(t+0.04,end-0.05));g.gain.exponentialRampToValueAtTime(0.0001,end+0.06);lp.connect(g);g.connect(bus);
+    const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=f;o.connect(lp);
+    const fife=ctx.createOscillator(),fg=ctx.createGain();fife.type='square';fife.frequency.value=f*2;fg.gain.value=0.22;fife.connect(fg);fg.connect(lp);
+    o.start(t);fife.start(t);o.stop(end+0.1);fife.stop(end+0.1);}
+  function tuba(t,m,d,v){const f=hz(m),end=t+d,g=ctx.createGain(),lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=520;
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.09*(v||1),t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,end);
+    const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=f;o.connect(lp);lp.connect(g);g.connect(bus);o.start(t);o.stop(end+0.05);}
+  function snare(t,v){if(!noiseBuf){noiseBuf=ctx.createBuffer(1,ctx.sampleRate*0.3,ctx.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
+    const src=ctx.createBufferSource();src.buffer=noiseBuf;const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1900;bp.Q.value=0.8;const g=ctx.createGain();
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.11*v,t+0.004);g.gain.exponentialRampToValueAtTime(0.0001,t+0.14);src.connect(bp);bp.connect(g);g.connect(bus);src.start(t);src.stop(t+0.16);}
+  function kick(t){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(45,t+0.15);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.22,t+0.005);g.gain.exponentialRampToValueAtTime(0.0001,t+0.3);o.connect(g);g.connect(bus);o.start(t);o.stop(t+0.32);}
+  function strings(t,m,d,v){const f=hz(m),end=t+d,g=ctx.createGain(),lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=Math.min(4000,f*6);lp.Q.value=0.7;
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.045*v,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,end+0.05);
+    for(const dt of[-7,7]){const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=f;o.detune.value=dt;o.connect(lp);o.start(t);o.stop(end+0.08);}lp.connect(g);g.connect(bus);}
+  function choir(t,notes,d){const end=t+d,g=ctx.createGain(),bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=900;bp.Q.value=0.9;
+    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(0.03,t+0.35);g.gain.setValueAtTime(0.03,end-0.1);g.gain.linearRampToValueAtTime(0.0001,end+0.25);bp.connect(g);g.connect(bus);
+    for(const m of notes)for(const dt of[-9,0,9]){const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=hz(m);o.detune.value=dt;o.connect(bp);o.start(t);o.stop(end+0.3);}}
+  function horn(t,m,d){const f=hz(m),end=t+d,g=ctx.createGain(),lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=f*3;
+    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(0.05,t+0.25);g.gain.setValueAtTime(0.05,end-0.15);g.gain.linearRampToValueAtTime(0.0001,end);
+    const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=f;o.connect(lp);lp.connect(g);g.connect(bus);o.start(t);o.stop(end+0.05);}
+  function taiko(t,v){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(95,t);o.frequency.exponentialRampToValueAtTime(38,t+0.35);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.32*v,t+0.006);g.gain.exponentialRampToValueAtTime(0.0001,t+0.6);o.connect(g);g.connect(bus);o.start(t);o.stop(t+0.65);snare(t,0.35*v);}
+  function crash(t){if(!noiseBuf)snare(t,0.0001);const src=ctx.createBufferSource();src.buffer=noiseBuf;src.loop=true;const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=5000;
+    const g=ctx.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.07,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+1.8);src.connect(hp);hp.connect(g);g.connect(bus);src.start(t);src.stop(t+1.9);}
+  let distCurve=null;
+  function guitar(t,m,d){if(!distCurve){distCurve=new Float32Array(1024);for(let i=0;i<1024;i++){const x=i/512-1;distCurve[i]=Math.tanh(x*6);}}
+    const end=t+d,ws=ctx.createWaveShaper();ws.curve=distCurve;const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2600;const g=ctx.createGain();
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.03,t+0.008);g.gain.setValueAtTime(0.03,Math.max(t+0.01,end-0.03));g.gain.exponentialRampToValueAtTime(0.0001,end+0.04);
+    const pre=ctx.createGain();pre.gain.value=0.5;pre.connect(ws);ws.connect(lp);lp.connect(g);g.connect(bus);
+    for(const iv of[0,7,12])for(const dt of[-6,6]){const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=hz(m+iv);o.detune.value=dt;o.connect(pre);o.start(t);o.stop(end+0.06);}}
+  function sbass(t,m,d){const end=t+d*0.9,o=ctx.createOscillator(),g=ctx.createGain(),lp=ctx.createBiquadFilter();o.type='square';o.frequency.value=hz(m);lp.type='lowpass';lp.frequency.setValueAtTime(900,t);lp.frequency.exponentialRampToValueAtTime(250,end);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.07,t+0.005);g.gain.exponentialRampToValueAtTime(0.0001,end);o.connect(lp);lp.connect(g);g.connect(bus);o.start(t);o.stop(end+0.02);}
+  function hat(t,v){if(!noiseBuf)snare(t,0.0001);const src=ctx.createBufferSource();src.buffer=noiseBuf;const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=8000;const g=ctx.createGain();
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.035*v,t+0.002);g.gain.exponentialRampToValueAtTime(0.0001,t+0.05);src.connect(hp);hp.connect(g);g.connect(bus);src.start(t);src.stop(t+0.06);}
+  function lead(t,m,d){const f=hz(m),end=t+d,g=ctx.createGain(),lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=4200;
+    const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=5.5;lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(f*0.012,t+Math.min(0.4,d));lfo.connect(lg);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.05,t+0.02);g.gain.setValueAtTime(0.05,Math.max(t+0.03,end-0.05));g.gain.exponentialRampToValueAtTime(0.0001,end+0.08);lp.connect(g);g.connect(bus);
+    for(const[ty,dt,mul]of[['sawtooth',-8,1],['sawtooth',8,1],['square',0,2]]){const o=ctx.createOscillator();o.type=ty;o.frequency.value=f*mul;o.detune.value=dt;lg.connect(o.frequency);
+      const og=ctx.createGain();og.gain.value=mul>1?0.25:0.5;o.connect(og);og.connect(lp);o.start(t);o.stop(end+0.1);}lfo.start(t);lfo.stop(end+0.1);}
+  function bkick(t){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(42,t+0.12);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.28,t+0.003);g.gain.exponentialRampToValueAtTime(0.0001,t+0.25);o.connect(g);g.connect(bus);o.start(t);o.stop(t+0.27);}
   // Organ voice for the chorale: additive pipes with a soft attack
   function organ(t,m,d,v){const f=hz(m),end=t+d,g=ctx.createGain();const pk=0.032*v*(m<52?1.2:1);
     g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(pk,t+0.05);g.gain.setValueAtTime(pk,Math.max(t+0.06,end-0.04));g.gain.exponentialRampToValueAtTime(0.0001,end+0.18);g.connect(bus);
@@ -1205,7 +1387,14 @@ const Music=(function(){
     if(track==='prelude'){let guard=0;while(guard++<64){const e=idx*3,t=loopStart+PRELUDE_DATA[e]/4*SPQ;if(t>ahead)break;
         const on=PRELUDE_DATA[e];harpsi(t,PRELUDE_DATA[e+2],PRELUDE_DATA[e+1]/4*SPQ,on%16===0?1:0.78);idx++;if(idx*3>=PRELUDE_DATA.length){idx=0;loopStart+=LOOPQ*SPQ;}}}
     else if(track==='chorale'){const SQ=60/66;let guard=0;while(guard++<64){const e=idx*3,t=loopStart+CHORALE_DATA[e]/4*SQ;if(t>ahead)break;
-        organ(t,CHORALE_DATA[e+2],CHORALE_DATA[e+1]/4*SQ*0.97,1);idx++;if(idx*3>=CHORALE_DATA.length){idx=0;loopStart+=CHORALE_LOOPQ*SQ;}}}}
+        organ(t,CHORALE_DATA[e+2],CHORALE_DATA[e+1]/4*SQ*0.97,1);idx++;if(idx*3>=CHORALE_DATA.length){idx=0;loopStart+=CHORALE_LOOPQ*SQ;}}}
+    else if(track==='fred'){const SQ=60/108;let guard=0;while(guard++<64){const e=FRED[idx],t=loopStart+e[0]/4*SQ;if(t>ahead)break;
+        if(e[1]==='mel')brass(t,e[3],e[2]/4*SQ*0.92);else if(e[1]==='bass')tuba(t,e[3],SQ*0.8,1);else if(e[1]==='stab')tuba(t,e[3],SQ*0.35,0.35);else if(e[1]==='snare')snare(t,e[2]);else kick(t);
+        idx++;if(idx>=FRED.length){idx=0;loopStart+=FRED_BEATS*SQ;}}}
+    else if(track==='sturm'){const SQ=60/160;let guard=0;while(guard++<128){const e=STURM[idx],t=loopStart+e[0]/4*SQ;if(t>ahead)break;const d=(e[2]||0)/4*SQ;
+        switch(e[1]){case'kick':bkick(t);break;case'sn':snare(t,1.1);break;case'hat':hat(t,e[2]);break;case'bass':sbass(t,e[3],d);break;case'gtr':guitar(t,e[3],d*0.92);break;
+          case'pad':for(const m of e[3])strings(t,m,d,0.35);break;case'lead':lead(t,e[3],d*0.95);break;case'crash':crash(t);break;}
+        idx++;if(idx>=STURM.length){idx=0;loopStart+=64*SQ;}}}}
   function begin(){if(track==='off'||!init())return;if(ctx.state==='suspended')ctx.resume();const t=ctx.currentTime+0.15;
     idx=0;loopStart=t;
     master.gain.cancelScheduledValues(ctx.currentTime);master.gain.setValueAtTime(master.gain.value,ctx.currentTime);master.gain.linearRampToValueAtTime(VOL,t+0.6);
@@ -1219,7 +1408,7 @@ const Music=(function(){
 })();
 
 function renderMusic(){for(const id of['musicIntro','musicHud']){const box=$(id);box.innerHTML='';
-  for(const[code,key]of[['off','mOff'],['prelude','mPrelude'],['chorale','mChorale']]){const bt=document.createElement('button');bt.type='button';bt.textContent=t(key);
+  for(const[code,key]of[['off','mOff'],['prelude','mPrelude'],['chorale','mChorale'],['fred','mFred'],['sturm','mSturm']]){const bt=document.createElement('button');bt.type='button';bt.textContent=t(key);
     bt.setAttribute('aria-pressed',Music.track===code);bt.addEventListener('click',()=>{Music.set(code);renderMusic();});box.appendChild(bt);}}}
 /* Language switching */
 function renderLangButtons(){for(const id of['langIntro','langHud']){const box=$(id);box.innerHTML='';
@@ -1229,8 +1418,8 @@ function setLang(code){LANG=code;try{localStorage.setItem('kb1736-lang',code);}c
   document.documentElement.lang=code;
   document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=t(el.dataset.i18n);});
   document.title=({ru:'Кёнигсберг 1736',pl:'Królewiec 1736','zh-Hant':'柯尼斯堡 1736',ja:'ケーニヒスベルク 1736',ko:'쾨니히스베르크 1736'})[code]||'Königsberg 1736';
-  $('hint').textContent=t('hint').replace(/(\s?(?:·|・)\s?)M /,(m,sep)=>sep+'E '+t('hShort')+sep+'M ');
-  renderLangButtons();renderMusic();renderList();if(typeof updateHorseUI==='function')updateHorseUI();if(typeof FAMOUS!=='undefined')FAMOUS.refresh();updateHUD();lastPlace='';if(typeof setBeginLabel==='function')setBeginLabel();if(started)updatePlace(bridgeAt(P.x,P.z));}
+  HINTBASE=t('hint').replace(/(\s?(?:·|・)\s?)M /,(m,sep)=>sep+'E '+t('hShort')+sep+'M ');$('hint').textContent=HINTBASE;
+  renderLangButtons();renderMusic();renderList();if(typeof updateHorseUI==='function')updateHorseUI();if(typeof updateGearUI==='function')updateGearUI();if(typeof FAMOUS!=='undefined')FAMOUS.refresh();updateHUD();lastPlace='';if(typeof setBeginLabel==='function')setBeginLabel();if(started)updatePlace(bridgeAt(P.x,P.z));}
 
 /* ---------------- Minimap ---------------- */
 const MAP={x0:-650,x1:710,z0:-460,z1:447};
@@ -1265,6 +1454,12 @@ function drawMap(){const W=mapC.width,H=mapC.height;if(!W)return;const big=$('ma
   const hr=Math.max(2.5,3*(W/mapC.getBoundingClientRect().width||1));
   for(const h of horses){if(h.patrol||h===HORSE.mounted)continue;mctx.beginPath();mctx.arc(X(h.x),Z(h.z),hr,0,7);mctx.fillStyle=h.energy<0.25?'#c9604a':'#6b3f22';mctx.fill();mctx.lineWidth=Math.max(1,hr*0.45);mctx.strokeStyle='#f4ecd8';mctx.stroke();}
   {const dp=W/(mapC.getBoundingClientRect().width||1),fr=Math.max(5,6.5*dp);mctx.font=`700 ${Math.round(fr*1.25)}px "Cormorant Garamond", Georgia, serif`;mctx.textAlign='center';mctx.textBaseline='middle';
+   if(big){const MAPN={rath:'Rathaus',kirche:'Altstädt. Kirche',gericht:'Stadtgericht',kaemmerei:'Stadtkämmerei',steindamm:'Steindammer Kirche',sackheim:'Sackheimer Kirche',schule:'Altstädt. Schule',uni:'Universität',packhof:'Packhof'};
+     mctx.font=`italic 600 ${Math.round(12.5*dp)}px "Cormorant Garamond", Georgia, serif`;mctx.textAlign='center';mctx.textBaseline='alphabetic';
+     for(const l of LANDMARKS){const nm=MAPN[l.key];if(!nm)continue;const lx=X((l.x0+l.x1)/2)+(l.key==='kirche'?-10*dp:l.key==='schule'?14*dp:0),lz=['uni','kirche','rath'].includes(l.key)?Z(l.z1)+13*dp:Z(l.z0)-4*dp;
+       mctx.lineWidth=3.5*dp;mctx.strokeStyle='rgba(244,236,216,.92)';mctx.strokeText(nm,lx,lz);mctx.fillStyle='#7a2a1c';mctx.fillText(nm,lx,lz);}
+     mctx.textBaseline='middle';}
+   if(GEAR.has)for(const st of STATIONS){const sx2=X(st.x),sz2=Z(st.z);mctx.fillStyle='#2b5c8a';mctx.fillRect(sx2-fr*0.7,sz2-fr*0.7,fr*1.4,fr*1.4);mctx.lineWidth=Math.max(1,dp);mctx.strokeStyle='#f4ecd8';mctx.strokeRect(sx2-fr*0.7,sz2-fr*0.7,fr*1.4,fr*1.4);}
    for(const c of FAMOUS.chars){const cx=X(c.x),cz=Z(c.z);mctx.beginPath();mctx.arc(cx,cz,fr,0,7);mctx.fillStyle='#f2c94c';mctx.fill();mctx.lineWidth=Math.max(1.5,dp);mctx.strokeStyle='#13202c';mctx.stroke();mctx.fillStyle='#13202c';mctx.fillText(c.initial,cx,cz+fr*0.08);}
    mctx.textBaseline='alphabetic';}
   const px=X(P.x),pz=Z(P.z),fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw);const s=Math.max(5,7*u*(big?.55:1));
@@ -1291,7 +1486,9 @@ window.addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')re
   if(started&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();
   if(started&&e.code==='KeyM')toggleMap();
   if(started&&e.code==='KeyE'&&!e.repeat)toggleMount();
-  if(started&&e.code==='KeyF'&&!e.repeat)FAMOUS.next();});
+  if(started&&e.code==='KeyF'&&!e.repeat)FAMOUS.next();
+  if(started&&!e.repeat&&e.code==='KeyQ')fireHook(0);if(started&&!e.repeat&&e.code==='KeyR')fireHook(1);
+  if(started&&!e.repeat&&e.code==='Space')gearJump();});
 window.addEventListener('keyup',e=>{keys[e.code]=false;});
 window.addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
 const stick=$('stick'),knob=$('knob');const joy={id:null,x:0,y:0};
@@ -1313,12 +1510,16 @@ function openMenu(){started=false;mouseDown=false;lookId=null;joy.id=null;joy.x=
   $('mapwrap').classList.remove('big');$('toast').classList.remove('show');$('hud').hidden=true;$('intro').hidden=false;setBeginLabel();$('begin').focus();}
 $('menu').addEventListener('click',()=>{FAMOUS.hide();openMenu();});
 $('mountBtn').addEventListener('click',e=>{e.stopPropagation();toggleMount();});
+$('gearHelpOk').addEventListener('click',e=>{e.stopPropagation();hideGearHelp();});$('gearHelpBtn').addEventListener('click',e=>{e.stopPropagation();showGearHelp();});
+for(const[id,flag,fire]of[['bHookL','btnL',()=>fireHook(0)],['bHookR','btnR',()=>fireHook(1)],['bThrust','btnT',gearJump]]){const el=$(id);
+  el.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();GEAR[flag]=true;el.classList.add('on');fire();});
+  const up=()=>{GEAR[flag]=false;el.classList.remove('on');};el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);el.addEventListener('pointerleave',up);}
 setLang(LANG);
 
 window.addEventListener('resize',()=>{renderer.setSize(app.clientWidth,app.clientHeight);camera.aspect=app.clientWidth/app.clientHeight;camera.updateProjectionMatrix();sizeMap();});
 
 /* ---------------- Loop ---------------- */
-const clock=new THREE.Clock();let time=0,mapTick=0,movedAt=-9,isMoving=false;
+const clock=new THREE.Clock();let time=0,mapTick=0,movedAt=-9,isMoving=false,inputHeld=false,hudOp=1;
 const baseYaw=P.yaw;
 function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),0.05);time+=dt;
   if(started){
@@ -1327,22 +1528,36 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
     if(keys.KeyD)ms+=1;if(keys.KeyA)ms-=1;
     if(keys.ArrowLeft)P.yaw+=1.8*dt;if(keys.ArrowRight)P.yaw-=1.8*dt;
     mf+=-joy.y;ms+=joy.x;
-    const m=Math.hypot(mf,ms);if(m>1){mf/=m;ms/=m;}
+    const m=Math.hypot(mf,ms);if(m>1){mf/=m;ms/=m;}inputHeld=m>0.05;
     const run=keys.ShiftLeft||keys.ShiftRight||Math.hypot(joy.x,joy.y)>0.92;
     const H=HORSE.mounted,tired=H&&H.energy<=0,gallop=H&&run&&!tired;
-    const sp=(H?(tired?6.5:gallop?42:19.5):(run?14:6.5))*dt;
-    const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw),rx=Math.cos(P.yaw),rz=-Math.sin(P.yaw);
-    const dx=(fx*mf+rx*ms)*sp,dz=(fz*mf+rz*ms)*sp;
-    const sub=Math.max(1,Math.ceil(Math.hypot(dx,dz)/0.4));
+    GEAR.inL=!!(keys.KeyQ||GEAR.btnL);GEAR.inR=!!(keys.KeyR||GEAR.btnR);GEAR.inT=!!(GEAR.has&&(keys.Space||GEAR.btnT));
+    if(!GEAR.inL&&GEAR.hooks[0])releaseHook(0);if(!GEAR.inR&&GEAR.hooks[1])releaseHook(1);
+    if(GEAR.has&&GEAR.inT&&!GEAR.air&&GEAR.gas>0&&!H){GEAR.air=true;GEAR.vy=6;}
     const ox=P.x,oz=P.z;
-    const rr=H?0.9:0.35;
-    for(let k=0;k<sub;k++){if(dx&&canStand(P.x+dx/sub,P.z,rr))P.x+=dx/sub;if(dz&&canStand(P.x,P.z+dz/sub,rr))P.z+=dz/sub;trackBridges();}
+    if(GEAR.air){const n=4;for(let k=0;k<n;k++){if(!flightStep(dt/n,mf,ms))break;}}
+    else{
+      const sp=(H?(tired?6.5:gallop?42:19.5):(run?14:6.5))*dt;
+      const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw),rx=Math.cos(P.yaw),rz=-Math.sin(P.yaw);
+      let dx=(fx*mf+rx*ms)*sp,dz=(fz*mf+rz*ms)*sp;
+      // horses carry momentum: they speed up briskly and coast to a stop when you let go
+      if(H&&dt>0){const tx=dx/dt,tz=dz/dt;H.vx=H.vx||0;H.vz=H.vz||0;const up=Math.hypot(tx,tz)>Math.hypot(H.vx,H.vz);const k=Math.min(1,(up?3.2:0.8)*dt);
+        H.vx+=(tx-H.vx)*k;H.vz+=(tz-H.vz)*k;if(!up&&Math.hypot(H.vx,H.vz)<0.3){H.vx=H.vz=0;}dx=H.vx*dt;dz=H.vz*dt;}
+      const sub=Math.max(1,Math.ceil(Math.hypot(dx,dz)/0.4));const rr=H?0.9:0.35;
+      const onRoof=GEAR.has&&P.feet>groundH(P.x,P.z)+3;STEP=onRoof?2.6:0.7;
+      const ok=(x,z)=>{if(!inBounds(x,z))return false;const s2=surfaceAt(x,z,P.feet,rr);if(s2.block)return false;if(!s2.bridge&&sdWater(x,z)<0.8)return false;
+        if(onRoof&&s2.g<P.feet-3)return false;return true;};
+      for(let k=0;k<sub;k++){if(dx){if(ok(P.x+dx/sub,P.z))P.x+=dx/sub;else if(H)H.vx=0;}if(dz){if(ok(P.x,P.z+dz/sub))P.z+=dz/sub;else if(H)H.vz=0;}trackBridges();}
+      const sf=surfaceAt(P.x,P.z,P.feet,onRoof?0.6:0.2).g;STEP=0.7;
+      if(sf<P.feet-0.9){GEAR.air=true;GEAR.vx=dx/dt;GEAR.vz=dz/dt;GEAR.vy=0;}else{P.feet=sf;if(!H&&sdWater(P.x,P.z)>1)GEAR.safe={x:P.x,z:P.z,f:P.feet};}
+    }
     const moved=Math.hypot(P.x-ox,P.z-oz);if(moved>0)movedAt=time;
     if(H){HORSE.speed=dt>0?moved/dt:0;if(moved>0){H.energy=Math.max(0,H.energy-dt*(gallop?1/60:1/180));if(H.energy<=0&&!H.warned){H.warned=true;toast(t('hTired'),4200);}}}
   }else if(!everStarted&&!reduceMotion){P.yaw=baseYaw+Math.sin(time*0.12)*0.28;}
   const onB=bridgeAt(P.x,P.z);
-  const gy=(onB?deckY(onB.b,onB.t):groundH(P.x,P.z))+(HORSE.mounted?2.75:1.7);
-  P.y+=(gy-P.y)*Math.min(1,dt*10);
+  if(!started&&!GEAR.air)P.feet=onB?deckY(onB.b,onB.t):groundH(P.x,P.z);
+  const gy=P.feet+eyeH();
+  if(GEAR.air)P.y=gy;else P.y+=(gy-P.y)*Math.min(1,dt*10);
   if(HORSE.mounted)camera.position.set(P.x+Math.sin(P.yaw)*0.35,P.y,P.z+Math.cos(P.yaw)*0.35);else camera.position.set(P.x,P.y,P.z);camera.rotation.set(P.pitch,P.yaw,0);
   sky.position.copy(camera.position);
   sun.position.set(P.x+SUN.x*500,SUN.y*500,P.z+SUN.z*500);sun.target.position.set(P.x,0,P.z);sun.target.updateMatrixWorld();
@@ -1353,13 +1568,20 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
     for(const c of clouds){c.position.x+=dt*4;if(c.position.x>2400)c.position.x=-2400;}
     animateBirds(time,dt);
   }
-  npcUpdate(dt,time);horseUpdate(dt,time);FAMOUS.update(dt,time);
+  npcUpdate(dt,time);horseUpdate(dt,time);FAMOUS.update(dt,time);gearUpdate(dt,time);
+  aimTick+=dt;if(started&&GEAR.has&&aimTick>0.15){aimTick=0;$('cross').classList.toggle('ok',!!aimHit());updateGearUI();}
   horseUITick+=dt;if(started&&horseUITick>0.15){horseUITick=0;updateHorseUI();}
-  const mv=started&&time-movedAt<0.25;if(mv!==isMoving){isMoving=mv;document.body.classList.toggle('moving',mv);}
+  // HUD visibility: 27% while moving; when a horse coasts after you let go, it fades back in linearly with the horse's falling speed
+  {const mv=started&&time-movedAt<0.25;let op=mv?0.27:1;const H=HORSE.mounted;
+   if(mv&&H&&!GEAR.air){const v=Math.hypot(H.vx||0,H.vz||0);if(inputHeld)H.v0=0;else{if(!H.v0)H.v0=Math.max(v,0.5);op=0.27+0.73*clamp(1-v/H.v0,0,1);}}
+   else if(H)H.v0=0;
+   if(mv!==isMoving){isMoving=mv;document.body.classList.toggle('moving',mv);}
+   if(Math.abs(op-hudOp)>0.004){hudOp=op;const card=document.querySelector('.card'),mw=$('mapwrap');const coast=op>0.27&&op<1;card.style.transition=mw.style.transition=coast?'none':'';
+     card.style.opacity=op<1?op.toFixed(3):'';mw.style.opacity=op<1&&!mw.classList.contains('big')?op.toFixed(3):'';}}
   if(started){updatePlace(onB);mapTick+=dt;if(mapTick>1/20){mapTick=0;drawMap();}}
   renderer.render(scene,camera);}
 frame();
-window.__kb={FAMOUS,P,BR,houses,trees,counts,canStand,npcs,horses,HORSE,toggleMount,step(){trackBridges();}};
+window.__kb={flightStep,GEAR,fireHook,FAMOUS,P,BR,houses,trees,counts,canStand,npcs,horses,HORSE,toggleMount,step(){trackBridges();}};
 })();
 </script>
 
