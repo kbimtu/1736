@@ -1,7 +1,7 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Königsberg 1736</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Jost:wght@400;500;600&family=Noto+Serif+TC:wght@500;600&family=Noto+Serif+JP:wght@500;600&display=swap">
 <style>
 /* Layout: full-screen 3D walk; HUD as Prussian-night glass cards; map styled as an old parchment plan. */
 :root{
@@ -18,6 +18,16 @@ body{margin:0;background:var(--night);color:var(--parchment);font-family:var(--b
 #app{position:fixed;inset:0}
 #app canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
 button{font:inherit;color:inherit;cursor:pointer}
+html:lang(zh-Hant){--display:'Cormorant Garamond','Noto Serif TC','PMingLiU',serif}
+html:lang(ja){--display:'Cormorant Garamond','Noto Serif JP','Hiragino Mincho ProN',serif}
+html:lang(zh-Hant) #intro h1 em,html:lang(ja) #intro h1 em{font-style:normal}
+html:lang(zh-Hant) #intro h1,html:lang(ja) #intro h1{font-size:clamp(38px,6.6vw,64px);line-height:1.15}
+.langs{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 26px}
+.langs button{background:none;border:1px solid var(--line);border-radius:2px;padding:4px 10px;font-size:12.5px;color:var(--muted)}
+.langs button:hover{color:var(--parchment);border-color:var(--gold)}
+.langs button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+.langs.mini{margin:10px 0 0;gap:3px}.langs.mini button{padding:2px 6px;font-size:11px}
+.row{display:flex;gap:6px;flex-wrap:wrap}
 button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
 /* Intro */
@@ -51,7 +61,8 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 #blist{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:1px}
 #blist li{display:grid;grid-template-columns:30px 1fr auto;align-items:baseline;padding:3px 0;font-size:13.5px;color:var(--muted)}
 #blist .num{font-family:var(--display);font-weight:700;font-size:15px;color:rgba(238,196,100,.55)}
-#blist .nm small{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;margin-left:6px;opacity:.7}
+#blist .nm{min-width:0}
+#blist .nm small{display:inline-block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;margin-left:6px;opacity:.7}
 #blist .ct{font-variant-numeric:tabular-nums;font-size:13px}
 #blist li.on{color:var(--parchment)}
 #blist li.on .num{color:var(--gold)}
@@ -60,8 +71,9 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 #blist li.here{background:rgba(238,196,100,.1);margin:0 -8px;padding:3px 8px}
 #euler{font-size:12.5px;line-height:1.45;color:rgba(244,236,216,.82);margin:10px 0 8px;border-top:1px solid var(--line);padding-top:9px}
 #euler b{color:var(--gold);font-weight:500}
-#reset{background:none;border:1px solid var(--line);border-radius:2px;padding:5px 10px;font-size:12px;color:var(--parchment)}
-#reset:hover{border-color:var(--gold)}
+#reset,#menu{background:none;border:1px solid var(--line);border-radius:2px;padding:5px 10px;font-size:12px;color:var(--parchment)}
+#reset:hover,#menu:hover{border-color:var(--gold)}
+#menu{border-color:rgba(238,196,100,.6);color:var(--gold)}
 
 #mapwrap{position:fixed;z-index:5;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));
   padding:5px;background:var(--glass);border:1px solid var(--line);border-radius:4px;cursor:zoom-in}
@@ -81,7 +93,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 #toast b{font-family:var(--display);font-size:17px;color:var(--prussian)}
 
 #cross{position:fixed;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:rgba(244,236,216,.75);z-index:3;pointer-events:none;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
-#hint{position:fixed;z-index:4;left:calc(14px + env(safe-area-inset-left,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));font-size:12px;color:rgba(244,236,216,.75);text-shadow:0 1px 6px rgba(0,0,0,.8);pointer-events:none;line-height:1.6}
+#hint{position:fixed;z-index:4;right:calc(14px + env(safe-area-inset-right,0px));text-align:right;bottom:calc(14px + env(safe-area-inset-bottom,0px));font-size:12px;color:rgba(244,236,216,.75);text-shadow:0 1px 6px rgba(0,0,0,.8);pointer-events:none;line-height:1.6}
 #stick{display:none;position:fixed;z-index:6;left:calc(22px + env(safe-area-inset-left,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));width:116px;height:116px;border-radius:50%;
   border:1px solid rgba(238,196,100,.5);background:rgba(5,24,40,.35);touch-action:none}
 #knob{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(238,196,100,.75)}
@@ -101,42 +113,44 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
 <div id="intro">
   <div class="panel">
-    <div class="eyebrow">Königsberg, Prussia · 1736</div>
-    <h1>Walk the city of <em>seven bridges</em></h1>
-    <p>In 1736 Leonhard Euler studied a puzzle about this city. The Pregel river splits it into four parts, joined by seven bridges. Can you walk through town and cross every bridge exactly once?</p>
-    <p>Walk past the cathedral on the Kneiphof, up to the castle, and through streets of half-timbered houses. The tally keeps count of every crossing.</p>
+    <div class="langs" role="group" aria-label="Language" id="langIntro"></div>
+    <div class="eyebrow" data-i18n="eyebrow">Königsberg, Prussia · 1736</div>
+    <h1 data-i18n="h1">Walk the city of <em>seven bridges</em></h1>
+    <p data-i18n="p1"></p>
+    <p data-i18n="p2"></p>
     <div class="keys desk-only">
-      <kbd>W A S D</kbd><span>Walk (arrow keys work too)</span>
-      <kbd>Shift</kbd><span>Run</span>
-      <kbd>Mouse</kbd><span>Look around. Click the view to lock the mouse, Esc to release.</span>
-      <kbd>M</kbd><span>Open the large map</span>
+      <kbd>W A S D</kbd><span data-i18n="kWalk"></span>
+      <kbd data-i18n="kShift">Shift</kbd><span data-i18n="kRun"></span>
+      <kbd data-i18n="kMouse">Mouse</kbd><span data-i18n="kLook"></span>
+      <kbd>M</kbd><span data-i18n="kMap"></span>
     </div>
     <div class="keys touch-only">
-      <kbd>Stick</kbd><span>Walk with the stick at the bottom left</span>
-      <kbd>Drag</kbd><span>Drag anywhere else to look around</span>
-      <kbd>Map</kbd><span>Tap the map to enlarge it</span>
+      <kbd data-i18n="kStick">Stick</kbd><span data-i18n="tWalk"></span>
+      <kbd data-i18n="kDrag">Drag</kbd><span data-i18n="tLook"></span>
+      <kbd data-i18n="kMapT">Map</kbd><span data-i18n="tMap"></span>
     </div>
     <button id="begin" type="button">Begin the walk</button>
-    <small>An imagined reconstruction. The river and bridges follow Euler's map of Königsberg. The buildings are drawn from period style, not surveyed plans.</small>
+    <small data-i18n="note"></small>
   </div>
 </div>
 
 <div id="hud" hidden>
   <section class="card" aria-label="Bridge tally">
-    <div class="eyebrow"><span>Bridge tally</span><span id="regionTag"></span></div>
+    <div class="eyebrow"><span data-i18n="tally">Bridge tally</span><span id="regionTag"></span></div>
     <div class="stats">
-      <div class="stat"><b id="distinct">0</b><span>/7</span><small>Bridges crossed</small></div>
-      <div class="stat"><b id="total">0</b><small>Total crossings</small></div>
+      <div class="stat"><b id="distinct">0</b><span>/7</span><small data-i18n="sDistinct">Bridges crossed</small></div>
+      <div class="stat"><b id="total">0</b><small data-i18n="sTotal">Total crossings</small></div>
     </div>
-    <button id="listToggle" type="button" aria-expanded="true" aria-controls="blist"><i>▾</i> The seven bridges</button>
+    <button id="listToggle" type="button" aria-expanded="true" aria-controls="blist"><i>▾</i> <span data-i18n="seven">The seven bridges</span></button>
     <ol id="blist"></ol>
     <p id="euler"></p>
-    <button id="reset" type="button">Start a new walk</button>
+    <div class="row"><button id="menu" type="button" data-i18n="menu">Menu</button><button id="reset" type="button" data-i18n="reset">Start a new walk</button></div>
+    <div class="langs mini" role="group" aria-label="Language" id="langHud"></div>
   </section>
   <div id="mapwrap" title="Map (M)"><canvas id="map"></canvas><span class="lbl">Königsberg · N↑</span></div>
   <div id="place"><span id="placeName"></span><span id="placeSub"></span></div>
   <div id="cross"></div>
-  <div id="hint">WASD walk · Shift run · Click to look · M map</div>
+  <div id="hint" data-i18n="hint">WASD walk · Shift run · Click to look · M map</div>
   <div id="stick"><div id="knob"></div></div>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
@@ -174,7 +188,7 @@ const inCity=(x,z)=>{const a=(x-CITY.cx)/CITY.rx,b=(z-CITY.cz)/CITY.rz;return a*
 /* Streets: polylines with half-widths */
 const STREETS=[
   // Kneiphof
-  {hw:5,p:[[-195,0],[205,0]]},{hw:6,p:[[10,-70],[10,70]]},{hw:5,p:[[-120,-62],[-110,62]]},
+  {hw:5,p:[[-195,0],[205,0]]},{hw:6,p:[[10,-70],[10,70]]},{hw:5,p:[[-120,-62],[-110,62]]},{hw:9,p:[[84,-50],[84,-6]]},
   // North bank: Altstadt, Löbenicht, castle
   {hw:5,p:[[-480,-138],[200,-138],[360,-152],[650,-168]]},
   {hw:5,p:[[-120,-118],[-120,-370]]},{hw:6,p:[[10,-125],[10,-236]]},{hw:14,p:[[-10,-248],[162,-248]]},
@@ -197,13 +211,13 @@ function nearestStreet(x,z){let best=null,bd=1e9,bpx=0,bpz=0;for(const s of SSEG
 
 /* The seven bridges (numbering and directorates follow KBI's mapping) */
 const BR=[
-  {num:'I',  name:'Hohe Brücke',      en:'High Bridge',         dir:'Strategy',       x:420,  z:polyZ(CH[2].pts,420), ux:0,uz:1, L:74, W:7, rail:'#8b8a86', river:'New Pregel', ends:'Lomse and the Vorstadt'},
-  {num:'II', name:'Holzbrücke',       en:'Wooden Bridge',       dir:'Administration', x:310,  z:polyZ(CH[1].pts,310), ux:0,uz:1, L:70, W:7, rail:'#7a5634', river:'Old Pregel', ends:'Löbenicht and Lomse'},
-  {num:'III',name:'Honigbrücke',      en:'Honey Bridge',        dir:'Communication',  x:230,  z:0,                    ux:1,uz:0, L:64, W:7, rail:'#c39233', river:'the Pregel', ends:'Kneiphof and Lomse'},
-  {num:'IV', name:'Köttelbrücke',     en:'Giblets Bridge',      dir:'Innovation',     x:-110, z:polyZ(CH[2].pts,-110),ux:0,uz:1, L:74, W:7, rail:'#7b3b2e', river:'New Pregel', ends:'Kneiphof and the Vorstadt'},
-  {num:'V',  name:'Grüne Brücke',     en:'Green Bridge',        dir:'Education',      x:10,   z:polyZ(CH[2].pts,10),  ux:0,uz:1, L:74, W:8, rail:'#47734a', river:'New Pregel', ends:'Kneiphof and the Vorstadt'},
-  {num:'VI', name:'Krämerbrücke',     en:"Shopkeepers' Bridge", dir:'Collaboration',  x:10,   z:polyZ(CH[1].pts,10),  ux:0,uz:1, L:70, W:8, rail:'#3d5a7a', river:'Old Pregel', ends:'Kneiphof and the Altstadt'},
-  {num:'VII',name:'Schmiedebrücke',   en:"Blacksmiths' Bridge", dir:'Operations',     x:-120, z:polyZ(CH[1].pts,-120),ux:0,uz:1, L:70, W:7, rail:'#3a3a3e', river:'Old Pregel', ends:'Kneiphof and the Altstadt'}
+  {num:'I',  name:'Hohe Brücke',      en:'High Bridge',         dir:'Strategy',       x:420,  z:polyZ(CH[2].pts,420), ux:0,uz:1, L:74, W:7, rail:'#8b8a86', river:'new', ends:'Lomse and the Vorstadt'},
+  {num:'II', name:'Holzbrücke',       en:'Wooden Bridge',       dir:'Administration', x:310,  z:polyZ(CH[1].pts,310), ux:0,uz:1, L:70, W:7, rail:'#7a5634', river:'old', ends:'Löbenicht and Lomse'},
+  {num:'III',name:'Honigbrücke',      en:'Honey Bridge',        dir:'Communication',  x:230,  z:0,                    ux:1,uz:0, L:64, W:7, rail:'#c39233', river:'main', ends:'Kneiphof and Lomse'},
+  {num:'IV', name:'Köttelbrücke',     en:'Giblets Bridge',      dir:'Innovation',     x:-110, z:polyZ(CH[2].pts,-110),ux:0,uz:1, L:74, W:7, rail:'#7b3b2e', river:'new', ends:'Kneiphof and the Vorstadt'},
+  {num:'V',  name:'Grüne Brücke',     en:'Green Bridge',        dir:'Education',      x:10,   z:polyZ(CH[2].pts,10),  ux:0,uz:1, L:74, W:8, rail:'#47734a', river:'new', ends:'Kneiphof and the Vorstadt'},
+  {num:'VI', name:'Krämerbrücke',     en:"Shopkeepers' Bridge", dir:'Collaboration',  x:10,   z:polyZ(CH[1].pts,10),  ux:0,uz:1, L:70, W:8, rail:'#3d5a7a', river:'old', ends:'Kneiphof and the Altstadt'},
+  {num:'VII',name:'Schmiedebrücke',   en:"Blacksmiths' Bridge", dir:'Operations',     x:-120, z:polyZ(CH[1].pts,-120),ux:0,uz:1, L:70, W:7, rail:'#3a3a3e', river:'old', ends:'Kneiphof and the Altstadt'}
 ];
 BR.forEach((b,i)=>{b.i=i;b.hA=groundH(b.x-b.ux*b.L/2,b.z-b.uz*b.L/2);b.hB=groundH(b.x+b.ux*b.L/2,b.z+b.uz*b.L/2);b.inside=false;b.entry=0;});
 const deckY=(b,t)=>b.hA+(b.hB-b.hA)*(t/b.L+0.5)+1.7*Math.cos(Math.PI*t/b.L);
@@ -267,8 +281,14 @@ T.plaster=tex(256,256,(g,w,h)=>{g.fillStyle='#f3efe7';g.fillRect(0,0,w,h);speckl
   g.fillStyle='rgba(80,70,60,.45)';g.fillRect(0,242,w,14);});
 T.tile=tex(128,128,(g,w,h)=>{g.fillStyle='#efe8e0';g.fillRect(0,0,w,h);speckle(g,w,h,900,['#8a7a70','#fff'],.35);
   for(let r=0;r<8;r++){const y=r*16;g.fillStyle='rgba(40,18,10,.42)';g.fillRect(0,y+13,w,3);g.fillStyle='rgba(40,18,10,.2)';for(let x=(r%2)*8;x<w;x+=16)g.fillRect(x,y,2,13);g.fillStyle='rgba(255,255,255,.12)';g.fillRect(0,y,w,3);}});
-T.cobble=tex(128,128,(g,w,h)=>{g.fillStyle='#6f675a';g.fillRect(0,0,w,h);const cols=['#a39a87','#b4aa95','#958b78','#aaa08b','#8d8471'];
-  for(let r=0;r<10;r++)for(let c=0;c<10;c++){const x=c*12.8+(r%2)*6+R()*2,y=r*12.8+R()*2;g.fillStyle=pick(cols);g.beginPath();g.ellipse(x+6,y+6,5.2+R(),5+R(),R()*3,0,7);g.fill();}},1,1);
+T.cobble=tex(256,256,(g,w,h)=>{g.fillStyle='#4a433a';g.fillRect(0,0,w,h);
+  const cols=['#8e8573','#a19783','#7d7464','#958a76','#ada28c','#857b6a','#9a8f7a','#8a8a82'];const n=12,cs=w/n;
+  for(let r=0;r<n;r++)for(let c=0;c<n;c++){const x=c*cs+(r%2)*cs/2+(R()-.5)*2,y=r*cs+cs/2+(R()-.5)*1.5;const rx=cs*.43+R()*1.2,ry=cs*.41+R()*1.2,rot=(R()-.5)*.6,col=pick(cols);
+    for(const ox of[-w,0,w]){const X=x+ox;if(X<-cs||X>w+cs)continue;
+      g.fillStyle='rgba(0,0,0,.38)';g.beginPath();g.ellipse(X+1.4,y+1.8,rx,ry,rot,0,7);g.fill();
+      g.fillStyle=col;g.beginPath();g.ellipse(X,y,rx,ry,rot,0,7);g.fill();
+      const gr=g.createRadialGradient(X-rx*.35,y-ry*.4,1,X,y,rx*1.1);gr.addColorStop(0,'rgba(255,248,230,.38)');gr.addColorStop(1,'rgba(255,248,230,0)');g.fillStyle=gr;g.beginPath();g.ellipse(X,y,rx,ry,rot,0,7);g.fill();}}
+  speckle(g,w,h,900,['#231e19','#ddd3c0'],.22,2);});
 T.planks=tex(128,128,(g,w,h)=>{g.fillStyle='#8c6d4c';g.fillRect(0,0,w,h);for(let i=0;i<8;i++){g.fillStyle=pick(['#82634a','#94765a','#7b5d43','#8a6a4c']);g.fillRect(0,i*16,w,15);g.fillStyle='rgba(0,0,0,.4)';g.fillRect(0,i*16+15,w,1);g.fillRect(R()*w,i*16,1,15);}speckle(g,w,h,500,['#3a2a1a'],.25,4);});
 T.stone=tex(128,128,(g,w,h)=>{g.fillStyle='#9d968b';g.fillRect(0,0,w,h);for(let r=0;r<4;r++){for(let c=0;c<4;c++){g.fillStyle=pick(['#a39c90','#958e83','#aaa397','#8e877c']);g.fillRect(c*32+(r%2)*16+1,r*32+1,30,30);}}speckle(g,w,h,600,['#555','#ddd'],.3);});
 T.brickBay=tex(128,256,(g,w,h)=>{g.fillStyle='#93432e';g.fillRect(0,0,w,h);for(let y=0;y<h;y+=6){g.fillStyle='rgba(230,200,170,.22)';g.fillRect(0,y,w,1);for(let x=(y/6%2)*6;x<w;x+=12){g.fillStyle=`rgba(${R()<.5?'60,20,10':'200,120,90'},${R()*.18})`;g.fillRect(x,y+1,11,5);}}
@@ -327,16 +347,24 @@ function minGround(x0,x1,z0,z1){let m=1e9;for(let i=0;i<=4;i++)for(let j=0;j<=4;
 const waterMat=new THREE.MeshPhongMaterial({color:'#3f6b7b',specular:'#cfe3ea',shininess:90,normalMap:T.water,normalScale:new THREE.Vector2(.55,.55),transparent:true,opacity:.93});
 const water=new THREE.Mesh(new THREE.PlaneGeometry(3400,2200).rotateX(-Math.PI/2),waterMat);water.position.y=WATER_Y;water.receiveShadow=true;scene.add(water);
 
-/* Streets */
-(function(){const P=[],U=[];
-  for(const s of SSEG){const steps=Math.max(1,Math.ceil(s.len/4));const nx=-s.uz,nz=s.ux;
+/* Streets: cobbles with raised stone kerbs */
+(function(){const P=[],U=[],KP=[],KU=[];
+  const inOther=(x,z,self)=>{for(const o of SSEG){if(o===self)continue;let t=(x-o.ax)*o.ux+(z-o.az)*o.uz;t=clamp(t,0,o.len);if(Math.hypot(x-(o.ax+o.ux*t),z-(o.az+o.uz*t))<o.hw+0.2)return true;}return false;};
+  for(const s of SSEG){const steps=Math.max(1,Math.ceil(s.len/3));const nx=-s.uz,nz=s.ux;
     for(let k=0;k<steps;k++){const t0=s.len*k/steps,t1=s.len*(k+1)/steps;
       const ax=s.ax+s.ux*t0,az=s.az+s.uz*t0,bx=s.ax+s.ux*t1,bz=s.az+s.uz*t1;
       if(sdWater(ax,az)<1.5||sdWater(bx,bz)<1.5)continue;
       const w=s.hw;const pts=[[ax-nx*w,az-nz*w],[ax+nx*w,az+nz*w],[bx+nx*w,bz+nz*w],[bx-nx*w,bz-nz*w]];
       const v=pts.map(([x,z])=>[x,groundH(x,z)+0.07,z]);
-      quad(P,U,v[0],v[3],v[2],v[1],[0,t0/3],[0,t1/3],[2*w/3,t1/3],[2*w/3,t0/3]);}}
-  const m=new THREE.Mesh(geoFrom(P,U),lambert({map:T.cobble,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));m.receiveShadow=true;scene.add(m);})();
+      quad(P,U,v[0],v[1],v[2],v[3],[0,t0/2.6],[2*w/2.6,t0/2.6],[2*w/2.6,t1/2.6],[0,t1/2.6]);
+      if(w>7)continue; // no kerbs on plazas
+      for(const sg of[-1,1]){const mx=(ax+bx)/2+nx*sg*(w-0.3),mz=(az+bz)/2+nz*sg*(w-0.3);if(inOther(mx,mz,s))continue;
+        const o0=w-0.6,o1=w,ka=[ax+nx*sg*o0,az+nz*sg*o0],kb=[bx+nx*sg*o0,bz+nz*sg*o0],kc=[bx+nx*sg*o1,bz+nz*sg*o1],kd=[ax+nx*sg*o1,az+nz*sg*o1];
+        const y=q=>groundH(q[0],q[1]);const ya=y(ka),yb=y(kb);
+        quad(KP,KU,[ka[0],ya+0.2,ka[1]],[kb[0],yb+0.2,kb[1]],[kc[0],y(kc)+0.2,kc[1]],[kd[0],y(kd)+0.2,kd[1]],[0,t0/1.5],[0,t1/1.5],[0.4,t1/1.5],[0.4,t0/1.5]);
+        quad(KP,KU,[ka[0],ya+0.04,ka[1]],[kb[0],yb+0.04,kb[1]],[kb[0],yb+0.2,kb[1]],[ka[0],ya+0.2,ka[1]],[0,t0/1.5],[0,t1/1.5],[0.1,t1/1.5],[0.1,t0/1.5]);}}}
+  const m=new THREE.Mesh(geoFrom(P,U),lambert({map:T.cobble,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));m.receiveShadow=true;scene.add(m);
+  const k=new THREE.Mesh(geoFrom(KP,KU),lambert({map:T.stone,color:'#cfc8bb',side:THREE.DoubleSide}));k.receiveShadow=true;scene.add(k);})();
 
 /* ---------------- Houses & trees on lots ---------------- */
 const grid=new Map();
@@ -423,7 +451,7 @@ const brickGable=lambert({map:T.brickTower,side:THREE.DoubleSide}),palaceGable=l
   roofAt(63,24,15,darkRoof,brickGable,143.5,y0+20,-32,0,4,4);
   addMesh(wbox(9,12,18,6,6),brickT,180.5,y0+6,-32);                         // east choir
   roofAt(9,18,10,darkRoof,brickGable,180.5,y0+12,-32);
-  addMesh(wbox(16,24,30,6,6),brickT,104,y0+12,-32);                          // west front
+  addMesh(wbox(16,24,30,9,9),brickT,104,y0+12,-32);                          // west front
   addMesh(wbox(12,24,12,6,6),brickT,104,y0+36,-24);                          // south tower
   spire(9,30,slate,104,y0+48,-24,4);
   addMesh(wbox(12,10,12,6,6),brickT,104,y0+29,-40);                          // north tower stump
@@ -487,10 +515,30 @@ const clouds=[];
 for(let i=0;i<22;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:T.cloud,transparent:true,depthWrite:false,fog:false,opacity:.75+R()*.2}));
   s.position.set((R()-.5)*4400,330+R()*260,(R()-.5)*3600);const k=320+R()*380;s.scale.set(k,k*.42,1);scene.add(s);clouds.push(s);}
 
+/* Birds: crows over the towers, gulls over the river */
+const birds=[];
+(function(){const wing=new THREE.BufferGeometry();wing.setAttribute('position',new THREE.Float32BufferAttribute([0,0,-0.22,0,0,0.3,1,0,0.05, 0,0,0.3,0.55,0,0.32,1,0,0.05],3));wing.computeVertexNormals();
+  const body=new THREE.ConeGeometry(0.13,0.75,5);body.rotateX(Math.PI/2);
+  const mats={crow:lambert({color:'#26262b',side:THREE.DoubleSide}),gull:lambert({color:'#f4f3ee',side:THREE.DoubleSide})};
+  const FL=[{x:140,z:-32,r:55,y:62,n:14,k:'crow',sp:.22},{x:70,z:-290,r:80,y:95,n:16,k:'crow',sp:-.18},{x:-80,z:-243,r:40,y:52,n:8,k:'crow',sp:.3},
+            {x:-330,z:5,r:120,y:16,n:10,k:'gull',sp:.12},{x:120,z:-10,r:170,y:22,n:12,k:'gull',sp:-.1},{x:480,z:20,r:110,y:20,n:8,k:'gull',sp:.14}];
+  for(const f of FL)for(let i=0;i<f.n;i++){const g=new THREE.Group();
+    const b=new THREE.Mesh(body,mats[f.k]);g.add(b);
+    const L=new THREE.Mesh(wing,mats[f.k]),Rw=new THREE.Mesh(wing,mats[f.k]);Rw.scale.x=-1;g.add(L);g.add(Rw);
+    const sc=f.k==='gull'?1.25:0.95;g.scale.setScalar(sc);scene.add(g);
+    birds.push({g,L,Rw,f,a:R()*6.283,dr:(R()-.5)*f.r*0.5,dy:(R()-.5)*10,ph:R()*6.283,flap:f.k==='gull'?6:11});}
+})();
+function animateBirds(t,dt){for(const b of birds){const f=b.f;b.a+=f.sp*dt*(1+0.15*Math.sin(t*.3+b.ph));
+  const r=f.r+b.dr+Math.sin(t*.4+b.ph)*6,x=f.x+Math.cos(b.a)*r,z=f.z+Math.sin(b.a)*r,y=f.y+b.dy+Math.sin(t*.7+b.ph)*3;
+  b.g.position.set(x,y,z);const dir=Math.sign(f.sp);b.g.rotation.set(0,Math.atan2(-Math.sin(b.a)*dir,Math.cos(b.a)*dir)-Math.PI/2,0);
+  b.g.rotation.order='YXZ';b.g.rotation.z=dir*0.25;
+  const glide=f.k==='gull'&&Math.sin(t*.5+b.ph)>0.2;const w=glide?0.12:Math.sin(t*b.flap+b.ph)*0.65;b.L.rotation.z=w;b.Rw.rotation.z=-w;}}
+animateBirds(0,0);
+
 /* ---------------- Player ---------------- */
 const P={x:40,z:138,y:0,yaw:Math.atan2(-90,168),pitch:0.06};
 P.y=groundH(P.x,P.z)+1.7;
-const keys={};let started=false;
+const keys={};let started=false,everStarted=false;
 function bridgeAt(x,z){for(const b of BR){const l=bLocal(b,x,z);if(Math.abs(l.t)<=b.L/2&&Math.abs(l.s)<=b.W/2-0.45)return{b,t:l.t};}return null;}
 function canStand(x,z){
   if(x<-690||x>770||z<-470||z>470)return false;
@@ -501,42 +549,146 @@ function canStand(x,z){
   for(const q of SOLIDS)if(x>q[0]-r&&x<q[1]+r&&z>q[2]-r&&z<q[3]+r)return false;
   return true;}
 
+/* ---------------- Languages ---------------- */
+const LANGS=[['en','English','EN'],['de','Deutsch','DE'],['zh-Hant','繁體中文','繁中'],['ja','日本語','日本'],['ru','Русский','RU']];
+const I18N={
+en:{eyebrow:'Königsberg, Prussia · 1736',h1:'Walk the city of <em>seven bridges</em>',
+  p1:'In 1736 Leonhard Euler studied a puzzle about this city. The Pregel river splits it into four parts, joined by seven bridges. Can you walk through town and cross every bridge exactly once?',
+  p2:'Walk past the cathedral on the Kneiphof, up to the castle, and through streets of half-timbered houses. The tally keeps count of every crossing.',
+  kWalk:'Walk (arrow keys work too)',kShift:'Shift',kRun:'Run',kMouse:'Mouse',kLook:'Look around. Click the view to lock the mouse, Esc to release.',kMap:'Open the large map',
+  kStick:'Stick',tWalk:'Walk with the stick at the bottom left',kDrag:'Drag',tLook:'Drag anywhere else to look around',kMapT:'Map',tMap:'Tap the map to enlarge it',
+  begin:'Begin the walk',resume:'Resume the walk',note:"An imagined reconstruction. The river and bridges follow Euler's map of Königsberg. The buildings are drawn from period style, not surveyed plans.",
+  tally:'Bridge tally',sDistinct:'Bridges crossed',sTotal:'Total crossings',seven:'The seven bridges',reset:'Start a new walk',menu:'Menu',hint:'WASD walk · Shift run · Click to look · M map',
+  eStart:"Euler's puzzle: cross every bridge <b>exactly once</b>.",eProg:d=>`<b>${d} of 7</b> crossed, none twice. Keep going.`,
+  eBroken:n=>`You crossed <b>${n}</b> twice. Euler proved that no walk can cross all seven exactly once.`,
+  eAll8:'All seven in <b>8 crossings</b>. That is the fewest possible.',eAllN:n=>`All seven crossed in <b>${n}</b> crossings. The fewest possible is 8.`,
+  welcome:'<b>Welcome to Königsberg.</b><br>Find the bridges on the map at the top right.',newWalk:'<b>New walk started.</b><br>Every bridge is uncrossed again.',
+  first:'First crossing',nth:n=>`Crossed ${n} times`,tAll8:'<b>All seven bridges in 8 crossings.</b><br>That is the fewest possible.',tAllN:n=>`<b>All seven bridges crossed.</b><br>${n} crossings. The fewest possible is 8.`,
+  reg:{K:['Kneiphof','Island of the cathedral'],N:['Altstadt & Löbenicht','North bank · castle hill'],S:['Vorstadt','South bank'],L:['Lomse','East island · warehouses and gardens']},
+  lm:{dom:['Königsberg Cathedral','Brick Gothic · begun 1333'],castle:['Königsberg Castle','Founded 1255 by the Teutonic Knights'],rath:['Kneiphof Town Hall','Kneiphof'],kirche:['Altstadt Church','Altstadt']},
+  gloss:['High Bridge','Wooden Bridge','Honey Bridge','Giblets Bridge','Green Bridge',"Shopkeepers' Bridge","Blacksmiths' Bridge"],
+  dirs:['Strategy','Administration','Communication','Innovation','Education','Collaboration','Operations'],
+  river:{old:'over the Old Pregel',new:'over the New Pregel',main:'over the Pregel'},localName:false},
+de:{eyebrow:'Königsberg, Preußen · 1736',h1:'Durch die Stadt der <em>sieben Brücken</em>',
+  p1:'1736 befasste sich Leonhard Euler mit einem Rätsel über diese Stadt. Der Pregel teilt sie in vier Teile, verbunden durch sieben Brücken. Kann man durch die Stadt gehen und jede Brücke genau einmal überqueren?',
+  p2:'Gehen Sie am Dom auf dem Kneiphof vorbei, hinauf zum Schloss und durch Gassen voller Fachwerkhäuser. Die Zählung hält jede Überquerung fest.',
+  kWalk:'Gehen (Pfeiltasten gehen auch)',kShift:'Umschalt',kRun:'Laufen',kMouse:'Maus',kLook:'Umsehen. Ins Bild klicken, um die Maus zu sperren, Esc zum Lösen.',kMap:'Große Karte öffnen',
+  kStick:'Stick',tWalk:'Mit dem Stick unten links gehen',kDrag:'Ziehen',tLook:'Überall sonst ziehen, um sich umzusehen',kMapT:'Karte',tMap:'Karte antippen, um sie zu vergrößern',
+  begin:'Spaziergang beginnen',resume:'Spaziergang fortsetzen',note:'Eine freie Rekonstruktion. Fluss und Brücken folgen Eulers Karte von Königsberg. Die Gebäude sind dem Stil der Zeit nachempfunden, nicht nach vermessenen Plänen gebaut.',
+  tally:'Brückenzählung',sDistinct:'Brücken überquert',sTotal:'Überquerungen gesamt',seven:'Die sieben Brücken',reset:'Neuer Spaziergang',menu:'Menü',hint:'WASD gehen · Umschalt laufen · Klicken zum Umsehen · M Karte',
+  eStart:'Eulers Rätsel: Überqueren Sie jede Brücke <b>genau einmal</b>.',eProg:d=>`<b>${d} von 7</b> überquert, keine doppelt. Weiter so.`,
+  eBroken:n=>`Sie haben die <b>${n}</b> zweimal überquert. Euler bewies, dass kein Weg alle sieben Brücken genau einmal überquert.`,
+  eAll8:'Alle sieben in <b>8 Überquerungen</b>. Weniger geht nicht.',eAllN:n=>`Alle sieben in <b>${n}</b> Überquerungen. Das Minimum ist 8.`,
+  welcome:'<b>Willkommen in Königsberg.</b><br>Die Brücken finden Sie auf der Karte oben rechts.',newWalk:'<b>Neuer Spaziergang.</b><br>Alle Brücken sind wieder unüberquert.',
+  first:'Erste Überquerung',nth:n=>`${n}-mal überquert`,tAll8:'<b>Alle sieben Brücken in 8 Überquerungen.</b><br>Weniger geht nicht.',tAllN:n=>`<b>Alle sieben Brücken überquert.</b><br>${n} Überquerungen. Das Minimum ist 8.`,
+  reg:{K:['Kneiphof','Die Dominsel'],N:['Altstadt & Löbenicht','Nordufer · Schlossberg'],S:['Vorstadt','Südufer'],L:['Lomse','Östliche Insel · Speicher und Gärten']},
+  lm:{dom:['Königsberger Dom','Backsteingotik · begonnen 1333'],castle:['Königsberger Schloss','1255 vom Deutschen Orden gegründet'],rath:['Kneiphöfsches Rathaus','Kneiphof'],kirche:['Altstädtische Kirche','Altstadt']},
+  gloss:null,dirs:['Strategie','Verwaltung','Kommunikation','Innovation','Bildung','Zusammenarbeit','Betrieb'],
+  river:{old:'über den Alten Pregel',new:'über den Neuen Pregel',main:'über den Pregel'},localName:false},
+'zh-Hant':{eyebrow:'普魯士・柯尼斯堡・1736',h1:'漫步<em>七橋</em>之城',
+  p1:'1736 年，歐拉研究了一道關於這座城市的謎題。普雷格爾河把城市分成四塊，由七座橋相連。你能走遍全城，而且每座橋都恰好只走一次嗎？',
+  p2:'走過克奈普霍夫島上的大教堂，登上城堡，穿過木桁架房屋林立的街巷。計數板會記下你每一次過橋。',
+  kWalk:'行走（方向鍵亦可）',kShift:'Shift',kRun:'奔跑',kMouse:'滑鼠',kLook:'環顧四周。點擊畫面鎖定滑鼠，按 Esc 解除。',kMap:'開啟大地圖',
+  kStick:'搖桿',tWalk:'用左下角的搖桿行走',kDrag:'拖曳',tLook:'在其他地方拖曳以環顧四周',kMapT:'地圖',tMap:'輕觸地圖以放大',
+  begin:'開始漫步',resume:'繼續漫步',note:'這是想像的重建。河流與橋梁依照歐拉的柯尼斯堡地圖；建築則仿照當時的風格繪製，並非依實測圖重建。',
+  tally:'過橋計數',sDistinct:'已過的橋',sTotal:'過橋總次數',seven:'七座橋',reset:'重新開始漫步',menu:'選單',hint:'WASD 行走・Shift 奔跑・點擊環顧・M 地圖',
+  eStart:'歐拉的謎題：每座橋<b>恰好只走一次</b>。',eProg:d=>`已過 <b>${d} / 7</b> 座橋，沒有重複。繼續前進。`,
+  eBroken:n=>`你第二次走過了<b>${n}</b>。歐拉證明了：沒有任何路線能讓七座橋都恰好只走一次。`,
+  eAll8:'只用 <b>8 次</b>就走遍七座橋，這已是最少。',eAllN:n=>`走遍七座橋共 <b>${n}</b> 次。最少需要 8 次。`,
+  welcome:'<b>歡迎來到柯尼斯堡。</b><br>右上角的地圖標出了各座橋。',newWalk:'<b>新的漫步已開始。</b><br>所有橋都重新計算。',
+  first:'第一次過橋',nth:n=>`已走過 ${n} 次`,tAll8:'<b>只用 8 次就走遍七座橋。</b><br>這已是最少。',tAllN:n=>`<b>七座橋全部走過。</b><br>共 ${n} 次，最少需要 8 次。`,
+  reg:{K:['克奈普霍夫','大教堂所在的島'],N:['舊城與勒貝尼希特','北岸・城堡山'],S:['前城區','南岸'],L:['洛姆塞','東島・倉庫與花園']},
+  lm:{dom:['柯尼斯堡大教堂','磚砌哥德式・1333 年動工'],castle:['柯尼斯堡城堡','1255 年由條頓騎士團建立'],rath:['克奈普霍夫市政廳','克奈普霍夫'],kirche:['舊城教堂','舊城']},
+  gloss:['高橋','木橋','蜂蜜橋','內臟橋','綠橋','商人橋','鐵匠橋'],dirs:['策略','行政','傳播','創新','教育','協作','營運'],
+  river:{old:'橫跨舊普雷格爾河',new:'橫跨新普雷格爾河',main:'橫跨普雷格爾河'},localName:true},
+ja:{eyebrow:'プロイセン・ケーニヒスベルク・1736',h1:'<em>七つの橋</em>の街を歩く',
+  p1:'1736年、レオンハルト・オイラーはこの街にまつわる謎を研究しました。プレーゲル川は街を四つに分け、七つの橋がそれらを結んでいます。街を歩いて、どの橋もちょうど一度ずつ渡ることはできるでしょうか。',
+  p2:'クナイプホーフ島の大聖堂を過ぎ、城へと上り、木組みの家が並ぶ通りを歩きましょう。橋を渡るたびに記録されます。',
+  kWalk:'歩く（矢印キーも使えます）',kShift:'Shift',kRun:'走る',kMouse:'マウス',kLook:'見回す。画面をクリックするとマウスを固定、Escで解除。',kMap:'大きな地図を開く',
+  kStick:'スティック',tWalk:'左下のスティックで歩く',kDrag:'ドラッグ',tLook:'それ以外の場所をドラッグして見回す',kMapT:'地図',tMap:'地図をタップして拡大',
+  begin:'散策を始める',resume:'散策を続ける',note:'想像による再現です。川と橋の配置はオイラーのケーニヒスベルクの地図に基づいています。建物は当時の様式をもとに描いたもので、実測図ではありません。',
+  tally:'橋のカウント',sDistinct:'渡った橋',sTotal:'渡った回数',seven:'七つの橋',reset:'最初から歩き直す',menu:'メニュー',hint:'WASD 歩く・Shift 走る・クリックで見回す・M 地図',
+  eStart:'オイラーの問題：どの橋も<b>ちょうど一度ずつ</b>渡れるか。',eProg:d=>`<b>7本中${d}本</b>を渡り、重複なし。その調子です。`,
+  eBroken:n=>`<b>${n}</b>を二度渡りました。七つの橋すべてをちょうど一度ずつ渡る道はないと、オイラーは証明しました。`,
+  eAll8:'<b>8回</b>で七つの橋をすべて渡りました。これが最少です。',eAllN:n=>`七つの橋を<b>${n}回</b>で渡りました。最少は8回です。`,
+  welcome:'<b>ケーニヒスベルクへようこそ。</b><br>橋の位置は右上の地図で確認できます。',newWalk:'<b>新しい散策を始めました。</b><br>すべての橋がまだ渡っていない状態に戻りました。',
+  first:'初めて渡りました',nth:n=>`${n}回目の横断`,tAll8:'<b>8回で七つの橋をすべて渡りました。</b><br>これが最少です。',tAllN:n=>`<b>七つの橋をすべて渡りました。</b><br>${n}回。最少は8回です。`,
+  reg:{K:['クナイプホーフ','大聖堂の島'],N:['アルトシュタットとレーベニヒト','北岸・城の丘'],S:['フォアシュタット','南岸'],L:['ロムゼ','東の島・倉庫と庭園']},
+  lm:{dom:['ケーニヒスベルク大聖堂','レンガ造りゴシック・1333年着工'],castle:['ケーニヒスベルク城','1255年ドイツ騎士団が創建'],rath:['クナイプホーフ市庁舎','クナイプホーフ'],kirche:['旧市街教会','アルトシュタット']},
+  gloss:['高い橋','木の橋','蜂蜜橋','臓物橋','緑の橋','商人橋','鍛冶屋橋'],dirs:['戦略','管理','広報','イノベーション','教育','協働','運営'],
+  river:{old:'旧プレーゲル川に架かる',new:'新プレーゲル川に架かる',main:'プレーゲル川に架かる'},localName:true},
+ru:{eyebrow:'Кёнигсберг, Пруссия · 1736',h1:'Прогулка по городу <em>семи мостов</em>',
+  p1:'В 1736 году Леонард Эйлер изучал задачу об этом городе. Река Прегель делит его на четыре части, соединённые семью мостами. Можно ли пройти по городу, перейдя каждый мост ровно один раз?',
+  p2:'Пройдите мимо собора на Кнайпхофе, поднимитесь к замку и прогуляйтесь по улицам фахверковых домов. Счётчик учитывает каждый переход.',
+  kWalk:'Идти (стрелки тоже работают)',kShift:'Shift',kRun:'Бежать',kMouse:'Мышь',kLook:'Осмотреться. Щёлкните по сцене, чтобы захватить мышь; Esc — отпустить.',kMap:'Открыть большую карту',
+  kStick:'Джойстик',tWalk:'Идите с помощью джойстика внизу слева',kDrag:'Свайп',tLook:'Проведите пальцем в другом месте, чтобы осмотреться',kMapT:'Карта',tMap:'Коснитесь карты, чтобы увеличить её',
+  begin:'Начать прогулку',resume:'Продолжить прогулку',note:'Это воображаемая реконструкция. Река и мосты следуют карте Кёнигсберга Эйлера. Здания нарисованы в духе эпохи, а не по обмерным чертежам.',
+  tally:'Счёт мостов',sDistinct:'Мостов пройдено',sTotal:'Всего переходов',seven:'Семь мостов',reset:'Новая прогулка',menu:'Меню',hint:'WASD — идти · Shift — бег · Щелчок — обзор · M — карта',
+  eStart:'Задача Эйлера: перейти каждый мост <b>ровно один раз</b>.',eProg:d=>`Пройдено <b>${d} из 7</b>, без повторов. Продолжайте.`,
+  eBroken:n=>`Вы перешли <b>${n}</b> второй раз. Эйлер доказал, что нельзя пройти все семь мостов ровно по одному разу.`,
+  eAll8:'Все семь за <b>8 переходов</b>. Меньше не бывает.',eAllN:n=>`Все семь мостов пройдены. Переходов: <b>${n}</b>, минимум — 8.`,
+  welcome:'<b>Добро пожаловать в Кёнигсберг.</b><br>Мосты отмечены на карте справа вверху.',newWalk:'<b>Новая прогулка.</b><br>Счёт мостов обнулён.',
+  first:'Первый переход',nth:n=>`Переходов: ${n}`,tAll8:'<b>Все семь мостов за 8 переходов.</b><br>Меньше не бывает.',tAllN:n=>`<b>Все семь мостов пройдены.</b><br>Переходов: ${n}, минимум — 8.`,
+  reg:{K:['Кнайпхоф','Остров собора'],N:['Альтштадт и Лёбенихт','Северный берег · замковый холм'],S:['Форштадт','Южный берег'],L:['Ломзе','Восточный остров · склады и сады']},
+  lm:{dom:['Кёнигсбергский собор','Кирпичная готика · начат в 1333 году'],castle:['Кёнигсбергский замок','Основан Тевтонским орденом в 1255 году'],rath:['Ратуша Кнайпхофа','Кнайпхоф'],kirche:['Альтштадтская кирха','Альтштадт']},
+  gloss:['Высокий мост','Деревянный мост','Медовый мост','Потроховый мост','Зелёный мост','Лавочный мост','Кузнечный мост'],
+  dirs:['Стратегия','Администрирование','Коммуникации','Инновации','Образование','Сотрудничество','Операции'],
+  river:{old:'через Старый Прегель',new:'через Новый Прегель',main:'через Прегель'},localName:true}
+};
+let LANG='en';
+try{const sv=localStorage.getItem('kb1736-lang');if(sv&&I18N[sv])LANG=sv;else{const nl=(navigator.language||'en').toLowerCase();
+  if(nl.startsWith('de'))LANG='de';else if(nl.startsWith('ja'))LANG='ja';else if(nl.startsWith('ru'))LANG='ru';else if(/^zh-(tw|hk|mo|hant)/.test(nl))LANG='zh-Hant';}}catch(_){}
+const t=k=>{const v=I18N[LANG][k];return v===undefined?I18N.en[k]:v;};
+const bName=b=>I18N[LANG].localName?I18N[LANG].gloss[b.i]:b.name;
+const bShort=b=>I18N[LANG].localName?I18N[LANG].gloss[b.i].replace(/ мост$/,'').replace(/橋$/,'橋'):b.name.replace(' Brücke','').replace('brücke','');
+const bDir=b=>t('dirs')[b.i];
+function bSub(b){const L=I18N[LANG];const parts=[b.num];if(L.localName)parts.push(b.name);else if(L.gloss)parts.push(L.gloss[b.i]);parts.push(L.river[b.river]);return parts.join(' · ');}
+
 /* ---------------- Tally ---------------- */
 const counts=BR.map(()=>0);let total=0,broken=-1,allDone=false;
 const blist=$('blist');
-BR.forEach(b=>{const li=document.createElement('li');li.innerHTML=`<span class="num">${b.num}</span><span class="nm">${b.name.replace(' Brücke','').replace('brücke','')}<small>${b.dir}</small></span><span class="ct">×0</span>`;blist.appendChild(li);b.li=li;});
+BR.forEach(b=>{const li=document.createElement('li');li.innerHTML=`<span class="num">${b.num}</span><span class="nm"><span class="bn"></span> <small></small></span><span class="ct">×0</span>`;blist.appendChild(li);b.li=li;});
+function renderList(){BR.forEach(b=>{b.li.querySelector('.bn').textContent=bShort(b);b.li.querySelector('small').textContent=bDir(b);});}
 function updateHUD(){const distinct=counts.filter(c=>c>0).length;$('distinct').textContent=distinct;$('total').textContent=total;
   BR.forEach((b,i)=>{b.li.classList.toggle('on',counts[i]>0);b.li.classList.toggle('twice',counts[i]>1);b.li.querySelector('.ct').textContent='×'+counts[i];});
   let msg;
-  if(total===0)msg="Euler's puzzle: cross every bridge <b>exactly once</b>.";
-  else if(allDone)msg=total===8?`All seven in <b>8 crossings</b>. That is the fewest possible.`:`All seven crossed in <b>${total}</b> crossings. The fewest possible is 8.`;
-  else if(broken>=0)msg=`You crossed <b>${BR[broken].name}</b> twice. Euler proved that no walk can cross all seven exactly once.`;
-  else msg=`<b>${distinct} of 7</b> crossed, none twice. Keep going.`;
+  if(total===0)msg=t('eStart');
+  else if(allDone)msg=total===8?t('eAll8'):t('eAllN')(total);
+  else if(broken>=0)msg=t('eBroken')(bName(BR[broken]));
+  else msg=t('eProg')(distinct);
   $('euler').innerHTML=msg;}
 let toastTimer=0;
-function toast(html,ms){const t=$('toast');t.innerHTML=html;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),ms||2600);}
+function toast(html,ms){const el=$('toast');el.innerHTML=html;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),ms||2600);}
 function crossed(b){counts[b.i]++;total++;if(counts[b.i]===2&&broken<0&&!allDone)broken=b.i;
   const distinct=counts.filter(c=>c>0).length;
-  if(distinct===7&&!allDone){allDone=true;toast(total===8?'<b>All seven bridges in 8 crossings.</b><br>That is the fewest possible.':`<b>All seven bridges crossed.</b><br>${total} crossings. The fewest possible is 8.`,5200);}
-  else toast(`<b>${b.num} · ${b.name}</b><br>${counts[b.i]===1?'First crossing':'Crossed '+counts[b.i]+' times'} · ${b.dir}`);
+  if(distinct===7&&!allDone){allDone=true;toast(total===8?t('tAll8'):t('tAllN')(total),5200);}
+  else toast(`<b>${b.num} · ${bName(b)}</b><br>${counts[b.i]===1?t('first'):t('nth')(counts[b.i])} · ${bDir(b)}`);
   updateHUD();}
 function trackBridges(){for(const b of BR){const l=bLocal(b,P.x,P.z);const inside=Math.abs(l.t)<b.L/2&&Math.abs(l.s)<b.W/2+0.6;
   if(inside&&!b.inside){b.inside=true;b.entry=Math.sign(l.t)||1;}
   else if(!inside&&b.inside){b.inside=false;const ex=Math.sign(l.t);if(ex!==0&&ex!==b.entry&&Math.abs(l.t)>b.L/2-12)crossed(b);}}}
-$('reset').addEventListener('click',()=>{counts.fill(0);total=0;broken=-1;allDone=false;updateHUD();toast('<b>New walk started.</b><br>Every bridge is uncrossed again.');});
+$('reset').addEventListener('click',()=>{counts.fill(0);total=0;broken=-1;allDone=false;updateHUD();toast(t('newWalk'));});
 $('listToggle').addEventListener('click',e=>{const b=e.currentTarget,open=b.getAttribute('aria-expanded')!=='true';b.setAttribute('aria-expanded',open);blist.hidden=!open;});
 if(window.innerWidth<700){$('listToggle').setAttribute('aria-expanded','false');blist.hidden=true;}
-updateHUD();
 
 /* Place label */
-const REG={K:['Kneiphof','Island of the cathedral'],N:['Altstadt & Löbenicht','North bank · castle hill'],S:['Vorstadt','South bank'],L:['Lomse','East island · warehouses and gardens']};
 let lastPlace='';
-function updatePlace(onB){let name,sub;
-  if(onB){name=onB.b.name;sub=`${onB.b.num} · ${onB.b.en} · over the ${onB.b.river}`;onB.b.li.classList.add('here');}
+function updatePlace(onB){let name,sub;const L=I18N[LANG];
+  if(onB){name=bName(onB.b);sub=bSub(onB.b);onB.b.li.classList.add('here');}
   else{let lm=null;for(const l of LANDMARKS){const dx=Math.max(l.x0-P.x,0,P.x-l.x1),dz=Math.max(l.z0-P.z,0,P.z-l.z1);if(Math.hypot(dx,dz)<22){lm=l;break;}}
-    if(lm){name=lm.name;sub=lm.sub;}else{const r=REG[region(P.x,P.z)];name=r[0];sub=r[1];}}
+    if(lm){[name,sub]=L.lm[lm.key];}else{[name,sub]=L.reg[region(P.x,P.z)];}}
   BR.forEach(b=>{if(!onB||onB.b!==b)b.li.classList.remove('here');});
-  const key=name+sub;if(key!==lastPlace){lastPlace=key;$('placeName').textContent=name;$('placeSub').textContent=sub;$('regionTag').textContent=REG[region(P.x,P.z)][0].split(' ')[0];}}
+  const key=LANG+name+sub;if(key!==lastPlace){lastPlace=key;$('placeName').textContent=name;$('placeSub').textContent=sub;$('regionTag').textContent=L.reg[region(P.x,P.z)][0].split(/ & | и |と|與/)[0];}}
+
+/* Language switching */
+function renderLangButtons(){for(const id of['langIntro','langHud']){const box=$(id);box.innerHTML='';
+  for(const[code,full,short]of LANGS){const bt=document.createElement('button');bt.type='button';bt.lang=code;bt.textContent=id==='langHud'?short:full;bt.title=full;
+    bt.setAttribute('aria-pressed',code===LANG);bt.addEventListener('click',()=>setLang(code));box.appendChild(bt);}}}
+function setLang(code){LANG=code;try{localStorage.setItem('kb1736-lang',code);}catch(_){}
+  document.documentElement.lang=code;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=t(el.dataset.i18n);});
+  document.title=code==='en'?'Königsberg 1736':(code==='ru'?'Кёнигсберг 1736':code==='ja'?'ケーニヒスベルク 1736':code==='zh-Hant'?'柯尼斯堡 1736':'Königsberg 1736');
+  renderLangButtons();renderList();updateHUD();lastPlace='';if(typeof setBeginLabel==='function')setBeginLabel();if(started)updatePlace(bridgeAt(P.x,P.z));}
 
 /* ---------------- Minimap ---------------- */
 const MAP={x0:-650,x1:710,z0:-460,z1:447};
@@ -600,11 +752,17 @@ stick.addEventListener('pointermove',e=>{if(e.pointerId===joy.id)updJoy(e);});
 const joyEnd=e=>{if(e.pointerId===joy.id){joy.id=null;joy.x=joy.y=0;knob.style.transform='';}};
 stick.addEventListener('pointerup',joyEnd);stick.addEventListener('pointercancel',joyEnd);
 
-$('begin').addEventListener('click',()=>{started=true;$('intro').hidden=true;$('hud').hidden=false;sizeMap();updatePlace(null);
-  P.pitch=0.02;
+function setBeginLabel(){$('begin').textContent=t(everStarted?'resume':'begin');}
+$('begin').addEventListener('click',()=>{const first=!everStarted;started=true;everStarted=true;$('intro').hidden=true;$('hud').hidden=false;sizeMap();lastPlace='';updatePlace(null);
+  if(first)P.pitch=0.02;
   if(!isTouch&&cvs.requestPointerLock){try{const p=cvs.requestPointerLock();if(p&&p.catch)p.catch(()=>{});}catch(_){}}
   cvs.focus();
-  setTimeout(()=>toast("<b>Welcome to Königsberg.</b><br>Find the bridges on the map at the top right."),600);});
+  if(first)setTimeout(()=>toast(t('welcome')),600);});
+function openMenu(){started=false;mouseDown=false;lookId=null;joy.id=null;joy.x=joy.y=0;knob.style.transform='';for(const k in keys)keys[k]=false;
+  if(locked()&&document.exitPointerLock)document.exitPointerLock();
+  $('mapwrap').classList.remove('big');$('toast').classList.remove('show');$('hud').hidden=true;$('intro').hidden=false;setBeginLabel();$('begin').focus();}
+$('menu').addEventListener('click',openMenu);
+setLang(LANG);
 
 window.addEventListener('resize',()=>{renderer.setSize(app.clientWidth,app.clientHeight);camera.aspect=app.clientWidth/app.clientHeight;camera.updateProjectionMatrix();sizeMap();});
 
@@ -626,7 +784,7 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
     if(dx&&canStand(P.x+dx,P.z))P.x+=dx;
     if(dz&&canStand(P.x,P.z+dz))P.z+=dz;
     trackBridges();
-  }else if(!reduceMotion){P.yaw=baseYaw+Math.sin(time*0.12)*0.28;}
+  }else if(!everStarted&&!reduceMotion){P.yaw=baseYaw+Math.sin(time*0.12)*0.28;}
   const onB=bridgeAt(P.x,P.z);
   const gy=(onB?deckY(onB.b,onB.t):groundH(P.x,P.z))+1.7;
   P.y+=(gy-P.y)*Math.min(1,dt*10);
@@ -638,6 +796,7 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
     for(const s of ships){s.g.position.y=WATER_Y+Math.sin(time*1.1+s.ph)*0.12;s.g.rotation.z=Math.sin(time*.8+s.ph)*0.02;}
     for(const h of sails)h.rotation.z-=dt*0.6;
     for(const c of clouds){c.position.x+=dt*4;if(c.position.x>2400)c.position.x=-2400;}
+    animateBirds(time,dt);
   }
   if(started){updatePlace(onB);mapTick+=dt;if(mapTick>1/20){mapTick=0;drawMap();}}
   renderer.render(scene,camera);}
