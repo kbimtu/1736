@@ -1,7 +1,7 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Königsberg 1736</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Jost:wght@400;500;600&family=Noto+Serif+TC:wght@500;600&family=Noto+Serif+JP:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Jost:wght@400;500;600&family=Noto+Serif+TC:wght@500;600&family=Noto+Serif+JP:wght@500;600&family=Noto+Serif+KR:wght@500;600&display=swap">
 <style>
 /* Layout: full-screen 3D walk; HUD as Prussian-night glass cards; map styled as an old parchment plan. */
 :root{
@@ -20,8 +20,9 @@ body{margin:0;background:var(--night);color:var(--parchment);font-family:var(--b
 button{font:inherit;color:inherit;cursor:pointer}
 html:lang(zh-Hant){--display:'Cormorant Garamond','Noto Serif TC','PMingLiU',serif}
 html:lang(ja){--display:'Cormorant Garamond','Noto Serif JP','Hiragino Mincho ProN',serif}
-html:lang(zh-Hant) #intro h1 em,html:lang(ja) #intro h1 em{font-style:normal}
-html:lang(zh-Hant) #intro h1,html:lang(ja) #intro h1{font-size:clamp(38px,6.6vw,64px);line-height:1.15}
+html:lang(ko){--display:'Cormorant Garamond','Noto Serif KR','Batang',serif}
+html:lang(zh-Hant) #intro h1 em,html:lang(ja) #intro h1 em,html:lang(ko) #intro h1 em{font-style:normal}
+html:lang(zh-Hant) #intro h1,html:lang(ja) #intro h1,html:lang(ko) #intro h1{font-size:clamp(38px,6.6vw,64px);line-height:1.15}
 .langs{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 26px}
 .langs button{background:none;border:1px solid var(--line);border-radius:2px;padding:4px 10px;font-size:12.5px;color:var(--muted)}
 .langs button:hover{color:var(--parchment);border-color:var(--gold)}
@@ -119,7 +120,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
     <p data-i18n="p1"></p>
     <p data-i18n="p2"></p>
     <div class="keys desk-only">
-      <kbd>W A S D</kbd><span data-i18n="kWalk"></span>
+      <kbd data-i18n="kKeys">W A S D</kbd><span data-i18n="kWalk"></span>
       <kbd data-i18n="kShift">Shift</kbd><span data-i18n="kRun"></span>
       <kbd data-i18n="kMouse">Mouse</kbd><span data-i18n="kLook"></span>
       <kbd>M</kbd><span data-i18n="kMap"></span>
@@ -550,9 +551,9 @@ function canStand(x,z){
   return true;}
 
 /* ---------------- Languages ---------------- */
-const LANGS=[['en','English','EN'],['de','Deutsch','DE'],['zh-Hant','繁體中文','繁中'],['ja','日本語','日本'],['ru','Русский','RU']];
+const LANGS=[['en','English','EN'],['de','Deutsch','DE'],['fr','Français','FR'],['pl','Polski','PL'],['ru','Русский','RU'],['zh-Hant','中文','中文'],['ja','日本語','日本'],['ko','韓國語','韓國']];
 const I18N={
-en:{eyebrow:'Königsberg, Prussia · 1736',h1:'Walk the city of <em>seven bridges</em>',
+en:{kKeys:'W A S D',eyebrow:'Königsberg, Prussia · 1736',h1:'Walk the city of <em>seven bridges</em>',
   p1:'In 1736 Leonhard Euler studied a puzzle about this city. The Pregel river splits it into four parts, joined by seven bridges. Can you walk through town and cross every bridge exactly once?',
   p2:'Walk past the cathedral on the Kneiphof, up to the castle, and through streets of half-timbered houses. The tally keeps count of every crossing.',
   kWalk:'Walk (arrow keys work too)',kShift:'Shift',kRun:'Run',kMouse:'Mouse',kLook:'Look around. Click the view to lock the mouse, Esc to release.',kMap:'Open the large map',
@@ -585,6 +586,40 @@ de:{eyebrow:'Königsberg, Preußen · 1736',h1:'Durch die Stadt der <em>sieben B
   lm:{dom:['Königsberger Dom','Backsteingotik · begonnen 1333'],castle:['Königsberger Schloss','1255 vom Deutschen Orden gegründet'],rath:['Kneiphöfsches Rathaus','Kneiphof'],kirche:['Altstädtische Kirche','Altstadt']},
   gloss:null,dirs:['Strategie','Verwaltung','Kommunikation','Innovation','Bildung','Zusammenarbeit','Betrieb'],
   river:{old:'über den Alten Pregel',new:'über den Neuen Pregel',main:'über den Pregel'},localName:false},
+fr:{kKeys:'W A S D / Z Q S D',eyebrow:'Königsberg, Prusse · 1736',h1:'La ville aux <em>sept ponts</em>',
+  p1:'En 1736, Leonhard Euler étudia une énigme sur cette ville. Le Pregel la divise en quatre parties, reliées par sept ponts. Peut-on traverser la ville en franchissant chaque pont une seule fois ?',
+  p2:'Passez devant la cathédrale du Kneiphof, montez jusqu’au château et parcourez les rues de maisons à colombages. Le compteur enregistre chaque traversée.',
+  kWalk:'Marcher (les flèches fonctionnent aussi)',kShift:'Maj',kRun:'Courir',kMouse:'Souris',kLook:'Regarder autour de soi. Cliquez sur la vue pour capturer la souris, Échap pour la libérer.',kMap:'Ouvrir la grande carte',
+  kStick:'Joystick',tWalk:'Marchez avec le joystick en bas à gauche',kDrag:'Glisser',tLook:'Faites glisser ailleurs pour regarder autour de vous',kMapT:'Carte',tMap:'Touchez la carte pour l’agrandir',
+  begin:'Commencer la promenade',resume:'Reprendre la promenade',note:'Une reconstitution imaginée. Le fleuve et les ponts suivent la carte de Königsberg d’Euler. Les bâtiments s’inspirent du style de l’époque, pas de plans relevés.',
+  tally:'Compteur des ponts',sDistinct:'Ponts franchis',sTotal:'Traversées au total',seven:'Les sept ponts',reset:'Nouvelle promenade',menu:'Menu',hint:'WASD/ZQSD marcher · Maj courir · Cliquer pour regarder · M carte',
+  eStart:'L’énigme d’Euler : franchir chaque pont <b>une seule fois</b>.',eProg:d=>`<b>${d} sur 7</b> franchis, aucun deux fois. Continuez.`,
+  eBroken:n=>`Vous avez franchi <b>${n}</b> une deuxième fois. Euler a démontré qu’aucun chemin ne franchit les sept ponts une seule fois chacun.`,
+  eAll8:'Les sept en <b>8 traversées</b>. C’est le minimum possible.',eAllN:n=>`Les sept ponts franchis en <b>${n}</b> traversées. Le minimum est 8.`,
+  welcome:'<b>Bienvenue à Königsberg.</b><br>Les ponts figurent sur la carte en haut à droite.',newWalk:'<b>Nouvelle promenade.</b><br>Aucun pont n’est encore franchi.',
+  first:'Première traversée',nth:n=>`Franchi ${n} fois`,tAll8:'<b>Les sept ponts en 8 traversées.</b><br>C’est le minimum possible.',tAllN:n=>`<b>Les sept ponts sont franchis.</b><br>${n} traversées. Le minimum est 8.`,
+  reg:{K:['Kneiphof','L’île de la cathédrale'],N:['Altstadt et Löbenicht','Rive nord · colline du château'],S:['Vorstadt','Rive sud'],L:['Lomse','Île orientale · entrepôts et jardins']},
+  lm:{dom:['Cathédrale de Königsberg','Gothique de brique · commencée en 1333'],castle:['Château de Königsberg','Fondé en 1255 par les chevaliers Teutoniques'],rath:['Hôtel de ville du Kneiphof','Kneiphof'],kirche:['Église de l’Altstadt','Altstadt']},
+  gloss:['Pont Haut','Pont de Bois','Pont du Miel','Pont des Tripes','Pont Vert','Pont des Marchands','Pont des Forgerons'],
+  dirs:['Stratégie','Administration','Communication','Innovation','Éducation','Collaboration','Opérations'],
+  river:{old:'sur le Vieux Pregel',new:'sur le Nouveau Pregel',main:'sur le Pregel'},localName:false},
+pl:{eyebrow:'Królewiec, Prusy · 1736',h1:'Spacer po mieście <em>siedmiu mostów</em>',
+  p1:'W 1736 roku Leonhard Euler badał zagadkę dotyczącą tego miasta. Pregoła dzieli je na cztery części połączone siedmioma mostami. Czy można przejść przez miasto, przekraczając każdy most dokładnie raz?',
+  p2:'Przejdź obok katedry na Knipawie, wejdź pod zamek i przespaceruj się ulicami domów o konstrukcji szachulcowej. Licznik zapisuje każde przejście.',
+  kWalk:'Chodzenie (strzałki też działają)',kShift:'Shift',kRun:'Bieg',kMouse:'Mysz',kLook:'Rozglądanie się. Kliknij widok, aby przechwycić mysz; Esc, aby ją zwolnić.',kMap:'Otwórz dużą mapę',
+  kStick:'Drążek',tWalk:'Idź za pomocą drążka w lewym dolnym rogu',kDrag:'Przeciągnij',tLook:'Przeciągnij w innym miejscu, aby się rozejrzeć',kMapT:'Mapa',tMap:'Dotknij mapy, aby ją powiększyć',
+  begin:'Rozpocznij spacer',resume:'Wznów spacer',note:'Wyobrażona rekonstrukcja. Rzeka i mosty odpowiadają mapie Królewca sporządzonej przez Eulera. Budynki narysowano w stylu epoki, a nie według planów pomiarowych.',
+  tally:'Licznik mostów',sDistinct:'Przekroczone mosty',sTotal:'Wszystkie przejścia',seven:'Siedem mostów',reset:'Nowy spacer',menu:'Menu',hint:'WASD chód · Shift bieg · Kliknij, by się rozglądać · M mapa',
+  eStart:'Zagadka Eulera: przejdź każdy most <b>dokładnie raz</b>.',eProg:d=>`<b>${d} z 7</b> przekroczonych, bez powtórzeń. Idź dalej.`,
+  eBroken:n=>`Drugie przejście przez <b>${n}</b>. Euler udowodnił, że nie da się przejść wszystkich siedmiu mostów dokładnie po jednym razie.`,
+  eAll8:'Wszystkie siedem w <b>8 przejściach</b>. Mniej się nie da.',eAllN:n=>`Wszystkie siedem mostów przekroczone. Przejścia: <b>${n}</b>, minimum to 8.`,
+  welcome:'<b>Witamy w Królewcu.</b><br>Mosty są zaznaczone na mapie w prawym górnym rogu.',newWalk:'<b>Nowy spacer.</b><br>Licznik mostów wyzerowany.',
+  first:'Pierwsze przejście',nth:n=>`Przejścia: ${n}`,tAll8:'<b>Wszystkie siedem mostów w 8 przejściach.</b><br>Mniej się nie da.',tAllN:n=>`<b>Wszystkie siedem mostów przekroczone.</b><br>Przejścia: ${n}, minimum to 8.`,
+  reg:{K:['Knipawa','Wyspa katedralna'],N:['Stare Miasto i Lipnik','Północny brzeg · wzgórze zamkowe'],S:['Przedmieście','Południowy brzeg'],L:['Lomse','Wschodnia wyspa · spichrze i ogrody']},
+  lm:{dom:['Katedra w Królewcu','Gotyk ceglany · budowę rozpoczęto w 1333 r.'],castle:['Zamek Królewiecki','Założony w 1255 r. przez zakon krzyżacki'],rath:['Ratusz Knipawy','Knipawa'],kirche:['Kościół Staromiejski','Stare Miasto']},
+  gloss:['Most Wysoki','Most Drewniany','Most Miodowy','Most Flaczany','Most Zielony','Most Kramarski','Most Kowalski'],
+  dirs:['Strategia','Administracja','Komunikacja','Innowacje','Edukacja','Współpraca','Operacje'],
+  river:{old:'nad Starą Pregołą',new:'nad Nową Pregołą',main:'nad Pregołą'},localName:true},
 'zh-Hant':{eyebrow:'普魯士・柯尼斯堡・1736',h1:'漫步<em>七橋</em>之城',
   p1:'1736 年，歐拉研究了一道關於這座城市的謎題。普雷格爾河把城市分成四塊，由七座橋相連。你能走遍全城，而且每座橋都恰好只走一次嗎？',
   p2:'走過克奈普霍夫島上的大教堂，登上城堡，穿過木桁架房屋林立的街巷。計數板會記下你每一次過橋。',
@@ -633,14 +668,30 @@ ru:{eyebrow:'Кёнигсберг, Пруссия · 1736',h1:'Прогулка 
   lm:{dom:['Кёнигсбергский собор','Кирпичная готика · начат в 1333 году'],castle:['Кёнигсбергский замок','Основан Тевтонским орденом в 1255 году'],rath:['Ратуша Кнайпхофа','Кнайпхоф'],kirche:['Альтштадтская кирха','Альтштадт']},
   gloss:['Высокий мост','Деревянный мост','Медовый мост','Потроховый мост','Зелёный мост','Лавочный мост','Кузнечный мост'],
   dirs:['Стратегия','Администрирование','Коммуникации','Инновации','Образование','Сотрудничество','Операции'],
-  river:{old:'через Старый Прегель',new:'через Новый Прегель',main:'через Прегель'},localName:true}
+  river:{old:'через Старый Прегель',new:'через Новый Прегель',main:'через Прегель'},localName:true},
+ko:{eyebrow:'프로이센 쾨니히스베르크 · 1736',h1:'<em>七橋</em>의 都市를 걷다',
+  p1:'1736年, 레온하르트 오일러는 이 都市에 關한 問題를 硏究했습니다. 프레겔江이 都市를 네 部分으로 나누고, 일곱 個의 다리가 이들을 잇습니다. 都市를 걸으며 모든 다리를 꼭 한 番씩만 건널 수 있을까요?',
+  p2:'크나이프호프 섬의 大聖堂을 지나 城으로 올라가, 木骨造 家屋이 늘어선 거리를 걸어 보십시오. 計數板이 다리를 건널 때마다 記錄합니다.',
+  kWalk:'걷기 (方向키도 됩니다)',kShift:'Shift',kRun:'달리기',kMouse:'마우스',kLook:'둘러보기. 畫面을 클릭하면 마우스가 固定되고, Esc로 解除합니다.',kMap:'큰 地圖 열기',
+  kStick:'스틱',tWalk:'왼쪽 아래의 스틱으로 걷기',kDrag:'드래그',tLook:'다른 곳을 드래그하여 둘러보기',kMapT:'地圖',tMap:'地圖를 눌러 擴大',
+  begin:'散策 始作',resume:'散策 繼續',note:'想像에 따른 再現입니다. 江과 다리는 오일러의 쾨니히스베르크 地圖를 따랐으며, 建物은 當時 樣式을 본떠 그린 것으로 實測 圖面에 따른 것이 아닙니다.',
+  tally:'다리 計數',sDistinct:'건넌 다리',sTotal:'總 橫斷 回數',seven:'일곱 다리',reset:'새 散策',menu:'메뉴',hint:'WASD 걷기 · Shift 달리기 · 클릭하여 둘러보기 · M 地圖',
+  eStart:'오일러의 問題: 모든 다리를 <b>꼭 한 番씩</b> 건너기.',eProg:d=>`<b>7個 中 ${d}個</b>를 건넜고, 重複은 없습니다. 繼續 가십시오.`,
+  eBroken:n=>`<b>${n}</b>를 두 番 건넜습니다. 일곱 다리를 모두 꼭 한 番씩 건너는 길은 없다는 것을 오일러가 證明했습니다.`,
+  eAll8:'<b>8回</b>만에 일곱 다리를 모두 건넜습니다. 이것이 最少입니다.',eAllN:n=>`일곱 다리를 <b>${n}回</b>에 모두 건넜습니다. 最少는 8回입니다.`,
+  welcome:'<b>쾨니히스베르크에 오신 것을 歡迎합니다.</b><br>다리의 位置는 오른쪽 위 地圖에 있습니다.',newWalk:'<b>새 散策을 始作했습니다.</b><br>모든 다리를 다시 처음부터 셉니다.',
+  first:'첫 橫斷',nth:n=>`${n}番째 橫斷`,tAll8:'<b>8回만에 일곱 다리를 모두 건넜습니다.</b><br>이것이 最少입니다.',tAllN:n=>`<b>일곱 다리를 모두 건넜습니다.</b><br>${n}回. 最少는 8回입니다.`,
+  reg:{K:['크나이프호프','大聖堂의 섬'],N:['알트슈타트와 뢰베니히트','北岸 · 城 언덕'],S:['포어슈타트','南岸'],L:['롬제','東쪽 섬 · 倉庫와 庭園']},
+  lm:{dom:['쾨니히스베르크 大聖堂','壁돌 고딕 · 1333年 着工'],castle:['쾨니히스베르크 城','1255年 튜턴 騎士團이 創建'],rath:['크나이프호프 市廳舍','크나이프호프'],kirche:['舊市街 敎會','알트슈타트']},
+  gloss:['高橋','木橋','蜜橋','內臟橋','綠橋','商人橋','鍛冶橋'],dirs:['戰略','行政','疏通','革新','敎育','協力','運營'],
+  river:{old:'舊프레겔江 위',new:'新프레겔江 위',main:'프레겔江 위'},localName:true}
 };
 let LANG='en';
 try{const sv=localStorage.getItem('kb1736-lang');if(sv&&I18N[sv])LANG=sv;else{const nl=(navigator.language||'en').toLowerCase();
-  if(nl.startsWith('de'))LANG='de';else if(nl.startsWith('ja'))LANG='ja';else if(nl.startsWith('ru'))LANG='ru';else if(/^zh-(tw|hk|mo|hant)/.test(nl))LANG='zh-Hant';}}catch(_){}
+  if(nl.startsWith('de'))LANG='de';else if(nl.startsWith('fr'))LANG='fr';else if(nl.startsWith('pl'))LANG='pl';else if(nl.startsWith('ko'))LANG='ko';else if(nl.startsWith('ja'))LANG='ja';else if(nl.startsWith('ru'))LANG='ru';else if(/^zh-(tw|hk|mo|hant)/.test(nl))LANG='zh-Hant';}}catch(_){}
 const t=k=>{const v=I18N[LANG][k];return v===undefined?I18N.en[k]:v;};
 const bName=b=>I18N[LANG].localName?I18N[LANG].gloss[b.i]:b.name;
-const bShort=b=>I18N[LANG].localName?I18N[LANG].gloss[b.i].replace(/ мост$/,'').replace(/橋$/,'橋'):b.name.replace(' Brücke','').replace('brücke','');
+const bShort=b=>I18N[LANG].localName?I18N[LANG].gloss[b.i].replace(/ мост$/,'').replace(/^Most /,''):b.name.replace(' Brücke','').replace('brücke','');
 const bDir=b=>t('dirs')[b.i];
 function bSub(b){const L=I18N[LANG];const parts=[b.num];if(L.localName)parts.push(b.name);else if(L.gloss)parts.push(L.gloss[b.i]);parts.push(L.river[b.river]);return parts.join(' · ');}
 
@@ -678,7 +729,7 @@ function updatePlace(onB){let name,sub;const L=I18N[LANG];
   else{let lm=null;for(const l of LANDMARKS){const dx=Math.max(l.x0-P.x,0,P.x-l.x1),dz=Math.max(l.z0-P.z,0,P.z-l.z1);if(Math.hypot(dx,dz)<22){lm=l;break;}}
     if(lm){[name,sub]=L.lm[lm.key];}else{[name,sub]=L.reg[region(P.x,P.z)];}}
   BR.forEach(b=>{if(!onB||onB.b!==b)b.li.classList.remove('here');});
-  const key=LANG+name+sub;if(key!==lastPlace){lastPlace=key;$('placeName').textContent=name;$('placeSub').textContent=sub;$('regionTag').textContent=L.reg[region(P.x,P.z)][0].split(/ & | и |と|與/)[0];}}
+  const key=LANG+name+sub;if(key!==lastPlace){lastPlace=key;$('placeName').textContent=name;$('placeSub').textContent=sub;$('regionTag').textContent=L.reg[region(P.x,P.z)][0].split(/ & | и | i | et |と|與|와/)[0];}}
 
 /* Language switching */
 function renderLangButtons(){for(const id of['langIntro','langHud']){const box=$(id);box.innerHTML='';
@@ -687,7 +738,7 @@ function renderLangButtons(){for(const id of['langIntro','langHud']){const box=$
 function setLang(code){LANG=code;try{localStorage.setItem('kb1736-lang',code);}catch(_){}
   document.documentElement.lang=code;
   document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=t(el.dataset.i18n);});
-  document.title=code==='en'?'Königsberg 1736':(code==='ru'?'Кёнигсберг 1736':code==='ja'?'ケーニヒスベルク 1736':code==='zh-Hant'?'柯尼斯堡 1736':'Königsberg 1736');
+  document.title=({ru:'Кёнигсберг 1736',pl:'Królewiec 1736','zh-Hant':'柯尼斯堡 1736',ja:'ケーニヒスベルク 1736',ko:'쾨니히스베르크 1736'})[code]||'Königsberg 1736';
   renderLangButtons();renderList();updateHUD();lastPlace='';if(typeof setBeginLabel==='function')setBeginLabel();if(started)updatePlace(bridgeAt(P.x,P.z));}
 
 /* ---------------- Minimap ---------------- */
