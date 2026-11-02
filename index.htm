@@ -260,6 +260,37 @@ const STREETS=[
   // Lomse
   {hw:5,p:[[250,0],[700,0]]},{hw:5,p:[[310,-58],[310,0]]},{hw:5,p:[[420,0],[420,74]]},{hw:4.5,p:[[550,-60],[550,64]]}
 ];
+/* Market squares (cobbled) with statues honouring the scientists of the age */
+const MARKETS=[
+  {key:'kneip',r:[56,92,-54,-8],st:[{who:'goldbach',x:68,z:-31,yaw:-Math.PI/2,item:'scroll'}]},
+  {key:'alt',r:[52,110,-200,-144],st:[{who:'newton',x:70,z:-172,yaw:Math.PI/2,item:'prism'},{who:'leibniz',x:92,z:-172,yaw:-Math.PI/2,item:'book'}]},
+  {key:'loeb',r:[316,372,-252,-214],st:[{who:'fahrenheit',x:344,z:-236,yaw:0,item:'thermo'}]},
+  {key:'ross',r:[168,236,-352,-306],st:[{who:'chatelet',x:198,z:-319,yaw:-Math.PI/2,item:'book',lady:true},{who:'bernoulli',x:198,z:-339,yaw:-Math.PI/2,item:'scroll'}]}];
+const MKT_MAPN={kneip:'Kneiphöf. Markt',alt:'Altstädt. Markt',loeb:'Löbenichtscher Markt',ross:'Roßgärter Markt'};
+const YEARS={goldbach:'1690–1764',newton:'1643–1727',leibniz:'1646–1716',fahrenheit:'1686–1736',bernoulli:'1700–1782',chatelet:'1706–1749'};
+const LAT_NAMES={goldbach:'Christian Goldbach',newton:'Isaac Newton',leibniz:'Gottfried Wilhelm Leibniz',fahrenheit:'Daniel Gabriel Fahrenheit',bernoulli:'Daniel Bernoulli',chatelet:'Émilie du Châtelet'};
+const MKT={
+en:{sub:'Market square',m:{kneip:'Kneiphof Market',alt:'Altstadt Market',loeb:'Löbenicht Market',ross:'Rossgarten Market'},
+  e:{goldbach:'Born in Königsberg, 1690 · Euler’s pen pal on prime numbers',newton:'Mathematician and physicist · gravity, optics, calculus',leibniz:'Mathematician and philosopher · calculus, binary numbers',fahrenheit:'Born in Danzig, 1686 · inventor of the mercury thermometer',bernoulli:'Mathematician from Basel · Euler’s friend, the flow of fluids',chatelet:'Mathematician and physicist · translator of Newton, energy and light'}},
+de:{sub:'Marktplatz',m:{kneip:'Kneiphöfischer Markt',alt:'Altstädtischer Markt',loeb:'Löbenichtscher Markt',ross:'Roßgärter Markt'},
+  e:{goldbach:'1690 in Königsberg geboren · Eulers Brieffreund über Primzahlen',newton:'Mathematiker und Physiker · Gravitation, Optik, Infinitesimalrechnung',leibniz:'Mathematiker und Philosoph · Infinitesimalrechnung, Dualsystem',fahrenheit:'1686 in Danzig geboren · Erfinder des Quecksilberthermometers',bernoulli:'Mathematiker aus Basel · Eulers Freund, Strömungslehre',chatelet:'Mathematikerin und Physikerin · übersetzte Newton, Energie und Licht'}},
+fr:{sub:'Place du marché',m:{kneip:'Marché du Kneiphof',alt:'Marché de l’Altstadt',loeb:'Marché du Löbenicht',ross:'Marché du Rossgarten'},
+  e:{goldbach:'Né à Königsberg en 1690 · correspondant d’Euler sur les nombres premiers',newton:'Mathématicien et physicien · gravitation, optique, calcul infinitésimal',leibniz:'Mathématicien et philosophe · calcul infinitésimal, système binaire',fahrenheit:'Né à Dantzig en 1686 · inventeur du thermomètre à mercure',bernoulli:'Mathématicien bâlois · ami d’Euler, mécanique des fluides',chatelet:'Mathématicienne et physicienne · traductrice de Newton, énergie et lumière'}},
+pl:{sub:'Rynek',m:{kneip:'Rynek Knipawy',alt:'Rynek Starego Miasta',loeb:'Rynek Lipnika',ross:'Rynek Rossgarten'},
+  e:{goldbach:'Urodzony w Królewcu w 1690 · korespondował z Eulerem o liczbach pierwszych',newton:'Matematyk i fizyk · grawitacja, optyka, rachunek różniczkowy',leibniz:'Matematyk i filozof · rachunek różniczkowy, system dwójkowy',fahrenheit:'Urodzony w Gdańsku w 1686 · wynalazca termometru rtęciowego',bernoulli:'Matematyk z Bazylei · przyjaciel Eulera, hydrodynamika',chatelet:'Matematyczka i fizyczka · tłumaczka Newtona, energia i światło'}},
+ru:{sub:'Рыночная площадь',m:{kneip:'Кнайпхофский рынок',alt:'Альтштадтский рынок',loeb:'Лёбенихтский рынок',ross:'Россгартенский рынок'},
+  n:{goldbach:'Христиан Гольдбах',newton:'Исаак Ньютон',leibniz:'Готфрид Вильгельм Лейбниц',fahrenheit:'Даниэль Габриэль Фаренгейт',bernoulli:'Даниил Бернулли',chatelet:'Эмили дю Шатле'},
+  e:{goldbach:'Родился в Кёнигсберге в 1690 году · переписывался с Эйлером о простых числах',newton:'Математик и физик · тяготение, оптика, анализ',leibniz:'Математик и философ · анализ, двоичная система',fahrenheit:'Родился в Данциге в 1686 году · изобрёл ртутный термометр',bernoulli:'Математик из Базеля · друг Эйлера, гидродинамика',chatelet:'Математик и физик · переводчица Ньютона, энергия и свет'}},
+'zh-Hant':{sub:'市集廣場',m:{kneip:'克奈普霍夫市集廣場',alt:'舊城市集廣場',loeb:'勒貝尼希特市集廣場',ross:'羅斯花園市集廣場'},
+  n:{goldbach:'克里斯蒂安·哥德巴赫',newton:'艾薩克·牛頓',leibniz:'戈特弗里德·萊布尼茲',fahrenheit:'丹尼爾·華倫海特',bernoulli:'丹尼爾·伯努利',chatelet:'艾蜜莉·杜·夏特萊'},
+  e:{goldbach:'1690年生於柯尼斯堡 · 歐拉的筆友，通信討論質數',newton:'數學家、物理學家 · 萬有引力、光學、微積分',leibniz:'數學家、哲學家 · 微積分、二進位',fahrenheit:'1686年生於但澤 · 水銀溫度計的發明者',bernoulli:'巴塞爾的數學家 · 歐拉的朋友，流體力學',chatelet:'數學家、物理學家 · 翻譯牛頓著作，能量與光'}},
+ja:{sub:'市場広場',m:{kneip:'クナイプホーフ市場',alt:'アルトシュタット市場',loeb:'レーベニヒト市場',ross:'ロスガルテン市場'},
+  n:{goldbach:'クリスティアン・ゴールドバッハ',newton:'アイザック・ニュートン',leibniz:'ゴットフリート・ライプニッツ',fahrenheit:'ダニエル・ファーレンハイト',bernoulli:'ダニエル・ベルヌーイ',chatelet:'エミリー・デュ・シャトレ'},
+  e:{goldbach:'1690年ケーニヒスベルク生まれ · 素数をめぐるオイラーの文通相手',newton:'数学者・物理学者 · 万有引力、光学、微積分',leibniz:'数学者・哲学者 · 微積分、二進法',fahrenheit:'1686年ダンツィヒ生まれ · 水銀温度計の発明者',bernoulli:'バーゼルの数学者 · オイラーの友人、流体力学',chatelet:'数学者・物理学者 · ニュートンの翻訳者、エネルギーと光'}},
+ko:{sub:'市場 廣場',m:{kneip:'크나이프호프 市場',alt:'알트슈타트 市場',loeb:'뢰베니히트 市場',ross:'로스가르텐 市場'},
+  n:{goldbach:'크리스티안 골드바흐',newton:'아이작 뉴턴',leibniz:'고트프리트 라이프니츠',fahrenheit:'다니엘 파렌하이트',bernoulli:'다니엘 베르누이',chatelet:'에밀리 뒤 샤틀레'},
+  e:{goldbach:'1690年 쾨니히스베르크 出生 · 素數에 關해 오일러와 書信을 나눈 벗',newton:'數學者·物理學者 · 萬有引力, 光學, 微積分',leibniz:'數學者·哲學者 · 微積分, 二進法',fahrenheit:'1686年 단치히 出生 · 水銀 溫度計 發明者',bernoulli:'바젤의 數學者 · 오일러의 親舊, 流體力學',chatelet:'數學者·物理學者 · 뉴턴 飜譯者, 에너지와 빛'}}};
+const inMarket=(x,z,m)=>MARKETS.find(k=>x>k.r[0]-(m||0)&&x<k.r[1]+(m||0)&&z>k.r[2]-(m||0)&&z<k.r[3]+(m||0));
 /* ---------------- Languages ---------------- */
 const LANGS=[['en','English','EN'],['de','Deutsch','DE'],['fr','Français','FR'],['pl','Polski','PL'],['ru','Русский','RU'],['zh-Hant','中文','中文'],['ja','日本語','日本'],['ko','韓國語','韓國']];
 const I18N={
@@ -401,9 +432,9 @@ const MUS={en:{music:'Music',mOff:'Off',mPrelude:'Bach: Prelude in C',mChorale:'
   fr:{music:'Musique',mOff:'Arrêt',mPrelude:'Bach : Prélude en ut majeur',mChorale:'Bach : Wachet auf',mFred:'Fridericus Rex',mSturm:'Freiheitsflieger'},
   pl:{music:'Muzyka',mOff:'Wyłącz',mPrelude:'Bach: Preludium C-dur',mChorale:'Bach: Wachet auf',mFred:'Fridericus Rex',mSturm:'Freiheitsflieger'},
   ru:{music:'Музыка',mOff:'Выкл.',mPrelude:'Бах: Прелюдия до мажор',mChorale:'Бах: «Wachet auf»',mFred:'«Фридерикус Рекс»',mSturm:'Freiheitsflieger'},
-  'zh-Hant':{music:'音樂',mOff:'關閉',mPrelude:'巴赫：C 大調前奏曲',mChorale:'巴赫：《醒來吧》',mFred:'Fridericus Rex',mSturm:'Freiheitsflieger'},
-  ja:{music:'音楽',mOff:'オフ',mPrelude:'バッハ：前奏曲 ハ長調',mChorale:'バッハ：「目覚めよ」',mFred:'フリデリクス・レックス',mSturm:'Freiheitsflieger'},
-  ko:{music:'音樂',mOff:'끄기',mPrelude:'바흐: C長調 前奏曲',mChorale:'바흐: 「깨어라」',mFred:'Fridericus Rex',mSturm:'Freiheitsflieger'}};
+  'zh-Hant':{music:'音樂',mOff:'關閉',mPrelude:'巴赫：C 大調前奏曲',mChorale:'巴赫：《醒來吧》',mFred:'腓特烈國王',mSturm:'自由飛行者'},
+  ja:{music:'音楽',mOff:'オフ',mPrelude:'バッハ：前奏曲 ハ長調',mChorale:'バッハ：「目覚めよ」',mFred:'フリードリヒ王',mSturm:'自由の飛行士'},
+  ko:{music:'音樂',mOff:'끄기',mPrelude:'바흐: C長調 前奏曲',mChorale:'바흐: 「깨어라」',mFred:'프리드리히 國王',mSturm:'自由 飛行士'}};
 const HOR={en:{hMount:'Mount',hDismount:'Dismount',hLabel:'Horse',hTired:'<b>Your horse is tired.</b><br>Park it on grass to let it rest.',hPark:'<b>Parked on the street.</b><br>Park on grass so the horse can rest.',hGrazing:'<b>Parked on grass.</b><br>Your horse is grazing and resting.',kHorse:'Mount or dismount a horse',hShort:'horse'},
   de:{hMount:'Aufsitzen',hDismount:'Absitzen',hLabel:'Pferd',hTired:'<b>Ihr Pferd ist müde.</b><br>Stellen Sie es auf einer Wiese ab, damit es sich erholt.',hPark:'<b>Auf der Straße abgestellt.</b><br>Nur auf einer Wiese kann sich das Pferd erholen.',hGrazing:'<b>Auf der Wiese abgestellt.</b><br>Ihr Pferd grast und erholt sich.',kHorse:'Auf ein Pferd aufsitzen oder absitzen',hShort:'Pferd'},
   fr:{hMount:'Monter',hDismount:'Descendre',hLabel:'Cheval',hTired:'<b>Votre cheval est fatigué.</b><br>Laissez-le sur l’herbe pour qu’il se repose.',hPark:'<b>Laissé dans la rue.</b><br>Sur l’herbe, le cheval pourrait se reposer.',hGrazing:'<b>Laissé sur l’herbe.</b><br>Votre cheval broute et se repose.',kHorse:'Monter à cheval ou descendre',hShort:'cheval'},
@@ -606,6 +637,7 @@ applyStatic();renderLangButtons();
     // streets fade in
     g.globalAlpha=ease(T/0.8);g.strokeStyle='#f8f2e2';g.lineCap='round';
     for(const st of STREETS){g.lineWidth=Math.max(1,st.hw*2*sx);g.beginPath();st.p.forEach(([x,z],i)=>i?g.lineTo(X(x),Z(z)):g.moveTo(X(x),Z(z)));g.stroke();}
+    g.fillStyle='#f8f2e2';for(const m of MARKETS)g.fillRect(X(m.r[0]),Z(m.r[2]),(m.r[1]-m.r[0])*sx,(m.r[3]-m.r[2])*sz);
     g.fillStyle='#9a4a33';g.fillRect(X(95),Z(-47),81*sx,30*sz);g.fillRect(X(-5),Z(-336),146*sx,72*sz);g.globalAlpha=1;
     // river flows in from the west
     const rv=ease((T-0.3)/1.4);g.save();g.beginPath();g.rect(0,0,W*rv,H);g.clip();
@@ -846,7 +878,7 @@ await nextFrame();
       const v=pts.map(([x,z])=>[x,groundH(x,z)+0.07,z]);
       quad(P,U,v[0],v[1],v[2],v[3],[0,t0/2.6],[2*w/2.6,t0/2.6],[2*w/2.6,t1/2.6],[0,t1/2.6]);
       if(w>7)continue; // no kerbs on plazas
-      for(const sg of[-1,1]){const mx=(ax+bx)/2+nx*sg*(w-0.3),mz=(az+bz)/2+nz*sg*(w-0.3);if(inOther(mx,mz,s))continue;
+      for(const sg of[-1,1]){const mx=(ax+bx)/2+nx*sg*(w-0.3),mz=(az+bz)/2+nz*sg*(w-0.3);if(inOther(mx,mz,s)||inMarket(mx,mz,0.5))continue;
         const o0=w-0.6,o1=w,ka=[ax+nx*sg*o0,az+nz*sg*o0],kb=[bx+nx*sg*o0,bz+nz*sg*o0],kc=[bx+nx*sg*o1,bz+nz*sg*o1],kd=[ax+nx*sg*o1,az+nz*sg*o1];
         const y=q=>groundH(q[0],q[1]);const ya=y(ka),yb=y(kb);
         quad(KP,KU,[ka[0],ya+0.2,ka[1]],[kb[0],yb+0.2,kb[1]],[kc[0],y(kc)+0.2,kc[1]],[kd[0],y(kd)+0.2,kd[1]],[0,t0/1.5],[0,t1/1.5],[0.4,t1/1.5],[0.4,t0/1.5]);
@@ -865,6 +897,7 @@ for(let gx=-700;gx<700;gx+=10)for(let gz=-480;gz<480;gz+=10){
   const cx=gx+5,cz=gz+5;if(!inCity(cx,cz))continue;
   const ns=nearestStreet(cx,cz);if(ns.d<5.5)continue;
   if(LANDMARKS.some(l=>inRect(cx,cz,l.ex,0)))continue;
+  if(inMarket(cx,cz,5))continue;
   if(nearBridge(cx,cz,7))continue;
   let msd=sdWater(cx,cz);for(const[a,b]of[[-6,-6],[6,-6],[-6,6],[6,6]])msd=Math.min(msd,sdWater(cx+a,cz+b));
   if(msd<2)continue;
@@ -898,6 +931,76 @@ for(let gx=-1150;gx<1150;gx+=13)for(let gz=-780;gz<780;gz+=13){const x=gx+R()*9,
   const TR=inst(trunk,lambert({color:'#5b4433'}),trees.length),CR=inst(crown,lambert({color:'#ffffff',flatShading:true}),trees.length);
   const greens=['#56743a','#4a6a35','#62803f','#6f8a46','#47633a','#7a8f4a'].map(C);
   trees.forEach((t,i)=>{const th=2.2+R()*2.4,r=2.2+R()*2.2;put(TR,i,t.x,t.y,t.z,0,1,th+r*.4,1);put(CR,i,t.x,t.y+th+r*.7,t.z,R()*6,r,r*1.15,r,pick(greens));});
+})();
+
+
+/* Market squares: cobbles, stalls and bronze statues of the scientists of the age */
+(function(){
+  // cobbled surface (sits just under the street layer so the two never fight)
+  const P=[],U=[];
+  for(const m of MARKETS){const[x0,x1,z0,z1]=m.r;const nx=Math.ceil((x1-x0)/3),nz=Math.ceil((z1-z0)/3);
+    for(let i=0;i<nx;i++)for(let j=0;j<nz;j++){const ax=x0+(x1-x0)*i/nx,bx=x0+(x1-x0)*(i+1)/nx,az=z0+(z1-z0)*j/nz,bz=z0+(z1-z0)*(j+1)/nz;
+      const v=(x,z)=>[x,groundH(x,z)+0.06,z],uv=(x,z)=>[x/2.6,z/2.6];
+      quad(P,U,v(ax,az),v(ax,bz),v(bx,bz),v(bx,az),uv(ax,az),uv(ax,bz),uv(bx,bz),uv(bx,az));}}
+  const cm=new THREE.Mesh(geoFrom(P,U),lambert({map:T.cobble,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}));cm.receiveShadow=true;scene.add(cm);
+  // helpers to merge many parts into one mesh per material
+  const O=new THREE.Object3D();
+  const mat4=(x,y,z,rx,ry,rz,sx,sy,sz)=>{O.position.set(x,y,z);O.rotation.set(rx||0,ry||0,rz||0);O.scale.set(sx||1,sy||1,sz||1);O.updateMatrix();return O.matrix.clone();};
+  function merge(parts){const Pp=[],Nn=[],Uu=[];
+    for(const[g0,m]of parts){const g=g0.index?g0.toNonIndexed():g0.clone();g.applyMatrix4(m);const p=g.attributes.position,n=g.attributes.normal,u=g.attributes.uv;
+      for(let i=0;i<p.count;i++){Pp.push(p.getX(i),p.getY(i),p.getZ(i));Nn.push(n.getX(i),n.getY(i),n.getZ(i));Uu.push(u?u.getX(i):0,u?u.getY(i):0);}}
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(Pp,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(Nn,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(Uu,2));return g;}
+  const G={leg:new THREE.CylinderGeometry(.08,.075,1,10),arm:new THREE.CylinderGeometry(.068,.062,1,10),shoe:new THREE.BoxGeometry(1,1,1),coatSk:new THREE.CylinderGeometry(.24,.39,1,18),
+    torso:new THREE.CylinderGeometry(.22,.26,1,18),bodice:new THREE.CylinderGeometry(.17,.2,1,18),skirt:new THREE.CylinderGeometry(.22,.46,1,22),collar:new THREE.CylinderGeometry(.09,.12,.1,10),
+    head:toyHeadGeo(),wig:new THREE.SphereGeometry(.2,16,12),curl:new THREE.CylinderGeometry(.055,.055,.15,10),box:new THREE.BoxGeometry(1,1,1),hand:new THREE.SphereGeometry(.07,10,8),
+    scroll:new THREE.CylinderGeometry(.05,.05,.34,10),prism:new THREE.CylinderGeometry(.08,.08,.22,3),rod:new THREE.CylinderGeometry(.022,.022,1,8),bulb:new THREE.SphereGeometry(.045,10,8)};
+  const bronzeParts=[],stoneParts=[];
+  const F=1.5; // larger than life
+  for(const m of MARKETS)for(const q of m.st){
+    const y0=minGround(q.x-1.3,q.x+1.3,q.z-1.3,q.z+1.3)-0.05;const W=mat4(q.x,y0,q.z,0,q.yaw,0,1,1,1);
+    const add=(arr,g,mm)=>arr.push([g,W.clone().multiply(mm)]);
+    // plinth with a bronze plaque on the front
+    add(stoneParts,G.box,mat4(0,0.2,0,0,0,0,2.7,0.4,2.7));add(stoneParts,G.box,mat4(0,1.4,0,0,0,0,1.7,2.0,1.7));add(stoneParts,G.box,mat4(0,2.52,0,0,0,0,2.05,0.26,2.05));
+    add(stoneParts,G.box,mat4(0,0.47,0,0,0,0,2.0,0.14,2.0));
+    add(bronzeParts,G.box,mat4(0,1.5,0.86,0,0,0,0.95,0.55,0.04));
+    const S=(x,y,z,rx,sx,sy,sz,g,rz)=>add(bronzeParts,g,mat4(0,2.65,0,0,0,0,F,F,F).multiply(mat4(x,y,z,rx,0,rz||0,sx,sy,sz)));
+    if(q.lady){S(0,0.52,0,0,1.42,1.04,1.0,G.skirt);S(0,1.27,0,0,0.95,0.48,0.9,G.bodice);S(0,1.47,0.01,0,2.3,1.1,2.0,G.collar);
+      S(0,2.0,-0.03,0,0.95,0.8,0.95,G.wig);S(-0.2,1.82,-0.02,Math.PI/2,0.9,1,0.9,G.curl);S(0.2,1.82,-0.02,Math.PI/2,0.9,1,0.9,G.curl);}
+    else{for(const sx of[-1,1]){S(sx*0.1,0.43,0,0,1,0.86,1,G.leg);S(sx*0.1,0.05,0.05,0,0.15,0.1,0.3,G.shoe);S(sx*0.1,0.72,0,0,1.25,0.36,1.25,G.leg);}
+      S(0,0.73,0,0,1,0.6,1,G.coatSk);S(0,1.26,0,0,0.95,0.48,0.95,G.torso);S(0,1.12,0.2,-0.08,0.24,0.62,0.06,G.box);S(0,1.5,0.02,0,1.3,1,1.3,G.collar);
+      const big=q.who==='leibniz';S(0,big?1.9:1.93,-0.05,0,big?1.32:1.08,big?1.05:0.78,big?1.25:1.05,G.wig);
+      if(big){S(-0.2,1.6,-0.02,0,0.9,0.5,0.9,G.wig);S(0.2,1.6,-0.02,0,0.9,0.5,0.9,G.wig);}
+      else{S(-0.22,1.8,-0.01,Math.PI/2,1,1,1,G.curl);S(0.22,1.8,-0.01,Math.PI/2,1,1,1,G.curl);S(0,1.68,-0.21,0.1,0.07,0.26,0.05,G.box);}}
+    S(0,1.8,0,0,1.15,1.1,1.15,G.head);
+    // left arm at the side, right arm raised to show what they are known for
+    S(-0.3,1.17,0,0,1,0.6,1,G.arm,0.1);
+    const up=q.item==='prism'||q.item==='thermo'?0.55:0.15,dz=Math.cos(Math.asin(up)),th=Math.atan2(dz,up);
+    const sx0=0.29,sy0=1.46;S(sx0,sy0+up*0.3,dz*0.3,th,1,0.6,1,G.arm);
+    const hx=sx0,hy=sy0+up*0.64,hz=dz*0.64;S(hx,hy,hz,0,1,1,1,G.hand);
+    if(q.item==='scroll')S(hx,hy+0.02,hz+0.02,0,1,1,1,G.scroll,Math.PI/2);
+    else if(q.item==='book')S(hx-0.04,hy+0.07,hz+0.02,-0.5,0.32,0.05,0.24,G.box);
+    else if(q.item==='prism')S(hx,hy+0.16,hz,0,1,1,1,G.prism);
+    else if(q.item==='thermo'){S(hx,hy+0.26,hz,0,1,0.48,1,G.rod);S(hx,hy+0.04,hz,0,1,1,1,G.bulb);S(hx,hy+0.27,hz-0.03,0,0.12,0.6,0.02,G.box);}
+    addSolid(q.x,q.z,1.35,1.35,y0+2.65);}
+  const bronze=new THREE.MeshStandardMaterial({color:C('#6e5a3a'),metalness:0.75,roughness:0.4,envMapIntensity:1.1});
+  const stone=lambert({map:T.stone,color:'#e2dccf'});
+  for(const[parts,mt]of[[bronzeParts,bronze],[stoneParts,stone]]){const me=new THREE.Mesh(merge(parts),mt);me.castShadow=me.receiveShadow=true;me.userData.hook=true;scene.add(me);}
+  // market stalls with striped awnings along the edges of each square
+  const stalls=[];
+  for(const m of MARKETS){const[x0,x1,z0,z1]=m.r;let k=0;
+    for(const[side,zz,yaw]of[[0,z0+3.2,0],[1,z1-3.2,Math.PI]])for(let x=x0+5;x<x1-4&&k<6;x+=7.5){
+      if(m.st.some(q=>Math.hypot(q.x-x,q.z-zz)<6.5)||nearestStreet(x,zz).d<1.5||R()<0.3)continue;stalls.push({x,z:zz,yaw,y:groundH(x,zz)});k++;}}
+  const stripe=tex(64,64,(g,w,h)=>{g.fillStyle='#ffffff';g.fillRect(0,0,w,h);g.fillStyle='#e4ddd2';for(let i=0;i<4;i++)g.fillRect(i*16,0,8,h);});
+  const wood=lambert({map:T.planks}),cloth=lambert({map:stripe,side:THREE.DoubleSide});
+  const box=new THREE.BoxGeometry(1,1,1),post=new THREE.CylinderGeometry(.05,.05,1,6),ball=new THREE.SphereGeometry(.13,8,6);
+  const CT=inst(box,wood,stalls.length),PO=inst(post,wood,stalls.length*4),AW=inst(box,cloth,stalls.length),GD=inst(ball,lambert({color:'#ffffff'}),stalls.length*6);AW.userData.hook=true;
+  const awn=['#b8332f','#2b5c8a','#3f7a4a','#c48a1e','#7a3b6e'].map(C),goods=['#c0392b','#e0a030','#7aa83a','#8a5a2a','#d8c9a0','#9b2d4a'].map(C);
+  const lp=(st,lx,lz)=>[st.x+Math.cos(st.yaw)*lx+Math.sin(st.yaw)*lz,st.z-Math.sin(st.yaw)*lx+Math.cos(st.yaw)*lz];
+  stalls.forEach((st,i)=>{put(CT,i,st.x,st.y+0.45,st.z,st.yaw,2.6,0.9,1.1);
+    [[-1.25,-0.5],[1.25,-0.5],[-1.25,0.5],[1.25,0.5]].forEach(([a,b],j)=>{const[px,pz]=lp(st,a,b);put(PO,i*4+j,px,st.y+(b<0?1.25:1.1),pz,0,1,b<0?2.5:2.2,1);});
+    D.position.set(st.x,st.y+2.36,st.z);D.rotation.order='YXZ';D.rotation.set(-0.2,st.yaw,0);D.scale.set(3.0,0.05,1.7);D.updateMatrix();AW.setMatrixAt(i,D.matrix);AW.setColorAt(i,pick(awn));D.rotation.order='YZX';
+    for(let j=0;j<6;j++){const[gx,gz]=lp(st,-1.0+j*0.4,0.15+(j%2)*0.18);put(GD,i*6+j,gx,st.y+1.0,gz,0,1,0.85,1,pick(goods));}
+    addSolid(st.x,st.z,1.4,0.75,st.y+2.4);});
 })();
 
 await nextFrame();
@@ -1120,6 +1223,9 @@ const npcs=[];const npcUpdate=(function(){
   const pickPath=()=>{let r=R()*tw;for(const p of paths){r-=p.w;if(r<=0)return p;}return paths[0];};
   const MEN=['#b3202a','#1f4e9c','#2e7d4f','#6b2f8a','#c48a1e','#1d1d1f','#c4561e','#2b6f8a','#8a1d3a'].map(C);
   const BREECH=['#f2efe6','#f2efe6','#e8dcc0','#1d1d1f','#f2efe6'].map(C);
+  // 1736 Prussian burgher & lady fashion (still lacquered toy colours, a little richer)
+  const BCOAT=['#5b3a24','#2f4f36','#6e1f2c','#22365f','#6d6a63','#8a6a2a','#4e2a48','#7a3b1c'].map(C),VEST=['#d9b45a','#efe3c8','#b8332f','#e8d39a','#8fb3d9','#c9a227'].map(C);
+  const SILK=['#d07c8c','#86acd2','#e6cc6e','#74ab90','#a58cc4','#efe6cf','#e59a6e','#b9d4d8'].map(C),PETTI=['#f6f1e4','#efe3c8','#f3d9a8','#ffffff'].map(C),POWDER=C('#ece9e2'),STOCK=C('#f4f1ea'),CANE=C('#3b2414');
   const GOWN=['#c23b4a','#3b6fb5','#d49a2a','#3f8a5a','#e0703a','#efe3c8','#7a4fa0','#b52a2a','#4fa0a8'].map(C);
   const GOLDC=C('#d6a93a'),SOLDIER=C('#1b2d55'),STRAW=C('#d9c27a'),WHITE=C('#f1ede2'),BLACK=C('#1d1d1f'),WOOD=C('#5a3c26'),RED=C('#a3262a');
   const N=150;
@@ -1128,10 +1234,15 @@ const npcs=[];const npcUpdate=(function(){
       sc:R()<0.1?0.7:0.94+R()*0.12,coat:kind==='soldier'?SOLDIER:kind==='man'?pick(MEN):pick(GOWN),leg:kind==='soldier'?STRAW:pick(BREECH),x:0,z:0,y:0,yaw:0,stand:false};
     if(p.bridge)n.lat=(R()-.5)*(p.bridge.W-2.4);
     npcs.push(n);}
+  // genteel Königsbergers in 1736 fashion: burghers (wig, tricorn, justaucorps) and ladies (panniered silk)
+  for(let i=0;i<64;i++){const kind=i<38?'burgher':'lady';const p=pickPath();
+    const n={kind,p,t:R()*p.len,dir:R()<.5?1:-1,lat:(R()-.5)*Math.max(0,(p.hw-1.2)*2),sp:0.85+R()*0.35,pause:0,ph:R()*6.28,sc:0.95+R()*0.1,
+      coat:kind==='burgher'?pick(BCOAT):pick(SILK),vest:kind==='burgher'?pick(VEST):pick(PETTI),leg:STOCK,x:0,z:0,y:0,yaw:0,stand:false};
+    if(p.bridge)n.lat=(R()-.5)*(p.bridge.W-2.4);npcs.push(n);}
   // a few groups standing and chatting on the squares
-  [[84,-30],[80,-246],[26,-246],[14,-30],[18,40],[260,8],[-110,150]].forEach(([gx,gz])=>{const k=2+Math.floor(R()*2);
-    for(let j=0;j<k;j++){const a=j/k*6.283+R()*.4;const kind=R()<.5?'man':'woman';const n={kind,p:null,stand:true,ph:R()*6.28,sc:0.94+R()*0.12,
-      coat:kind==='man'?pick(MEN):pick(GOWN),leg:pick(BREECH),x:gx+Math.cos(a)*1.1,z:gz+Math.sin(a)*1.1,y:0,yaw:Math.atan2(-Math.cos(a),-Math.sin(a)),pause:0};
+  [[84,-30],[80,-246],[26,-246],[14,-30],[18,40],[260,8],[-110,150],[81,-156],[360,-246],[224,-330],[180,-348]].forEach(([gx,gz])=>{const k=2+Math.floor(R()*2);
+    for(let j=0;j<k;j++){const a=j/k*6.283+R()*.4;const kind=pick(['man','woman','burgher','lady']);const n={kind,p:null,stand:true,ph:R()*6.28,sc:0.94+R()*0.12,
+      coat:kind==='man'?pick(MEN):kind==='woman'?pick(GOWN):kind==='burgher'?pick(BCOAT):pick(SILK),vest:kind==='burgher'?pick(VEST):pick(PETTI),leg:kind==='man'?pick(BREECH):STOCK,x:gx+Math.cos(a)*1.1,z:gz+Math.sin(a)*1.1,y:0,yaw:Math.atan2(-Math.cos(a),-Math.sin(a)),pause:0};
       npcs.push(n);}});
   // squads of Prussian soldiers (4-8 men, two files) marching in step on the wider streets
   const squads=[];const long=paths.filter(p=>!p.bridge&&p.hw>=5&&p.hw<=6&&p.len>=80&&inCity(p.ax+p.ux*p.len/2,p.az+p.uz*p.len/2));
@@ -1145,16 +1256,21 @@ const npcs=[];const npcUpdate=(function(){
   const torsoG=new THREE.CylinderGeometry(.22,.26,1,16),bodiceG=new THREE.CylinderGeometry(.17,.2,1,16),skirtG=new THREE.CylinderGeometry(.22,.46,1,18);
   const legG=new THREE.CylinderGeometry(.075,.075,1,10),armG=new THREE.CylinderGeometry(.065,.065,1,10),bootG=new THREE.CylinderGeometry(.09,.095,1,12),beltG=new THREE.CylinderGeometry(.235,.235,.08,16);
   const triG=new THREE.CylinderGeometry(.2,.18,.44,16),bandG=new THREE.CylinderGeometry(.205,.205,.07,16),capG=new THREE.SphereGeometry(.17,10,6,0,6.283,0,1.6),collarG=new THREE.CylinderGeometry(.09,.12,.1,8);
+  const coatSkG=new THREE.CylinderGeometry(.24,.39,1,16),wigG=new THREE.SphereGeometry(.2,14,10),curlG=new THREE.CylinderGeometry(.055,.055,.15,10),hatG=new THREE.CylinderGeometry(.38,.31,.15,3),crownG=new THREE.SphereGeometry(.17,12,6,0,6.283,0,1.4),caneG=new THREE.CylinderGeometry(.018,.018,1,6);
   const mk=(g,n,sh,mat)=>{const m=inst(g,mat||toyMat({color:'#ffffff'}),n,sh);m.frustumCulled=false;return m;};
-  const nMen=cnt(['man','soldier']),nW=cnt(['woman']);
-  const M={legs:mk(legG,nMen*2,false),boot:mk(bootG,nMen*2,false),belt:mk(beltG,nMen,false),band:mk(bandG,nMen,false),headM:mk(toyHeadGeo(),nMen,false,toyMat({map:TOYFACE.man})),headW:mk(toyHeadGeo(),nW,false,toyMat({map:TOYFACE.plain})),arms:mk(armG,npcs.length*2,false),torso:mk(torsoG,cnt(['man','soldier'])),bodice:mk(bodiceG,cnt(['woman']),false),
-    skirt:mk(skirtG,cnt(['woman'])),apron:mk(box,cnt(['woman']),false),collar:mk(collarG,npcs.length,false),tri:mk(triG,cnt(['man','soldier']),false),
-    cap:mk(capG,cnt(['woman']),false),musket:mk(box,cnt(['soldier']),false),cuff:mk(box,cnt(['soldier'])*2,false)};
+  const nMen=cnt(['man','soldier','burgher']),nW=cnt(['woman','lady']),nB=cnt(['burgher']),nL=cnt(['lady']);
+  const M={legs:mk(legG,nMen*2,false),boot:mk(bootG,nMen*2,false),belt:mk(beltG,cnt(['man','soldier']),false),band:mk(bandG,cnt(['man','soldier']),false),headM:mk(toyHeadGeo(),nMen,false,toyMat({map:TOYFACE.man})),headW:mk(toyHeadGeo(),nW,false,toyMat({map:TOYFACE.plain})),arms:mk(armG,npcs.length*2,false),torso:mk(torsoG,nMen),bodice:mk(bodiceG,nW,false),
+    skirt:mk(skirtG,nW),apron:mk(box,nW,false),collar:mk(collarG,npcs.length,false),tri:mk(triG,cnt(['man','soldier']),false),
+    cap:mk(capG,cnt(['woman']),false),musket:mk(box,cnt(['soldier']),false),cuff:mk(box,cnt(['soldier','burgher','lady'])*2,false),
+    coatSk:mk(coatSkG,nB),vest:mk(box,nB,false),knee:mk(legG,nB*2,false),wig:mk(wigG,nB+nL,false),curl:mk(curlG,nB*2+nL*2,false),queue:mk(box,nB,false),hat:mk(hatG,nB,false),crown:mk(crownG,nB,false),cane:mk(caneG,nB,false)};
   // static per-instance colors
   const idx={};for(const k in M)idx[k]=0;
   for(const n of npcs){n.ix={};const take=(k,c,times)=>{n.ix[k]=idx[k];for(let j=0;j<(times||1);j++)M[k].setColorAt(idx[k]++,c);};
-    take('arms',n.coat,2);take('collar',WHITE);if(n.kind==='woman')take('headW',WHITE);else{take('headM',WHITE);take('boot',BLACK,2);take('belt',n.kind==='soldier'?WHITE:GOLDC);take('band',GOLDC);}
-    if(n.kind==='woman'){take('bodice',n.coat);take('skirt',n.coat);take('apron',R()<.6?WHITE:C('#d9cfb8'));take('cap',WHITE);}
+    take('arms',n.coat,2);take('collar',WHITE);const fem=n.kind==='woman'||n.kind==='lady';if(fem)take('headW',WHITE);else{take('headM',WHITE);take('boot',BLACK,2);if(n.kind!=='burgher'){take('belt',n.kind==='soldier'?WHITE:GOLDC);take('band',GOLDC);}}
+    if(n.kind==='lady'){take('bodice',n.coat);take('skirt',n.coat);take('apron',n.vest);take('cuff',WHITE,2);take('wig',POWDER);take('curl',POWDER,2);}
+    else if(n.kind==='burgher'){take('legs',STOCK,2);take('knee',n.coat,2);take('torso',n.coat);take('coatSk',n.coat);take('vest',n.vest);take('cuff',n.vest,2);
+      take('wig',POWDER);take('curl',POWDER,2);take('queue',BLACK);take('hat',BLACK);take('crown',BLACK);take('cane',CANE);}
+    else if(n.kind==='woman'){take('bodice',n.coat);take('skirt',n.coat);take('apron',R()<.6?WHITE:C('#d9cfb8'));take('cap',WHITE);}
     else{take('legs',n.leg,2);take('torso',n.coat);take('tri',n.kind==='soldier'?BLACK:pick([BLACK,BLACK,C('#7a1d24'),C('#1f3f78')]));if(n.kind==='soldier'){take('musket',WOOD);take('cuff',RED,2);}}}
   const base=new THREE.Matrix4(),loc=new THREE.Matrix4(),out=new THREE.Matrix4(),q=new THREE.Quaternion(),pos=new THREE.Vector3(),scl=new THREE.Vector3(),UP=new THREE.Vector3(0,1,0);
   // part = base * T(px,py,pz) * Rx(rx) * T(0,oy,0) * S(sx,sy,sz)
@@ -1182,7 +1298,23 @@ const npcs=[];const npcUpdate=(function(){
       const sw=moving?Math.sin(n.ph)*0.5:0,bob=moving?Math.abs(Math.cos(n.ph))*0.04:Math.sin(time*1.3+n.ph)*0.01;
       pos.set(n.x,n.y+bob*n.sc,n.z);const fy=n.yaw+(n.stand?Math.sin(time*.4+n.ph)*0.15:0);q.setFromAxisAngle(UP,fy);scl.set(n.sc,n.sc,n.sc);base.compose(pos,q,scl);
       const I=n.ix;
-      if(n.kind==='woman'){
+      if(n.kind==='lady'){
+        part(M.skirt,I.skirt,0,0,0,0,0.52,1.42,1.04,1.0);part(M.apron,I.apron,0,0.04,0.475,-0.23,0.43,0.36,0.86,0.02);
+        part(M.bodice,I.bodice,0,1.03,0,0,0.24,0.95,0.48,0.9);
+        part(M.cuff,I.cuff,-0.26,1.46,0,-sw*0.5,-0.4,0.15,0.09,0.15);part(M.cuff,I.cuff+1,0.26,1.46,0,sw*0.5,-0.4,0.15,0.09,0.15);
+        part(M.wig,I.wig,0,2.0,-0.03,0,0,0.95,0.8,0.95);part(M.curl,I.curl,-0.2,1.82,-0.02,1.5708,0,0.9,1,0.9);part(M.curl,I.curl+1,0.2,1.82,-0.02,1.5708,0,0.9,1,0.9);
+      }else if(n.kind==='burgher'){
+        part(M.legs,I.legs,-0.1,0.86,0,sw,-0.43,0.95,0.86,0.95);part(M.legs,I.legs+1,0.1,0.86,0,-sw,-0.43,0.95,0.86,0.95);
+        part(M.knee,I.knee,-0.1,0.86,0,sw,-0.2,1.25,0.36,1.25);part(M.knee,I.knee+1,0.1,0.86,0,-sw,-0.2,1.25,0.36,1.25);
+        part(M.boot,I.boot,-0.1,0.86,0,sw,-0.8,1.05,0.12,1.35);part(M.boot,I.boot+1,0.1,0.86,0,-sw,-0.8,1.05,0.12,1.35);
+        part(M.coatSk,I.coatSk,0,0.73,0,0,0,1,0.6,1);part(M.torso,I.torso,0,1.26,0,0,0,0.95,0.48,0.95);
+        part(M.vest,I.vest,0,1.12,0.2,-0.08,0,0.24,0.62,0.06);
+        part(M.cuff,I.cuff,-0.26,1.46,0,-sw*0.8,-0.5,0.17,0.13,0.17);part(M.cuff,I.cuff+1,0.26,1.46,0,sw*0.5,-0.5,0.17,0.13,0.17);
+        part(M.wig,I.wig,0,1.93,-0.05,0,0,1.08,0.78,1.05);part(M.curl,I.curl,-0.22,1.8,-0.01,1.5708,0,1,1,1);part(M.curl,I.curl+1,0.22,1.8,-0.01,1.5708,0,1,1,1);
+        part(M.queue,I.queue,0,1.68,-0.21,0.1,0,0.07,0.26,0.05);
+        part(M.crown,I.crown,0,2.03,-0.01,0,0,1.05,0.75,1.05);part(M.hat,I.hat,0,2.09,0,0,0,1,1,1);
+        part(M.cane,I.cane,0.32,0.98,0.08,sw*0.5,-0.45,1,0.98,1);
+      }else if(n.kind==='woman'){
         part(M.skirt,I.skirt,0,0,0,0,0.52,1,1.04,1);part(M.apron,I.apron,0,0.1,0.29,-0.36,0.44,0.36,0.8,0.02);
         part(M.bodice,I.bodice,0,1.03,0,0,0.24,1,0.48,1);part(M.cap,I.cap,0,1.99,0,0,0,1.3,0.75,1.3);
       }else{
@@ -1192,9 +1324,9 @@ const npcs=[];const npcUpdate=(function(){
         if(n.kind==='soldier'){part(M.musket,I.musket,0.3,1.45,0.02,-0.1,0.15,0.05,1.5,0.05);
           part(M.cuff,I.cuff,-0.26,1.46,0,-sw*0.8,-0.52,0.13,0.1,0.13);part(M.cuff,I.cuff+1,0.26,1.46,0,-0.05,-0.52,0.13,0.1,0.13);}
       }
-      part(M.arms,I.arms,-0.29,1.46,0,-sw*0.8,-0.29,1,0.6,1);part(M.arms,I.arms+1,0.29,1.46,0,n.kind==='soldier'?-0.05:sw*0.8,-0.29,1,0.6,1);
-      part(M.collar,I.collar,0,1.5,0.02,0,0,1,1,1);
-      if(n.kind==='woman')part(M.headW,I.headW,0,1.79,0,0,0,1.15,1.05,1.15);else part(M.headM,I.headM,0,1.8,0,0,0,1.15,1.1,1.15);}
+      part(M.arms,I.arms,-0.29,1.46,0,-sw*0.8,-0.29,1,0.6,1);part(M.arms,I.arms+1,0.29,1.46,0,n.kind==='soldier'?-0.05:n.kind==='burgher'?sw*0.5:sw*0.8,-0.29,1,0.6,1);
+      if(n.kind==='lady')part(M.collar,I.collar,0,1.47,0.01,0,0,2.3,1.1,2.0);else part(M.collar,I.collar,0,1.5,0.02,0,0,n.kind==='burgher'?1.3:1,1,n.kind==='burgher'?1.3:1);
+      if(n.kind==='woman'||n.kind==='lady')part(M.headW,I.headW,0,1.79,0,0,0,1.15,1.05,1.15);else part(M.headM,I.headM,0,1.8,0,0,0,1.15,1.1,1.15);}
     for(const k in M){M[k].instanceMatrix.needsUpdate=true;}
   };})();
 
@@ -1323,8 +1455,9 @@ const FAMOUS=(function(){
   for(const c of chars){c.pause=0;c.line=0;c.greeted=false;c.x=c.start[0];c.z=c.start[1];c.yaw=0;c.path=nearestPath(c.x,c.z);c.t=projT(c.path,c.x,c.z);c.dir=1;c.nextTurn=5;}
   let talking=null;
   const eulerReveals=()=>broken>=0||allDone;
-  function linesFor(c){const L=t('people')[c.key];return c.key==='euler'&&!eulerReveals()?L.pre:L.lines;}
-  function showTalk(c){const L=t('people')[c.key];const mode=c.key==='euler'&&!eulerReveals()?'pre':'full';if(c.mode!==mode){c.mode=mode;c.line=0;}const ls=linesFor(c);
+  function linesFor(c){const L=t('people')[c.key];if(c.key==='euler')return eulerReveals()?L.lines:L.pre;
+    return c.key==='kant'&&!eulerReveals()?L.lines.slice(0,-1):L.lines;} // Kant's last line (Euler's verdict) is a spoiler until the walk has failed
+  function showTalk(c){const L=t('people')[c.key];const mode=!eulerReveals()?'pre':'full';if(c.mode!==mode){c.mode=mode;c.line=0;}const ls=linesFor(c);
     $('talkName').textContent=L.name;$('talkRole').textContent=L.role;$('talkLine').textContent=ls[c.line%ls.length];
     $('talkNext').textContent=t('talkNext')+(isTouch?'':' (F)');$('talk').hidden=false;}
   function next(){if(!talking)return;talking.line++;showTalk(talking);}
@@ -1460,6 +1593,8 @@ if(window.innerWidth<700){$('listToggle').setAttribute('aria-expanded','false');
 let lastPlace='';
 function updatePlace(onB){let name,sub;const L=I18N[LANG];
   if(onB){name=bName(onB.b);sub=bSub(onB.b);onB.b.li.classList.add('here');}
+  else if((function(){const Mk=MKT[LANG]||MKT.en;for(const m of MARKETS)for(const q of m.st)if(Math.hypot(P.x-q.x,P.z-q.z)<10){name=(Mk.n||{})[q.who]||LAT_NAMES[q.who];sub=YEARS[q.who]+' · '+Mk.e[q.who];return true;}
+    const m=inMarket(P.x,P.z,0);if(m){name=Mk.m[m.key];sub=Mk.sub;return true;}return false;})()){}
   else{let lm=null;for(const l of LANDMARKS){const dx=Math.max(l.x0-P.x,0,P.x-l.x1),dz=Math.max(l.z0-P.z,0,P.z-l.z1);if(Math.hypot(dx,dz)<22){lm=l;break;}}
     if(lm){[name,sub]=L.lm[lm.key];}else{[name,sub]=L.reg[region(P.x,P.z)];}}
   BR.forEach(b=>{if(!onB||onB.b!==b)b.li.classList.remove('here');});
@@ -1608,6 +1743,8 @@ const base=document.createElement('canvas');base.width=816;base.height=544;
   const sx=W/(MAP.x1-MAP.x0),sz=H/(MAP.z1-MAP.z0),X=x=>(x-MAP.x0)*sx,Z=z=>(z-MAP.z0)*sz;
   g.strokeStyle='#f8f2e2';g.lineCap='round';
   for(const s of SSEG){g.lineWidth=s.hw*2*sx;g.beginPath();g.moveTo(X(s.ax),Z(s.az));g.lineTo(X(s.bx),Z(s.bz));g.stroke();}
+  g.fillStyle='#f8f2e2';for(const m of MARKETS)g.fillRect(X(m.r[0]),Z(m.r[2]),(m.r[1]-m.r[0])*sx,(m.r[3]-m.r[2])*sz);
+  g.fillStyle='#8a7350';for(const m of MARKETS)for(const q of m.st){g.beginPath();g.arc(X(q.x),Z(q.z),Math.max(1.5,1.6*sx),0,7);g.fill();}
   g.fillStyle='rgba(120,92,62,.55)';for(const h of houses)g.fillRect(X(h.x-h.hx),Z(h.z-h.hz),h.hx*2*sx,h.hz*2*sz);
   g.fillStyle='rgba(84,120,64,.5)';for(const t of trees){g.beginPath();g.arc(X(t.x),Z(t.z),1.6,0,7);g.fill();}
   g.fillStyle='#9a4a33';for(const l of LANDMARKS)g.fillRect(X(l.x0),Z(l.z0),(l.x1-l.x0)*sx,(l.z1-l.z0)*sz);
@@ -1633,6 +1770,8 @@ function drawMap(){const W=mapC.width,H=mapC.height;if(!W)return;const big=$('ma
      mctx.font=`italic 600 ${Math.round(12.5*dp)}px "Cormorant Garamond", Georgia, serif`;mctx.textAlign='center';mctx.textBaseline='alphabetic';
      for(const l of LANDMARKS){const nm=MAPN[l.key];if(!nm)continue;const lx=X((l.x0+l.x1)/2)+(l.key==='kirche'?-10*dp:l.key==='schule'?14*dp:0),lz=['uni','kirche','rath'].includes(l.key)?Z(l.z1)+13*dp:Z(l.z0)-4*dp;
        mctx.lineWidth=3.5*dp;mctx.strokeStyle='rgba(244,236,216,.92)';mctx.strokeText(nm,lx,lz);mctx.fillStyle='#7a2a1c';mctx.fillText(nm,lx,lz);}
+     for(const m of MARKETS){const nm=MKT_MAPN[m.key],lx=X((m.r[0]+m.r[1])/2),lz=Z(m.r[2])-4*dp;
+       mctx.lineWidth=3.5*dp;mctx.strokeStyle='rgba(244,236,216,.92)';mctx.strokeText(nm,lx,lz);mctx.fillStyle='#5a4a2a';mctx.fillText(nm,lx,lz);}
      mctx.textBaseline='middle';}
    if(GEAR.has)for(const st of STATIONS){const sx2=X(st.x),sz2=Z(st.z);mctx.fillStyle='#2b5c8a';mctx.fillRect(sx2-fr*0.7,sz2-fr*0.7,fr*1.4,fr*1.4);mctx.lineWidth=Math.max(1,dp);mctx.strokeStyle='#f4ecd8';mctx.strokeRect(sx2-fr*0.7,sz2-fr*0.7,fr*1.4,fr*1.4);}
    for(const c of FAMOUS.chars){const cx=X(c.x),cz=Z(c.z);mctx.beginPath();mctx.arc(cx,cz,fr,0,7);mctx.fillStyle='#f2c94c';mctx.fill();mctx.lineWidth=Math.max(1.5,dp);mctx.strokeStyle='#13202c';mctx.stroke();mctx.fillStyle='#13202c';mctx.fillText(c.initial,cx,cz+fr*0.08);}
