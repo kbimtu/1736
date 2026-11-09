@@ -1812,13 +1812,40 @@ const ropes=[0,1].map(()=>{const g=new THREE.BufferGeometry();g.setAttribute('po
 const anchors=[0,1].map(()=>{const m=new THREE.Mesh(new THREE.SphereGeometry(0.18,8,6),lambert({color:'#3a3a3a'}));m.visible=false;scene.add(m);return m;});
 let HOOK_TARGETS=null;const ray=new THREE.Raycaster();ray.far=75;const camDir=new THREE.Vector3();
 function aimHit(){if(!HOOK_TARGETS)HOOK_TARGETS=scene.children.filter(o=>o.userData&&o.userData.hook);camera.getWorldDirection(camDir);ray.set(camera.position,camDir);const h=ray.intersectObjects(HOOK_TARGETS,false);return h.length?h[0].point:null;}
+/* Freiheitsfluggerät sound effects, synthesised in the browser: cable launch, hook bite, gas hiss */
+const GSFX=(function(){let ctx=null,out=null,noise=null,hiss=null;
+  function init(){if(ctx){if(ctx.state==='suspended')ctx.resume();return true;}const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;
+    try{ctx=new AC();}catch(_){return false;}out=ctx.createGain();out.gain.value=0.5;out.connect(ctx.destination);
+    noise=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return true;}
+  const nsrc=()=>{const s=ctx.createBufferSource();s.buffer=noise;s.loop=true;return s;};
+  function env(g,t,a,peak,dec){g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+a);g.gain.exponentialRampToValueAtTime(0.0001,t+a+dec);}
+  // the cable shoots out: a sharp crack, then a whistling whoosh that falls as the line pays out
+  function fire(pan){if(!init())return;const t=ctx.currentTime,p=ctx.createStereoPanner();p.pan.value=pan;p.connect(out);
+    const n=nsrc(),bp=ctx.createBiquadFilter(),g=ctx.createGain();bp.type='bandpass';bp.Q.value=3;bp.frequency.setValueAtTime(5200,t);bp.frequency.exponentialRampToValueAtTime(900,t+0.28);
+    n.connect(bp);bp.connect(g);g.connect(p);env(g,t,0.005,0.9,0.3);n.start(t);n.stop(t+0.35);
+    const o=ctx.createOscillator(),og=ctx.createGain();o.type='square';o.frequency.setValueAtTime(1800,t);o.frequency.exponentialRampToValueAtTime(220,t+0.05);
+    o.connect(og);og.connect(p);env(og,t,0.002,0.25,0.05);o.start(t);o.stop(t+0.07);
+    // reel ratchet
+    for(let k=0;k<6;k++){const c=ctx.createOscillator(),cg=ctx.createGain(),tt=t+0.04+k*0.035;c.type='square';c.frequency.value=2600-k*120;c.connect(cg);cg.connect(p);env(cg,tt,0.001,0.08*(1-k/7),0.012);c.start(tt);c.stop(tt+0.02);}}
+  // the hook bites into stone or timber: a metallic clank with an inharmonic ring, and a thud
+  function hook(pan,delay){if(!init())return;const t=ctx.currentTime+delay,p=ctx.createStereoPanner();p.pan.value=pan;p.connect(out);
+    for(const[f,v,dec]of[[1180,0.32,0.35],[1730,0.2,0.28],[2950,0.1,0.18],[460,0.25,0.12]]){const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(p);env(g,t,0.002,v,dec);o.start(t);o.stop(t+dec+0.05);}
+    const n=nsrc(),lp=ctx.createBiquadFilter(),g=ctx.createGain();lp.type='lowpass';lp.frequency.value=900;n.connect(lp);lp.connect(g);g.connect(p);env(g,t,0.002,0.6,0.09);n.start(t);n.stop(t+0.15);}
+  function release(pan){if(!init())return;const t=ctx.currentTime,p=ctx.createStereoPanner();p.pan.value=pan;p.connect(out);
+    const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.setValueAtTime(900,t);o.frequency.exponentialRampToValueAtTime(2400,t+0.12);o.connect(g);g.connect(p);env(g,t,0.004,0.12,0.12);o.start(t);o.stop(t+0.18);}
+  // gas: a pressurised hiss; louder and deeper with full thrust on a cable, thin for the small free boost
+  function gas(level){if(level<=0&&!hiss)return;if(!init())return;const t=ctx.currentTime;
+    if(!hiss){const n=nsrc(),hp=ctx.createBiquadFilter(),bp=ctx.createBiquadFilter(),g=ctx.createGain();hp.type='highpass';hp.frequency.value=700;bp.type='peaking';bp.frequency.value=2600;bp.gain.value=8;
+      n.connect(hp);hp.connect(bp);bp.connect(g);g.connect(out);g.gain.value=0.0001;n.start();hiss={n,g,bp,lvl:0};}
+    if(Math.abs(level-hiss.lvl)>0.01){hiss.lvl=level;hiss.g.gain.cancelScheduledValues(t);hiss.g.gain.setTargetAtTime(Math.max(0.0001,level*0.35),t,level>0?0.04:0.09);hiss.bp.frequency.setTargetAtTime(level>0.6?1900:3200,t,0.05);}}
+  return{fire,hook,release,gas};})();
 function fireHook(i){if(!GEAR.has||!started||GEAR.swim)return;
   if(GEAR.gas<=0){toast(t('gEmpty'),3200);return;}
   if(HORSE.mounted)toggleMount();
-  const p=aimHit();if(!p){$('cross').classList.add('miss');setTimeout(()=>$('cross').classList.remove('miss'),250);return;}
-  const d=Math.hypot(p.x-P.x,p.y-(P.feet+1.4),p.z-P.z);GEAR.hooks[i]={x:p.x,y:p.y,z:p.z,len:d};GEAR.gas=Math.max(0,GEAR.gas-0.0033);
+  const p=aimHit(),pan=i?0.35:-0.35;GSFX.fire(pan);if(!p){$('cross').classList.add('miss');setTimeout(()=>$('cross').classList.remove('miss'),250);return;}
+  const d=Math.hypot(p.x-P.x,p.y-(P.feet+1.4),p.z-P.z);GEAR.hooks[i]={x:p.x,y:p.y,z:p.z,len:d};GSFX.hook(pan,Math.min(0.35,0.04+d/140));GEAR.gas=Math.max(0,GEAR.gas-0.0033);
   if(!GEAR.air){GEAR.air=true;GEAR.vy=Math.max(GEAR.vy,6);}}
-function releaseHook(i){GEAR.hooks[i]=null;}
+function releaseHook(i){if(GEAR.hooks[i])GSFX.release(i?0.35:-0.35);GEAR.hooks[i]=null;}
 function gearJump(){if(!GEAR.has||!started||GEAR.air||HORSE.mounted)return;GEAR.air=true;GEAR.vy=7;}
 function splash(){GEAR.hooks=[null,null];GEAR.air=false;GEAR.vx=GEAR.vy=GEAR.vz=0;
   // find the nearest dry, open bank and swim there
@@ -1843,7 +1870,7 @@ function mantle(x,z){if(!inBounds(x,z))return false;const sv=STEP;STEP=7.5;const
   P.x=x;P.z=z;P.feet=s2.g;GEAR.hooks=[null,null];GEAR.air=false;GEAR.vx=GEAR.vy=GEAR.vz=0;P.levelT=0.8;return true;}
 // one physics step while airborne
 function flightStep(h,mf,ms){
-  let ax=0,ay=(GEAR.hooks[0]||GEAR.hooks[1])?-15:-30,az=0; // gravity is halved while a hook holds you
+  let ax=0,ay=(GEAR.hooks[0]||GEAR.hooks[1])?-9:-30,az=0; // gravity is much lighter (30%) while a cable holds you
   for(const hk of GEAR.hooks)if(hk){const dx=hk.x-P.x,dy=hk.y-(P.feet+1.4),dz=hk.z-P.z,d=Math.hypot(dx,dy,dz)||1,ux=dx/d,uy=dy/d,uz=dz/d;
     if(GEAR.gas>0){ax+=ux*40;ay+=uy*40+6;az+=uz*40;GEAR.gas=Math.max(0,GEAR.gas-h/210);}
     hk.len=Math.min(hk.len,d);if(d>hk.len+0.05){const vr=GEAR.vx*ux+GEAR.vy*uy+GEAR.vz*uz;if(vr<0){GEAR.vx-=ux*vr;GEAR.vy-=uy*vr;GEAR.vz-=uz*vr;}}
@@ -2234,6 +2261,7 @@ function frame(){requestAnimationFrame(frame);const rawDt=clock.getDelta();const
     animateBirds(time,dt);
   }
   npcUpdate(dt,time);horseUpdate(dt,time);FAMOUS.update(dt,time);gearUpdate(dt,time);
+  if(GEAR.has){const thr=started&&GEAR.air&&GEAR.inT&&GEAR.gas>0;GSFX.gas(thr?((GEAR.hooks[0]||GEAR.hooks[1])?1:0.45):0);}
   {const on=!!(started&&GEAR.has);if(on!==crossOn){crossOn=on;$('cross').classList.toggle('on',on);}}
   aimTick+=dt;if(started&&GEAR.has&&aimTick>0.15){aimTick=0;$('cross').classList.toggle('ok',!!aimHit());updateGearUI();}
   horseUITick+=dt;if(started&&horseUITick>0.15){horseUITick=0;updateHorseUI();}
