@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Königsberg 1736</title>
 <meta name="description" content="Walk through Königsberg in 1736 and try Euler's puzzle: cross each of the seven bridges exactly once. Meet Euler and Kant, ride through the old town and explore its market squares. A free 3D walk by the Königsberger Brückeninstitut.">
 <link rel="canonical" href="https://1736.koenigsberg.city/">
@@ -45,6 +45,10 @@
 }
 [hidden]{display:none!important}
 html,body{height:100%}
+/* phones: no double-tap zoom anywhere (taps stay fast), and no zoom or callouts at all on the game's own controls */
+html,body,button,a,canvas,#app{touch-action:manipulation}
+#hud,#hud *,#stick,#stick *,#gearBtns,#gearBtns *,#mountBtn,#mapwrap,#talk,#talk *{touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+#hud .card{touch-action:pan-y}
 body{margin:0;background:var(--night);color:var(--parchment);font-family:var(--body);overflow:hidden;-webkit-user-select:none;user-select:none}
 #app{position:fixed;inset:0}
 #app::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(10,14,20,.28) 100%)}
@@ -2486,6 +2490,10 @@ function frame(){requestAnimationFrame(frame);const rawDt=clock.getDelta();const
   renderer.render(scene,camera);}
 frame();
 window.KB_READY=true;setBeginLabel();document.body.classList.add('ready');
+/* phones: once the walk has started, block pinch and double-tap zoom (Safari ignores user-scalable=no, so stop its gesture events) */
+for(const ev of['gesturestart','gesturechange','gestureend'])document.addEventListener(ev,e=>{if(started)e.preventDefault();},{passive:false});
+document.addEventListener('dblclick',e=>{if(started)e.preventDefault();},{passive:false});
+{let lastTouch=0;document.addEventListener('touchend',e=>{const now=Date.now();if(started&&now-lastTouch<350&&e.target.closest&&!e.target.closest('button,a,input')&&e.target.closest('#hud,#stick,#gearBtns,#app'))e.preventDefault();lastTouch=now;},{passive:false});}
 /* iPhone and iPad: Web Audio may only start from a tap, and the ringer switch mutes it unless the page plays as media.
    Every tap or key resumes both audio engines; the first one also starts a silent looping clip so iOS treats the page as media playback. */
 (function(){let started=false;const silent=new Audio('data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSADAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==');silent.loop=true;silent.setAttribute('playsinline','');silent.volume=0.01;
