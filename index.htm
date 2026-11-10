@@ -1,3 +1,7 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Königsberg 1736</title>
 <meta name="description" content="Walk through Königsberg in 1736 and try Euler's puzzle: cross each of the seven bridges exactly once. Meet Euler and Kant, ride through the old town and explore its market squares. A free 3D walk by the Königsberger Brückeninstitut.">
 <link rel="canonical" href="https://1736.koenigsberg.city/">
@@ -1633,7 +1637,7 @@ const npcs=[];const npcUpdate=(function(){
       }else if(!n.y){n.y=groundH(n.x,n.z);}
       if(moving&&!n.squad)n.ph+=dt*n.sp*4.2;
       const sw=moving?Math.sin(n.ph)*0.5:0,bob=moving?Math.abs(Math.cos(n.ph))*0.04:Math.sin(time*1.3+n.ph)*0.01;
-      {const d2=(n.x-cxp)*(n.x-cxp)+(n.z-czp)*(n.z-czp),every=d2>102400?8:d2>25600?4:1;if(every>1&&(npcFrame+(n.ph*97|0))%every)continue;}
+      {const d2=(n.x-cxp)*(n.x-cxp)+(n.z-czp)*(n.z-czp),every=1;if(every>1&&(npcFrame+(n.ph*97|0))%every)continue;}
       pos.set(n.x,n.y+bob*n.sc,n.z);const fy=n.yaw+(n.stand?Math.sin(time*.4+n.ph)*0.15:0);q.setFromAxisAngle(UP,fy);scl.set(n.sc,n.sc,n.sc);base.compose(pos,q,scl);
       const I=n.ix;
       if(n.kind==='lady'){
@@ -2461,7 +2465,7 @@ function frame(){requestAnimationFrame(frame);const rawDt=clock.getDelta();const
    if(Math.abs(op-hudOp)>0.004){hudOp=op;const card=document.querySelector('.card'),mw=$('mapwrap');const coast=op>0.27&&op<1;card.style.transition=mw.style.transition=coast?'none':'';
      const f=(1-op)/0.73,mop=1-0.3*f;card.style.opacity=op<1?op.toFixed(3):'';mw.style.opacity=op<1&&!mw.classList.contains('big')?mop.toFixed(3):'';}}
   if(started){updatePlace(onB);mapTick+=dt;if(mapTick>1/20){mapTick=0;drawMap();}}
-  shadowTick=(shadowTick+1)%2;renderer.shadowMap.needsUpdate=shadowTick===0;
+  renderer.shadowMap.needsUpdate=true; // shadows every frame (half-rate shadows looked steppy while moving)
   renderer.render(scene,camera);}
 frame();
 window.KB_READY=true;setBeginLabel();document.body.classList.add('ready');
@@ -2482,3 +2486,5 @@ window.KB_READY=true;setBeginLabel();document.body.classList.add('ready');
 window.__kb={flightStep,GEAR,fireHook,FAMOUS,P,BR,houses,trees,counts,canStand,npcs,horses,HORSE,toggleMount,FRITZ,bodyPen,step(){trackBridges();}};
 });
 </script>
+
+</html>
