@@ -956,7 +956,10 @@ weather(T.tile,{damp:1,streaks:0,blotch:16,col:'rgba(70,80,40,.22)'});weather(T.
 deriveMaps(T.timber,5,true,true);deriveMaps(T.plaster,3,false,true);deriveMaps(T.palace,3,false,true);deriveMaps(T.brickBay,4,true,true);deriveMaps(T.brickTower,4,true,false);
 deriveMaps(T.tile,6,false,false);deriveMaps(T.cobble,7,false,false);deriveMaps(T.stone,5,false,false);deriveMaps(T.planks,4,false,false);deriveMaps(T.grass,1.5,false,false);
 T.water.encoding=THREE.LinearEncoding;
-T.cloud=(function(){const c=document.createElement('canvas');c.width=256;c.height=128;const g=c.getContext('2d');for(let i=0;i<22;i++){const x=40+R()*176,y=50+R()*36,r=18+R()*30;const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,'rgba(255,255,255,.85)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.beginPath();g.arc(x,y,r,0,7);g.fill();}const ct=new THREE.CanvasTexture(c);ct.encoding=THREE.sRGBEncoding;return ct;})();
+T.cloud=(function(){const c=document.createElement('canvas');c.width=256;c.height=128;const g=c.getContext('2d');for(let i=0;i<22;i++){const x=40+R()*176,y=50+R()*36,r=18+R()*30;const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,'rgba(255,255,255,.85)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.beginPath();g.arc(x,y,r,0,7);g.fill();}
+  // keep only the alpha: every pixel is pure white, so faint edges can never pick up stray colours when the texture is uploaded
+  const src=g.getImageData(0,0,256,128).data,data=new Uint8Array(src.length);for(let i=0;i<src.length;i+=4){data[i]=data[i+1]=data[i+2]=255;data[i+3]=src[i+3];}
+  const ct=new THREE.DataTexture(data,256,128,THREE.RGBAFormat);ct.flipY=false;ct.magFilter=THREE.LinearFilter;ct.minFilter=THREE.LinearMipmapLinearFilter;ct.generateMipmaps=true;ct.needsUpdate=true;return ct;})();
 
 /* ---------------- Geometry helpers ---------------- */
 function wbox(w,h,d,tu,tv){const g=new THREE.BoxGeometry(w,h,d);const uv=g.attributes.uv;const dims=[[d,h],[d,h],[w,d],[w,d],[w,h],[w,h]];for(let f=0;f<6;f++)for(let k=0;k<4;k++){const i=f*4+k;uv.setXY(i,uv.getX(i)*dims[f][0]/tu,uv.getY(i)*dims[f][1]/tv);}return g;}
@@ -1543,7 +1546,9 @@ const npcs=[];const npcUpdate=(function(){
   const coatSkG=new THREE.CylinderGeometry(.24,.39,1,16),wigG=new THREE.SphereGeometry(.2,14,10),curlG=new THREE.CylinderGeometry(.055,.055,.15,10),hatG=new THREE.CylinderGeometry(.38,.31,.15,3),crownG=new THREE.SphereGeometry(.17,12,6,0,6.283,0,1.4),caneG=new THREE.CylinderGeometry(.018,.018,1,6);
   const mk=(g,n,sh,mat)=>{const m=inst(g,mat||toyMat({color:'#ffffff'}),n,sh);m.frustumCulled=false;return m;};
   const nMen=cnt(['man','soldier','burgher']),nW=cnt(['woman','lady']),nB=cnt(['burgher']),nL=cnt(['lady']);
-  const M={legs:mk(legG,nMen*2,false),boot:mk(bootG,nMen*2,false),belt:mk(beltG,cnt(['man','soldier']),false),band:mk(bandG,cnt(['man','soldier']),false),headM:mk(toyHeadGeo(),nMen,false,toyMat({map:TOYFACE.man})),headW:mk(toyHeadGeo(),nW,false,toyMat({map:TOYFACE.plain})),arms:mk(armG,npcs.length*2,false),torso:mk(torsoG,nMen),bodice:mk(bodiceG,nW,false),
+  // children (the small NPCs) get the plain, beardless face
+  const isKid=n=>n.sc<0.8&&n.kind!=='woman'&&n.kind!=='lady',nKid=npcs.filter(isKid).length;
+  const M={legs:mk(legG,nMen*2,false),boot:mk(bootG,nMen*2,false),belt:mk(beltG,cnt(['man','soldier']),false),band:mk(bandG,cnt(['man','soldier']),false),headM:mk(toyHeadGeo(),nMen-nKid,false,toyMat({map:TOYFACE.man})),headK:mk(toyHeadGeo(),nKid,false,toyMat({map:TOYFACE.plain})),headW:mk(toyHeadGeo(),nW,false,toyMat({map:TOYFACE.plain})),arms:mk(armG,npcs.length*2,false),torso:mk(torsoG,nMen),bodice:mk(bodiceG,nW,false),
     skirt:mk(skirtG,nW),apron:mk(box,nW,false),collar:mk(collarG,npcs.length,false),tri:mk(triG,cnt(['man','soldier']),false),
     cap:mk(capG,cnt(['woman']),false),musket:mk(box,cnt(['soldier']),false),cuff:mk(box,cnt(['soldier','burgher','lady'])*2,false),
     coatSk:mk(coatSkG,nB),vest:mk(box,nB,false),knee:mk(legG,nB*2,false),wig:mk(wigG,nB+nL,false),curl:mk(curlG,nB*2+nL*2,false),queue:mk(box,nB,false),hat:mk(hatG,nB,false),crown:mk(crownG,nB,false),cane:mk(caneG,nB,false),crate:mk(box,Math.max(1,npcs.filter(n=>n.porter).length),false)};
@@ -1551,7 +1556,7 @@ const npcs=[];const npcUpdate=(function(){
   const idx={};for(const k in M)idx[k]=0;
   for(const n of npcs){n.ix={};const take=(k,c,times)=>{n.ix[k]=idx[k];for(let j=0;j<(times||1);j++)M[k].setColorAt(idx[k]++,c);};
     if(n.porter)take('crate',C('#9a7448'));
-    take('arms',n.coat,2);take('collar',WHITE);const fem=n.kind==='woman'||n.kind==='lady';if(fem)take('headW',WHITE);else{take('headM',WHITE);take('boot',BLACK,2);if(n.kind!=='burgher'){take('belt',n.kind==='soldier'?WHITE:GOLDC);take('band',GOLDC);}}
+    take('arms',n.coat,2);take('collar',WHITE);const fem=n.kind==='woman'||n.kind==='lady';if(fem)take('headW',WHITE);else{take(isKid(n)?'headK':'headM',WHITE);take('boot',BLACK,2);if(n.kind!=='burgher'){take('belt',n.kind==='soldier'?WHITE:GOLDC);take('band',GOLDC);}}
     if(n.kind==='lady'){take('bodice',n.coat);take('skirt',n.coat);take('apron',n.vest);take('cuff',WHITE,2);take('wig',POWDER);take('curl',POWDER,2);}
     else if(n.kind==='burgher'){take('legs',STOCK,2);take('knee',n.coat,2);take('torso',n.coat);take('coatSk',n.coat);take('vest',n.vest);take('cuff',n.vest,2);
       take('wig',POWDER);take('curl',POWDER,2);take('queue',BLACK);take('hat',BLACK);take('crown',BLACK);take('cane',CANE);}
@@ -1630,7 +1635,7 @@ const npcs=[];const npcUpdate=(function(){
       part(M.arms,I.arms,-0.29,1.46,0,-sw*0.8,-0.29,1,0.6,1);part(M.arms,I.arms+1,0.29,1.46,0,n.kind==='soldier'?-0.05:n.kind==='burgher'?sw*0.5:sw*0.8,-0.29,1,0.6,1);
       if(n.porter){if((n.dir===1)===n.carryIn&&!n.stand)part(M.crate,I.crate,0.12,1.95,-0.02,0,0,0.62,0.48,0.62);else part(M.crate,I.crate,0,0,0,0,0,0.001,0.001,0.001);}
       if(n.kind==='lady')part(M.collar,I.collar,0,1.47,0.01,0,0,2.3,1.1,2.0);else part(M.collar,I.collar,0,1.5,0.02,0,0,n.kind==='burgher'?1.3:1,1,n.kind==='burgher'?1.3:1);
-      if(n.kind==='woman'||n.kind==='lady')part(M.headW,I.headW,0,1.79,0,0,0,1.15,1.05,1.15);else part(M.headM,I.headM,0,1.8,0,0,0,1.15,1.1,1.15);}
+      if(n.kind==='woman'||n.kind==='lady')part(M.headW,I.headW,0,1.79,0,0,0,1.15,1.05,1.15);else if(I.headK!==undefined)part(M.headK,I.headK,0,1.8,0,0,0,1.15,1.1,1.15);else part(M.headM,I.headM,0,1.8,0,0,0,1.15,1.1,1.15);}
     for(const k in M){M[k].instanceMatrix.needsUpdate=true;}
   };})();
 
@@ -1734,7 +1739,8 @@ const horseUpdate=(function(){
       const sw=moving?Math.sin(h.ph)*0.42:0,bob=moving?Math.abs(Math.sin(h.ph))*0.07:0;
       pos.set(h.x,h.y+bob,h.z);q.setFromAxisAngle(UP,h.yaw);base.compose(pos,q,one);
       part(M.body,i,0,1.28,0,0,0,1,1,1);part(M.saddle,i,0,1.6,-0.05,0,0,0.76,0.1,0.82);
-      const a=grazing?2.0+Math.sin(time*0.7+h.ph)*0.08:0.55+(moving?Math.sin(h.ph*2)*0.05:Math.sin(time*0.5+h.ph)*0.04);
+      let a=grazing?2.0+Math.sin(time*0.7+h.ph)*0.08:0.55+(moving?Math.sin(h.ph*2)*0.05:Math.sin(time*0.5+h.ph)*0.04);
+      if(h.fritz===0){const dip=fz.talking&&!HORSE.mounted?1.9:0;h.dip=(h.dip||0)+(dip-(h.dip||0))*Math.min(1,dt*2.5);a=a+(h.dip>0.01?(1.9-a)*(h.dip/1.9):0);}
       part(M.neck,i,0,1.42,0.62,a,0.42,0.26,0.85,0.36);part(M.mane,i,0,1.42,0.62,a,0.44,0.1,0.85,0.08);
       const ey=1.42+Math.cos(a)*0.85,ez=0.62+Math.sin(a)*0.85,hr=a*0.5+0.35,headY=ey+Math.cos(a)*0.08,headZ=ez+Math.sin(a)*0.08;part(M.head,i,0,headY,headZ,hr,0,0.22,0.27,0.6);
       // ears: at the top-back of the head, pricked up and slightly back
@@ -2336,7 +2342,7 @@ function frame(){requestAnimationFrame(frame);const rawDt=clock.getDelta();const
       const onRoof=GEAR.has&&P.feet>groundH(P.x,P.z)+3;STEP=onRoof?2.6:0.7;
       const ok=(x,z)=>{if(!inBounds(x,z))return false;const s2=surfaceAt(x,z,P.feet,rr);if(s2.block)return false;if(!s2.bridge&&sdWater(x,z)<0.8)return false;
         if(onRoof&&s2.g<P.feet-3)return false;
-        if(!onRoof){const pn=bodyPen(x,z,!!H);if(pn>0.02&&pn>=pen0-0.002)return false;}return true;};
+        if(!onRoof){const pn=bodyPen(x,z,!!H);if(pn>0.02&&pn>pen0+0.001)return false;}return true;};
       const pen0=bodyPen(P.x,P.z,!!H);
       for(let k=0;k<sub;k++){if(dx){if(ok(P.x+dx/sub,P.z))P.x+=dx/sub;else if(H&&Math.abs(fx)>0.5)H.spd=0;}if(dz){if(ok(P.x,P.z+dz/sub))P.z+=dz/sub;else if(H&&Math.abs(fz)>0.5)H.spd=0;}trackBridges();}
       const sf=surfaceAt(P.x,P.z,P.feet,onRoof?0.6:0.2).g;STEP=0.7;
