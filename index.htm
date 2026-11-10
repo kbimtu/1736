@@ -1272,11 +1272,15 @@ const brickGable=lambert({map:T.brickTower,side:THREE.DoubleSide}),palaceGable=l
   {const y=G(-255,-200,-96,-80);addMesh(wbox(55,12,16,7,8),timber,-227.5,y+6,-88);roofAt(55,16,10,darkRoof,timberG,-227.5,y+12,-88);
    const wood=lambert({color:'#5a3c26'});addMesh(new THREE.BoxGeometry(0.5,16,0.5),wood,-205,y+8,-77);const arm=addMesh(new THREE.BoxGeometry(0.4,0.4,7),wood,-205,y+15.5,-74.5);}
   // Old Börse (1623): the merchants' exchange at the Kneiphof end of the Green Bridge, with Dutch stepped gables and an arcade facing the Pregel
-  {const y=G(20,44,38,59);const stoneW=lambert({map:T.palace,color:'#e9e1cf'}),dark=lambert({color:'#2a2f35'});
-   addMesh(wbox(24,12,21,5,4.5),stoneW,32,y+6,48.5);roofAt(21,24,9,darkRoof,gab('#e9e1cf'),32,y+12,48.5,Math.PI/2);
-   for(const zf of[37.8,59.2]){for(let k=0;k<5;k++){const w=24*(1-k/5)-1.2;addMesh(wbox(w,1.8,0.7,5,4.5),stoneW,32,y+12.9+k*1.8,zf);}
-     addMesh(new THREE.SphereGeometry(0.55,10,8),copper,32,y+22.4,zf);}
-   for(let i=0;i<5;i++){addMesh(new THREE.BoxGeometry(2.6,4.2,0.3),dark,22.6+i*4.7,y+2.4,59.1);addMesh(new THREE.BoxGeometry(1.5,2.6,0.3),dark,22.6+i*4.7,y+8.2,59.1);}
+  {const y=G(20,44,38,59);const stoneW=lambert({map:T.palace,color:'#e9e1cf'}),plain=lambert({map:T.stone,color:'#e9e1cf'}),shade=lambert({color:'#6f6658'});
+   // upper floors over the full footprint; on the ground floor the river front is an open arcade (wall set back 2.5 m behind a row of columns)
+   addMesh(wbox(24,7.4,21,5,4.5),stoneW,32,y+8.3,48.5);addMesh(wbox(24,4.6,18.5,5,4.5),stoneW,32,y+2.3,47.25);
+   addMesh(wbox(24,0.9,1.0,5,4.5),plain,32,y+4.15,58.5);addMesh(wbox(24,0.25,2.5,5,4.5),shade,32,y+0.05,57.75);
+   for(let i=0;i<6;i++)addMesh(new THREE.CylinderGeometry(0.42,0.5,3.7,12),plain,20.6+i*4.56,y+1.85,58.4);
+   roofAt(21,24,9,darkRoof,gab('#e9e1cf'),32,y+12,48.5,Math.PI/2);
+   // Dutch stepped gables: flat, stepped walls in front of each roof end (they cover the roof's own gable triangle)
+   for(const zf of[37.55,59.45]){for(let k=0;k<5;k++){const w=24*(1-k/5);addMesh(wbox(w,1.8,0.9,5,4.5),stoneW,32,y+12.9+k*1.8,zf);}
+     addMesh(new THREE.SphereGeometry(0.55,10,8),copper,32,y+21.9,zf);}
    addMesh(wbox(3.2,4,3.2,5,4.5),stoneW,32,y+22,48.5);spire(2.1,6,copper,32,y+24,48.5,8);}
   // Speicher: tall half-timbered grain warehouses on the Lastadie quay, gables to the river, with loading doors and hoist beams
   {const darkW=lambert({color:'#2b2420'});
@@ -1482,7 +1486,7 @@ function canStand(x,z,rad){
   if(sdWater(x,z)<0.8)return false;
   const r=rad||0.35,ix=Math.floor(x/10),iz=Math.floor(z/10);
   for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const list=grid.get((ix+a)+','+(iz+b));if(list)for(const o of list)if(boxHit(x,z,o,r))return false;}
-  for(const q of SOLIDS)if(x>q[0]-r&&x<q[1]+r&&z>q[2]-r&&z<q[3]+r){if(q[5]!==undefined&&q[5]>groundH(x,z)+2)continue;return false;}
+  for(const q of SOLIDS)if(!q[6]&&x>q[0]-r&&x<q[1]+r&&z>q[2]-r&&z<q[3]+r){if(q[5]!==undefined&&q[5]>groundH(x,z)+2)continue;return false;}
   return true;}
 
 
@@ -1870,7 +1874,7 @@ const FAMOUS=(function(){
       const bb=bridgeAt(c.x,c.z);const y=(bb?deckY(bb.b,bb.t):groundH(c.x,c.z))+(walking?Math.abs(Math.cos(c.ph))*0.04*sc:0);
       c.g.position.set(c.x,y,c.z);c.g.rotation.y=c.yaw;c.gem.rotation.y=time*1.6;c.gem.position.y=2.42+Math.sin(time*2)*0.06;}
     if(near!==talking){talking=near;if(near){near.line=near.seen?near.line+1:0;near.seen=true;showTalk(near);
-        if(near.key==='fritz'&&Music.track!=='fred'){try{Music.set('fred');renderMusic();}catch(_){}}}else $('talk').hidden=true;}}
+        {const tune={fritz:'fred',euler:'chorale',kant:'prelude'}[near.key];if(tune&&Music.track!==tune){try{Music.set(tune);renderMusic();}catch(_){}}}}else $('talk').hidden=true;}}
   return{update,next,chars,refresh(){if(talking)showTalk(talking);},hide(){talking=null;$('talk').hidden=true;},get talkingKey(){return talking&&talking.key;}};})();
 
 /* Freiheitsfluggerät: an original grappling-hook harness with gas thrust. Picked up at the University. */
@@ -1880,7 +1884,9 @@ P.feet=groundH(P.x,P.z);GEAR.safe.f=P.feet;
 {const box=new THREE.Box3(),parts=[];
  for(const ob of scene.children){if(!ob.isMesh||ob.isInstancedMesh||!ob.userData.hook)continue;box.setFromObject(ob);if(box.isEmpty())continue;
    const sx=box.max.x-box.min.x,sz=box.max.z-box.min.z;if(sx>160||sz>160)continue;const cx=(box.min.x+box.max.x)/2,cz=(box.min.z+box.max.z)/2;
-   if(!LANDMARKS.some(l=>inRect(cx,cz,l.ex,0)))continue;parts.push([box.min.x,box.max.x,box.min.z,box.max.z,box.max.y,box.min.y]);} // [x0,x1,z0,z1,top,bottom]
+   if(!LANDMARKS.some(l=>inRect(cx,cz,l.ex,0)))continue;const gp=ob.geometry.parameters||{},gt=ob.geometry.type;
+   const spike=gt==='ConeGeometry'||gt==='SphereGeometry'||gt==='OctahedronGeometry'||(gt==='CylinderGeometry'&&gp.radiusTop<gp.radiusBottom*0.5);
+   parts.push([box.min.x,box.max.x,box.min.z,box.max.z,box.max.y,box.min.y,spike,ob]);} // [x0,x1,z0,z1,top,bottom,spike,mesh]
  if(parts.length){SOLIDS.length=0;SOLIDS.push(...parts);}
  for(const g of GATES){const ew=g.dx!==0;SOLIDS.push(ew?[g.x-6.5,g.x+6.5,g.z-10,g.z+10,g.y0+24,g.y0]:[g.x-10,g.x+10,g.z-6.5,g.z+6.5,g.y0+24,g.y0]);}}
 for(const[x0,x1,z0,z1]of UNI_WALLS)SOLIDS.push([x0,x1,z0,z1,minGround(x0,x1,z0,z1)+1.5]);
@@ -1903,7 +1909,7 @@ function surfaceAt(x,z,feet,r){const b=bridgeAt(x,z),pr=b?null:pierAt(x,z);let g
   if(!b){const wt=wallTop(x,z);if(wt!==null&&wt>g){if(wt<=feet+STEP)g=wt;else block=true;}}
   const ix=Math.floor(x/10),iz=Math.floor(z/10);
   for(let a=-1;a<=1;a++)for(let c=-1;c<=1;c++){const list=grid.get((ix+a)+','+(iz+c));if(list)for(const o of list)if(boxHit(x,z,o,r)){const top=o.house?houseTop(o.house,x,z):o.top;if(top<=feet+STEP)g=Math.max(g,top);else block=true;}}
-  for(const q of SOLIDS)if(x>q[0]-r&&x<q[1]+r&&z>q[2]-r&&z<q[3]+r){if(q[5]!==undefined&&feet+1.9<q[5])continue;if(q[4]<=feet+STEP)g=Math.max(g,q[4]);else block=true;}
+  for(const q of SOLIDS)if(x>q[0]-r&&x<q[1]+r&&z>q[2]-r&&z<q[3]+r){if(q[5]!==undefined&&feet+1.9<q[5])continue;if(q[6])continue;if(q[4]<=feet+STEP)g=Math.max(g,q[4]);else block=true;}
   return{g,block,bridge:!!(b||pr)};}
 // the gates are shut: you may walk on the ramparts and gatehouses, but never past the outer parapet (walking, riding or flying)
 function inBounds(x,z){const wi=wallInfo(x,z);if(wi&&wi.ad<20)return wi.d<2.3;return wallG(x,z)<1;}
@@ -1924,24 +1930,32 @@ const STATIONS=[[-395,-45],[-227,-66],[100,141],[470,6],[30,-2],[4,-185],[336,-2
 const ropeMat=new THREE.LineBasicMaterial({color:C('#2a2018')});
 const ropes=[0,1].map(()=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0,0,0,0],3));const l=new THREE.Line(g,ropeMat);l.frustumCulled=false;l.visible=false;scene.add(l);return l;});
 const anchors=[0,1].map(()=>{const m=new THREE.Mesh(new THREE.SphereGeometry(0.18,8,6),lambert({color:'#3a3a3a'}));m.visible=false;scene.add(m);return m;});
-const HOOK_RANGE=75;let hookTop=null;const camDir=new THREE.Vector3();
+const HOOK_RANGE=75;const camDir=new THREE.Vector3();
 const aimR=new THREE.Vector3(),aimU=new THREE.Vector3(),aimD=new THREE.Vector3(),UPV=new THREE.Vector3(0,1,0);
 /* Where can a hook bite? The same solids you collide with: houses (up to their pitched roofs), trees, landmark parts, walls, gates,
    bridges and piers. Testing points against these is far cheaper than ray-casting thousands of triangles, so aiming stays smooth at speed. */
-function hookSolidAt(x,y,z){const ix=Math.floor(x/10),iz=Math.floor(z/10);
+function hookSolidAt(x,y,z,skip){const ix=Math.floor(x/10),iz=Math.floor(z/10);
   for(let a=-1;a<=1;a++)for(let c=-1;c<=1;c++){const L=grid.get((ix+a)+','+(iz+c));if(L)for(const o of L){if(Math.abs(x-o.x)>=o.hx||Math.abs(z-o.z)>=o.hz)continue;
     if(o.house){if(y>=o.house.y&&y<=houseTop(o.house,x,z))return true;}else if(y<=o.top&&y>=o.top-12)return true;}}
-  for(const q of SOLIDS)if(x>q[0]&&x<q[1]&&z>q[2]&&z<q[3]&&y<=q[4]&&y>=(q[5]===undefined?-20:q[5]))return true;
   const wt=wallTop(x,z);if(wt!==null&&y<=wt&&y>=wt-14&&wt>groundH(x,z)+1)return true;
   const b=bridgeAt(x,z);if(b){const dy=deckY(b.b,b.t);if(y<=dy+1.3&&y>=dy-1.2)return true;}
   const pr=pierAt(x,z);if(pr&&y<=pr.y&&y>=pr.y-0.5)return true;
   return false;}
 // march along the ray in half-metre steps, then refine the hit by bisection
-function hookRay(o,d){let prev=0;for(let t=0.5;t<=HOOK_RANGE;t+=0.5){const y=o.y+d.y*t;if(hookTop===null)hookTop=Math.max(...SOLIDS.map(q=>q[4]))+1;if((y>hookTop&&d.y>=0)||y<-6)break; // nothing to hook above the tallest spire or below the river bed
-    if(y>hookTop){prev=t;continue;}
-    if(hookSolidAt(o.x+d.x*t,o.y+d.y*t,o.z+d.z*t)){let lo=prev,hi=t;
-      for(let k=0;k<7;k++){const m=(lo+hi)/2;if(hookSolidAt(o.x+d.x*m,o.y+d.y*m,o.z+d.z*m))hi=m;else lo=m;}return new THREE.Vector3(o.x+d.x*hi,o.y+d.y*hi,o.z+d.z*hi);}prev=t;}
-  return null;}
+// Landmark parts and gatehouses: test the ray against each part's box, and for real meshes against the mesh itself (no hooking empty corners).
+// Houses, walls, bridges and piers are exact shapes: march along the ray in half-metre steps up to the nearest landmark hit, then refine by bisection.
+const hookRC=new THREE.Raycaster();
+function rayBox(o,d,q,far){let t0=0,t1=far;const lo=[q[0],q[5]===undefined?-20:q[5],q[2]],hi=[q[1],q[4],q[3]],oo=[o.x,o.y,o.z],dd=[d.x,d.y,d.z];
+  for(let k=0;k<3;k++){if(Math.abs(dd[k])<1e-9){if(oo[k]<lo[k]||oo[k]>hi[k])return -1;continue;}let a=(lo[k]-oo[k])/dd[k],b=(hi[k]-oo[k])/dd[k];if(a>b){const c=a;a=b;b=c;}if(a>t0)t0=a;if(b<t1)t1=b;if(t0>t1)return -1;}return t0;}
+function hookRay(o,d){let best=HOOK_RANGE,bestP=null;
+  for(const q of SOLIDS){const te=rayBox(o,d,q,best);if(te<0)continue;
+    if(q[7]){hookRC.set(o,d);hookRC.far=best;const h=hookRC.intersectObject(q[7],false);if(h.length&&h[0].distance<best){best=h[0].distance;bestP=h[0].point.clone();}}
+    else if(te<best){best=te;bestP=new THREE.Vector3(o.x+d.x*te,o.y+d.y*te,o.z+d.z*te);}}
+  let prev=0;
+  for(let t=0.5;t<best;t+=0.5){const y=o.y+d.y*t;if((y>130&&d.y>=0)||y<-6)break;
+    if(!hookSolidAt(o.x+d.x*t,y,o.z+d.z*t)){prev=t;continue;}
+    let lo=prev,hi=t;for(let k=0;k<7;k++){const m=(lo+hi)/2;if(hookSolidAt(o.x+d.x*m,o.y+d.y*m,o.z+d.z*m))hi=m;else lo=m;}return new THREE.Vector3(o.x+d.x*hi,o.y+d.y*hi,o.z+d.z*hi);}
+  return bestP;}
 function aimHit(){camera.getWorldDirection(camDir);
   const cast=d=>hookRay(camera.position,d);
   let p=cast(camDir);if(p)return p;
@@ -2417,7 +2431,7 @@ function frame(){requestAnimationFrame(frame);const rawDt=clock.getDelta();const
   const gy=P.feet+eyeH();
   if(GEAR.air)P.y=gy;else P.y+=(gy-P.y)*Math.min(1,dt*10);
   if(P.levelT>0){P.levelT-=dt;P.pitch+=(0-P.pitch)*Math.min(1,dt*7);}
-  {const hk=GEAR.air&&(GEAR.hooks[0]||GEAR.hooks[1]),vr=GEAR.vx*Math.cos(P.yaw)-GEAR.vz*Math.sin(P.yaw),tr=hk?Math.max(-0.22,Math.min(0.22,-vr*0.012)):0;P.roll=(P.roll||0)+(tr-(P.roll||0))*Math.min(1,dt*4);}
+  {const hk=GEAR.air&&(GEAR.hooks[0]||GEAR.hooks[1]),vr=GEAR.vx*Math.cos(P.yaw)-GEAR.vz*Math.sin(P.yaw),tr=hk?Math.max(-0.06,Math.min(0.06,-vr*0.003)):0;P.roll=(P.roll||0)+(tr-(P.roll||0))*Math.min(1,dt*1.5);}
   if(HORSE.mounted)camera.position.set(P.x+Math.sin(P.yaw)*0.35,P.y,P.z+Math.cos(P.yaw)*0.35);else camera.position.set(P.x,P.y,P.z);camera.rotation.set(P.pitch,P.yaw,P.roll||0);
   sky.position.copy(camera.position);
   sun.position.set(P.x+SUN.x*500,SUN.y*500,P.z+SUN.z*500);sun.target.position.set(P.x,0,P.z);sun.target.updateMatrixWorld();
@@ -2436,7 +2450,7 @@ function frame(){requestAnimationFrame(frame);const rawDt=clock.getDelta();const
   {const am=$('anchorMark');let show=false;if(started&&GEAR.has&&GEAR.aim){aimD.copy(GEAR.aim).project(camera);if(aimD.z<1){show=true;am.style.left=((aimD.x+1)/2*innerWidth)+'px';am.style.top=((1-aimD.y)/2*innerHeight)+'px';}}
    if(show!==am.classList.contains('on'))am.classList.toggle('on',show);}
   // sense of speed: the view widens and the wind rises with speed; the camera leans into swings
-  {const sp=GEAR.air?Math.hypot(GEAR.vx,GEAR.vy,GEAR.vz):0,fov=70+Math.max(0,Math.min(18,(sp-10)*0.55));if(Math.abs(camera.fov-fov)>0.05){camera.fov+=(fov-camera.fov)*Math.min(1,dt*3);camera.updateProjectionMatrix();}
+  {const sp=GEAR.air?Math.hypot(GEAR.vx,GEAR.vy,GEAR.vz):0,fov=70+Math.max(0,Math.min(6,(sp-12)*0.18));if(Math.abs(camera.fov-fov)>0.05){camera.fov+=(fov-camera.fov)*Math.min(1,dt*1.2);camera.updateProjectionMatrix();}
    if(GEAR.has)GSFX.wind(started?Math.max(0,Math.min(1,(sp-8)/40)):0);}
   horseUITick+=dt;if(started&&horseUITick>0.15){horseUITick=0;updateHorseUI();}
   // HUD visibility while moving: tally 27%, minimap 70%; when a horse coasts after you let go, it fades back in linearly with the horse's falling speed
