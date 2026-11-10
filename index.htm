@@ -804,6 +804,22 @@ const KB_MAP_EMBED='data:image/webp;base64,UklGRh6hAQBXRUJQVlA4WAoAAAAgAAAALwMAH
 <script>
 window.addEventListener('DOMContentLoaded',async function(){
 'use strict';
+/* ==================================================================================================
+   Königsberg 1736 — main script. Sections, in build order:
+     1  Helpers, terrain, river and streets       (groundH, sdWater, SSEG, nearestStreet)
+     2  Bridges and landmarks                     (BR, LANDMARKS)
+     3  Renderer, scene, textures, materials      (tex, deriveMaps, lambert, addMesh, mergeGeometries)
+     4  Houses, trees, market squares, statues    (houses, grid/addSolid, MARKETS)
+     5  Bridges, ships, docks, windmills, birds   (DOCK, PIERS)
+     6  Landmark buildings, city walls and gates  (WALL.segs, wallInfo, wallTop)
+     7  Citizens, soldiers, porters               (npcUpdate)
+     8  Horses, patrols, Frederick's escort       (horseUpdate, FRITZ)
+     9  Euler, Kant and Frederick: talk           (FAMOUS)
+    10  Collision and movement surfaces           (SOLIDS, surfaceAt, canStand, inBounds, bodyPen)
+    11  Freiheitsfluggerät: hooks, gas, swimming  (GEAR, flightStep, GSFX sounds)
+    12  Bridge tally, place label, music, map, UI
+    13  Static-mesh batching, then the frame loop (frame)
+   ================================================================================================== */
 const $=id=>document.getElementById(id);
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
@@ -968,6 +984,11 @@ T.cloud=(function(){const c=document.createElement('canvas');c.width=256;c.heigh
 
 /* ---------------- Geometry helpers ---------------- */
 function wbox(w,h,d,tu,tv){const g=new THREE.BoxGeometry(w,h,d);const uv=g.attributes.uv;const dims=[[d,h],[d,h],[w,d],[w,d],[w,h],[w,h]];for(let f=0;f<6;f++)for(let k=0;k<4;k++){const i=f*4+k;uv.setXY(i,uv.getX(i)*dims[f][0]/tu,uv.getY(i)*dims[f][1]/tv);}return g;}
+// merge world-space geometries into one (position, normal, uv); used for statues, walls and the static-mesh batching
+function mergeGeometries(geos){let n=0;const flat=geos.map(g=>{const f=g.index?g.toNonIndexed():g;n+=f.attributes.position.count;return f;});
+  const P=new Float32Array(n*3),N=new Float32Array(n*3),U=new Float32Array(n*2);let o=0;
+  for(const g of flat){const p=g.attributes.position,nn=g.attributes.normal,u=g.attributes.uv;P.set(p.array,o*3);if(nn)N.set(nn.array,o*3);if(u&&u.itemSize===2)U.set(u.array,o*2);o+=p.count;}
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(P,3));geo.setAttribute('normal',new THREE.BufferAttribute(N,3));geo.setAttribute('uv',new THREE.BufferAttribute(U,2));geo.computeBoundingSphere();return geo;}
 function geoFrom(P,U){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.computeVertexNormals();return g;}
 function quad(P,U,a,b,c,d,ua,ub,uc,ud){P.push(...a,...b,...c,...a,...c,...d);U.push(...ua,...ub,...uc,...ua,...uc,...ud);}
 // Roof with ridge along x: length L, span S, height H. Returns slopes and gable-end triangles.
@@ -1034,6 +1055,8 @@ await nextFrame();
 await nextFrame();
 /* ---------------- Houses & trees on lots ---------------- */
 const grid=new Map();
+// does a round body of radius r at (x,z) touch the box (centre o.x,o.z, half sizes o.hx,o.hz)? corners are rounded
+function boxHit(x,z,o,r){const dx=Math.max(Math.abs(x-o.x)-o.hx,0),dz=Math.max(Math.abs(z-o.z)-o.hz,0);return dx*dx+dz*dz<r*r;}
 function addSolid(x,z,hx,hz,top){const k=Math.floor(x/10)+','+Math.floor(z/10);let a=grid.get(k);if(!a)grid.set(k,a=[]);a.push({x,z,hx,hz,top:top===undefined?1e9:top});}
 const inRect=(x,z,r,m)=>x>r[0]-m&&x<r[1]+m&&z>r[2]-m&&z<r[3]+m;
 function nearBridge(x,z,m){for(const b of BR){const l=bLocal(b,x,z);if(Math.abs(l.t)<b.L/2+m&&Math.abs(l.s)<b.W/2+m)return true;}return false;}
@@ -1092,10 +1115,7 @@ const MARKET_STALLS=[];
   // helpers to merge many parts into one mesh per material
   const O=new THREE.Object3D();
   const mat4=(x,y,z,rx,ry,rz,sx,sy,sz)=>{O.position.set(x,y,z);O.rotation.set(rx||0,ry||0,rz||0);O.scale.set(sx||1,sy||1,sz||1);O.updateMatrix();return O.matrix.clone();};
-  function merge(parts){const Pp=[],Nn=[],Uu=[];
-    for(const[g0,m]of parts){const g=g0.index?g0.toNonIndexed():g0.clone();g.applyMatrix4(m);const p=g.attributes.position,n=g.attributes.normal,u=g.attributes.uv;
-      for(let i=0;i<p.count;i++){Pp.push(p.getX(i),p.getY(i),p.getZ(i));Nn.push(n.getX(i),n.getY(i),n.getZ(i));Uu.push(u?u.getX(i):0,u?u.getY(i):0);}}
-    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(Pp,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(Nn,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(Uu,2));return g;}
+  const merge=parts=>mergeGeometries(parts.map(([g0,m])=>(g0.index?g0.toNonIndexed():g0.clone()).applyMatrix4(m)));
   const G={leg:new THREE.CylinderGeometry(.08,.075,1,10),arm:new THREE.CylinderGeometry(.068,.062,1,10),shoe:new THREE.BoxGeometry(1,1,1),coatSk:new THREE.CylinderGeometry(.24,.39,1,18),
     torso:new THREE.CylinderGeometry(.22,.26,1,18),bodice:new THREE.CylinderGeometry(.17,.2,1,18),skirt:new THREE.CylinderGeometry(.22,.46,1,22),collar:new THREE.CylinderGeometry(.09,.12,.1,10),
     head:toyHeadGeo(),wig:new THREE.SphereGeometry(.2,16,12),curl:new THREE.CylinderGeometry(.055,.055,.15,10),box:new THREE.BoxGeometry(1,1,1),hand:new THREE.SphereGeometry(.07,10,8),
@@ -1204,7 +1224,7 @@ const brickGable=lambert({map:T.brickTower,side:THREE.DoubleSide}),palaceGable=l
   roofAt(140,16,9,roofMat,palaceGable,70,y0+H,-272);roofAt(140,16,9,roofMat,palaceGable,70,y0+H,-328);
   roofAt(40,16,9,roofMat,palaceGable,8,y0+H,-300,Math.PI/2);roofAt(40,16,9,roofMat,palaceGable,132,y0+H,-300,Math.PI/2);
   addMesh(wbox(18,50+dep,18,6,6),brickT,4,y0-dep+(50+dep)/2,-272);            // Schlossturm
-  const oct=addMesh(new THREE.CylinderGeometry(7.4,8.2,12,8),palace,4,y0+56,-272);
+  addMesh(new THREE.CylinderGeometry(7.4,8.2,12,8),palace,4,y0+56,-272);
   spire(8,32,copper,4,y0+62,-272);
   for(const[x,z]of[[140,-264],[140,-336],[0,-336]]){addMesh(new THREE.CylinderGeometry(5,5.4,26+dep,12),palace,x,y0-dep+(26+dep)/2,z);spire(6,11,copper,x,y0+26,z,12);}
   addMesh(wbox(10,6,3,5,4.5),lambert({color:'#3b2a20'}),70,y0+3,-263.4);       // gate
@@ -1313,14 +1333,12 @@ const brickGable=lambert({map:T.brickTower,side:THREE.DoubleSide}),palaceGable=l
   for(const g of GATES){const ang=Math.atan2(g.dx,g.dz),y0=groundH(g.x-g.dx*8,g.z-g.dz*8)-0.3;g.y0=y0;
     add('brick',wbox(20,17,13,4,3),g.x,y0+8.5,g.z,ang);
     roofAt(20,13,7,darkRoof,lambert({map:brickT,side:THREE.DoubleSide}),g.x,y0+17,g.z,ang);
-    const grp=new THREE.Group();grp.position.set(g.x,y0,g.z);grp.rotation.y=ang;scene.add(grp);
+    const grp=new THREE.Group();grp.position.set(g.x,y0,g.z);grp.rotation.y=ang;grp.userData.batch=true;scene.add(grp);
     const m=(geo,mat,x,y,z,rx)=>{const me=new THREE.Mesh(geo,mat);me.position.set(x,y,z);if(rx)me.rotation.x=rx;me.castShadow=me.receiveShadow=true;me.userData.hook=true;grp.add(me);return me;};
     m(new THREE.BoxGeometry(7.4,8.6,0.4),frame,0,4.3,-6.55);
     m(new THREE.BoxGeometry(5.6,5.6,0.5),wood,0,2.8,-6.8);m(new THREE.CylinderGeometry(2.8,2.8,0.5,24,1,false,-Math.PI/2,Math.PI),wood,0,5.6,-6.8,-Math.PI/2);
     m(new THREE.BoxGeometry(0.12,8.3,0.6),iron,0,4.1,-6.85);for(const yy of[1.4,3.6,5.6])m(new THREE.BoxGeometry(5.7,0.22,0.6),iron,0,yy,-6.85);}
-  for(const k in parts){if(!parts[k].length)continue;const geos=parts[k],Pp=[],Nn=[],Uu=[];
-    for(const g0 of geos){const g=g0.index?g0.toNonIndexed():g0;const p=g.attributes.position,nn=g.attributes.normal,u=g.attributes.uv;for(let i=0;i<p.count;i++){Pp.push(p.getX(i),p.getY(i),p.getZ(i));Nn.push(nn.getX(i),nn.getY(i),nn.getZ(i));Uu.push(u.getX(i),u.getY(i));}}
-    const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(Pp,3));geo.setAttribute('normal',new THREE.Float32BufferAttribute(Nn,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(Uu,2));
+  for(const k in parts){if(!parts[k].length)continue;const geo=mergeGeometries(parts[k]);
     const me=new THREE.Mesh(geo,k==='brick'?lambert({map:brickT,color:'#f3e1d6'}):lambert({map:T.grass,color:'#8aa05a',side:THREE.DoubleSide}));me.castShadow=me.receiveShadow=true;me.userData.hook=true;scene.add(me);}
   const moat=new THREE.Mesh(geoFrom(MP,MU),new THREE.MeshStandardMaterial({color:C('#2f5a68'),roughness:0.18,metalness:0.1,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}));moat.receiveShadow=true;scene.add(moat);
   const PI=inst(new THREE.CylinderGeometry(.24,.3,5.5,7),lambert({color:'#3d2b1f'}),piles.length);piles.forEach((q,i)=>put(PI,i,q.x,WATER_Y-1.2,q.z,0,1,1,1));
@@ -1463,8 +1481,8 @@ function canStand(x,z,rad){
   if(bridgeAt(x,z)||pierAt(x,z))return true;
   if(sdWater(x,z)<0.8)return false;
   const r=rad||0.35,ix=Math.floor(x/10),iz=Math.floor(z/10);
-  for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const list=grid.get((ix+a)+','+(iz+b));if(list)for(const o of list)if(Math.abs(x-o.x)<o.hx+r&&Math.abs(z-o.z)<o.hz+r)return false;}
-  for(const q of SOLIDS)if(x>q[0]-r&&x<q[1]+r&&z>q[2]-r&&z<q[3]+r)return false;
+  for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const list=grid.get((ix+a)+','+(iz+b));if(list)for(const o of list)if(boxHit(x,z,o,r))return false;}
+  for(const q of SOLIDS)if(x>q[0]-r&&x<q[1]+r&&z>q[2]-r&&z<q[3]+r){if(q[5]!==undefined&&q[5]>groundH(x,z)+2)continue;return false;}
   return true;}
 
 
@@ -1586,7 +1604,9 @@ const npcs=[];const npcUpdate=(function(){
       for(const o of L){if(o===n)continue;const dx=o.x-n.x,dz=o.z-n.z,d=Math.hypot(dx,dz);if(d<0.72&&dx*fx+dz*fz>0.2*d)return 2;}}
     return 0;}
   const playerAhead=(x,z,fx,fz,r)=>{if(!started)return false;const dx=P.x-x,dz=P.z-z,d=Math.hypot(dx,dz);return d<r&&dx*fx+dz*fz>0;};
+  let npcFrame=0;
   return function(dt,time){
+    npcFrame++;const cxp=camera.position.x,czp=camera.position.z;
     HG.clear();for(const o of npcs){const k=hkey(o.x,o.z);let L=HG.get(k);if(!L)HG.set(k,L=[]);L.push(o);}
     for(const sq of squads){if(sq.halt>0){sq.halt-=dt;sq.moving=false;continue;}
       {const fx=sq.p.ux*sq.dir,fz=sq.p.uz*sq.dir,lt=sq.t+sq.dir*sq.half;if(playerAhead(sq.p.ax+sq.p.ux*lt,sq.p.az+sq.p.uz*lt,fx,fz,HORSE.mounted?3.2:2.4)){sq.halt=0.4;sq.moving=false;continue;}}
@@ -1609,6 +1629,7 @@ const npcs=[];const npcUpdate=(function(){
       }else if(!n.y){n.y=groundH(n.x,n.z);}
       if(moving&&!n.squad)n.ph+=dt*n.sp*4.2;
       const sw=moving?Math.sin(n.ph)*0.5:0,bob=moving?Math.abs(Math.cos(n.ph))*0.04:Math.sin(time*1.3+n.ph)*0.01;
+      {const d2=(n.x-cxp)*(n.x-cxp)+(n.z-czp)*(n.z-czp),every=d2>102400?8:d2>25600?4:1;if(every>1&&(npcFrame+(n.ph*97|0))%every)continue;}
       pos.set(n.x,n.y+bob*n.sc,n.z);const fy=n.yaw+(n.stand?Math.sin(time*.4+n.ph)*0.15:0);q.setFromAxisAngle(UP,fy);scl.set(n.sc,n.sc,n.sc);base.compose(pos,q,scl);
       const I=n.ix;
       if(n.kind==='lady'){
@@ -1690,7 +1711,6 @@ const horseUpdate=(function(){
   const M={body:mk(bodyG,nH,null,true,dapple),neck:mk(box,nH,null,false,dapple),head:mk(box,nH,null,false,dapple),mane:mk(box,nH,'#1e1a17',false),ear:mk(new THREE.ConeGeometry(0.055,0.17,8),nH*2,null,false),leg:mk(hlegG,nH*4,null,false),tail:mk(box,nH,'#1e1a17',false),saddle:mk(box,nH,null,false),
     rTorso:mk(new THREE.CylinderGeometry(.22,.25,1,14),riders.length),rHead:(function(){const m=inst(toyHeadGeo(),toyMat({map:TOYFACE.man}),riders.length,false);m.frustumCulled=false;return m;})(),rTri:mk(new THREE.CylinderGeometry(.2,.18,.44,16),riders.length,'#1d1d1f',false),
     rArm:mk(box,riders.length*2,null,false),rLeg:mk(box,riders.length*2,null,false),rPlate:mk(box,riders.length,'#ffffff',false)};
-  const SKINS=['#f1d2b6','#e8bf9b','#d9a77f','#c68c5f'].map(C);
   horses.forEach((h,i)=>{M.ear.setColorAt(i*2,h.coat);M.ear.setColorAt(i*2+1,h.coat);M.body.setColorAt(i,h.coat);M.neck.setColorAt(i,h.coat);M.head.setColorAt(i,h.coat);M.saddle.setColorAt(i,h.cloth);
     const dk=h.coat.clone().multiplyScalar(0.55);for(let k=0;k<4;k++)M.leg.setColorAt(i*4+k,dk);});
   riders.forEach((h,j)=>{h.ri=j;const cu=h.patrol.kind==='cuirassier',fr=h.fritz===0;const coat=fr?C('#22365f'):cu?C('#e8e2cf'):C('#7fa6c9'),br=fr?C('#e8d9a8'):cu?C('#d9cfb0'):C('#d9c27a');
@@ -1856,17 +1876,13 @@ const FAMOUS=(function(){
 /* Freiheitsfluggerät: an original grappling-hook harness with gas thrust. Picked up at the University. */
 const GEAR={has:false,gas:1,hooks:[null,null],air:false,vx:0,vy:0,vz:0,safe:{x:P.x,z:P.z,f:0},inL:false,inR:false,inT:false,warnedEmpty:false,atStation:false};
 P.feet=groundH(P.x,P.z);GEAR.safe.f=P.feet;
-LANDMARKS.forEach((l,i)=>{const tops={dom:34,castle:28,rath:23,kirche:28,gericht:24,kaemmerei:21,steindamm:25,sackheim:23,schule:20,uni:26,packhof:22,boerse:23,speicher:24};SOLIDS[i][4]=minGround(l.x0,l.x1,l.z0,l.z1)+(tops[l.key]||22);});
-// the Schloss is four wings round an open courtyard (plus its towers), not one solid block
-{const gy=minGround(-5,141,-336,-264)-0.5;for(const[x0,x1,z0,z1]of[[0,140,-336,-320],[0,16,-320,-280],[124,140,-320,-280]])SOLIDS.push([x0,x1,z0,z1,gy+27]);
- SOLIDS.push([-5,13,-281,-263,gy+94]);for(const[x,z]of[[140,-264],[140,-336],[0,-336]])SOLIDS.push([x-5.4,x+5.4,z-5.4,z+5.4,gy+37]);}
 // each landmark collides part by part (wings, naves, towers, spires, roofs), so standing on a roof never puts you inside a tower
 {const box=new THREE.Box3(),parts=[];
  for(const ob of scene.children){if(!ob.isMesh||ob.isInstancedMesh||!ob.userData.hook)continue;box.setFromObject(ob);if(box.isEmpty())continue;
    const sx=box.max.x-box.min.x,sz=box.max.z-box.min.z;if(sx>160||sz>160)continue;const cx=(box.min.x+box.max.x)/2,cz=(box.min.z+box.max.z)/2;
-   if(!LANDMARKS.some(l=>inRect(cx,cz,l.ex,0)))continue;parts.push([box.min.x,box.max.x,box.min.z,box.max.z,box.max.y]);}
+   if(!LANDMARKS.some(l=>inRect(cx,cz,l.ex,0)))continue;parts.push([box.min.x,box.max.x,box.min.z,box.max.z,box.max.y,box.min.y]);} // [x0,x1,z0,z1,top,bottom]
  if(parts.length){SOLIDS.length=0;SOLIDS.push(...parts);}
- for(const g of GATES){const ew=g.dx!==0;SOLIDS.push(ew?[g.x-6.5,g.x+6.5,g.z-10,g.z+10,g.y0+24]:[g.x-10,g.x+10,g.z-6.5,g.z+6.5,g.y0+24]);}}
+ for(const g of GATES){const ew=g.dx!==0;SOLIDS.push(ew?[g.x-6.5,g.x+6.5,g.z-10,g.z+10,g.y0+24,g.y0]:[g.x-10,g.x+10,g.z-6.5,g.z+6.5,g.y0+24,g.y0]);}}
 for(const[x0,x1,z0,z1]of UNI_WALLS)SOLIDS.push([x0,x1,z0,z1,minGround(x0,x1,z0,z1)+1.5]);
 const eyeH=()=>HORSE.mounted?2.75:1.7;
 // ground or deck under (x,z), raised by any roof the feet are already above; block=true if a wall is in the way
@@ -1886,8 +1902,8 @@ function houseTop(h,x,z){const u=Math.abs((x-h.x)*Math.cos(h.th)-(z-h.z)*Math.si
 function surfaceAt(x,z,feet,r){const b=bridgeAt(x,z),pr=b?null:pierAt(x,z);let g=b?deckY(b.b,b.t):pr?Math.max(groundH(x,z),pr.y):groundH(x,z),block=false;
   if(!b){const wt=wallTop(x,z);if(wt!==null&&wt>g){if(wt<=feet+STEP)g=wt;else block=true;}}
   const ix=Math.floor(x/10),iz=Math.floor(z/10);
-  for(let a=-1;a<=1;a++)for(let c=-1;c<=1;c++){const list=grid.get((ix+a)+','+(iz+c));if(list)for(const o of list)if(Math.abs(x-o.x)<o.hx+r&&Math.abs(z-o.z)<o.hz+r){const top=o.house?houseTop(o.house,x,z):o.top;if(top<=feet+STEP)g=Math.max(g,top);else block=true;}}
-  for(const q of SOLIDS)if(x>q[0]-r&&x<q[1]+r&&z>q[2]-r&&z<q[3]+r){if(q[4]<=feet+STEP)g=Math.max(g,q[4]);else block=true;}
+  for(let a=-1;a<=1;a++)for(let c=-1;c<=1;c++){const list=grid.get((ix+a)+','+(iz+c));if(list)for(const o of list)if(boxHit(x,z,o,r)){const top=o.house?houseTop(o.house,x,z):o.top;if(top<=feet+STEP)g=Math.max(g,top);else block=true;}}
+  for(const q of SOLIDS)if(x>q[0]-r&&x<q[1]+r&&z>q[2]-r&&z<q[3]+r){if(q[5]!==undefined&&feet+1.9<q[5])continue;if(q[4]<=feet+STEP)g=Math.max(g,q[4]);else block=true;}
   return{g,block,bridge:!!(b||pr)};}
 // the gates are shut: you may walk on the ramparts and gatehouses, but never past the outer parapet (walking, riding or flying)
 function inBounds(x,z){const wi=wallInfo(x,z);if(wi&&wi.ad<20)return wi.d<2.3;return wallG(x,z)<1;}
@@ -1908,10 +1924,26 @@ const STATIONS=[[-395,-45],[-227,-66],[100,141],[470,6],[30,-2],[4,-185],[336,-2
 const ropeMat=new THREE.LineBasicMaterial({color:C('#2a2018')});
 const ropes=[0,1].map(()=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute([0,0,0,0,0,0],3));const l=new THREE.Line(g,ropeMat);l.frustumCulled=false;l.visible=false;scene.add(l);return l;});
 const anchors=[0,1].map(()=>{const m=new THREE.Mesh(new THREE.SphereGeometry(0.18,8,6),lambert({color:'#3a3a3a'}));m.visible=false;scene.add(m);return m;});
-let HOOK_TARGETS=null;const ray=new THREE.Raycaster();ray.far=75;const camDir=new THREE.Vector3();
+const HOOK_RANGE=75;let hookTop=null;const camDir=new THREE.Vector3();
 const aimR=new THREE.Vector3(),aimU=new THREE.Vector3(),aimD=new THREE.Vector3(),UPV=new THREE.Vector3(0,1,0);
-function aimHit(){if(!HOOK_TARGETS)HOOK_TARGETS=scene.children.filter(o=>o.userData&&o.userData.hook);camera.getWorldDirection(camDir);
-  const cast=d=>{ray.set(camera.position,d);const h=ray.intersectObjects(HOOK_TARGETS,false);return h.length?h[0].point.clone():null;};
+/* Where can a hook bite? The same solids you collide with: houses (up to their pitched roofs), trees, landmark parts, walls, gates,
+   bridges and piers. Testing points against these is far cheaper than ray-casting thousands of triangles, so aiming stays smooth at speed. */
+function hookSolidAt(x,y,z){const ix=Math.floor(x/10),iz=Math.floor(z/10);
+  for(let a=-1;a<=1;a++)for(let c=-1;c<=1;c++){const L=grid.get((ix+a)+','+(iz+c));if(L)for(const o of L){if(Math.abs(x-o.x)>=o.hx||Math.abs(z-o.z)>=o.hz)continue;
+    if(o.house){if(y>=o.house.y&&y<=houseTop(o.house,x,z))return true;}else if(y<=o.top&&y>=o.top-12)return true;}}
+  for(const q of SOLIDS)if(x>q[0]&&x<q[1]&&z>q[2]&&z<q[3]&&y<=q[4]&&y>=(q[5]===undefined?-20:q[5]))return true;
+  const wt=wallTop(x,z);if(wt!==null&&y<=wt&&y>=wt-14&&wt>groundH(x,z)+1)return true;
+  const b=bridgeAt(x,z);if(b){const dy=deckY(b.b,b.t);if(y<=dy+1.3&&y>=dy-1.2)return true;}
+  const pr=pierAt(x,z);if(pr&&y<=pr.y&&y>=pr.y-0.5)return true;
+  return false;}
+// march along the ray in half-metre steps, then refine the hit by bisection
+function hookRay(o,d){let prev=0;for(let t=0.5;t<=HOOK_RANGE;t+=0.5){const y=o.y+d.y*t;if(hookTop===null)hookTop=Math.max(...SOLIDS.map(q=>q[4]))+1;if((y>hookTop&&d.y>=0)||y<-6)break; // nothing to hook above the tallest spire or below the river bed
+    if(y>hookTop){prev=t;continue;}
+    if(hookSolidAt(o.x+d.x*t,o.y+d.y*t,o.z+d.z*t)){let lo=prev,hi=t;
+      for(let k=0;k<7;k++){const m=(lo+hi)/2;if(hookSolidAt(o.x+d.x*m,o.y+d.y*m,o.z+d.z*m))hi=m;else lo=m;}return new THREE.Vector3(o.x+d.x*hi,o.y+d.y*hi,o.z+d.z*hi);}prev=t;}
+  return null;}
+function aimHit(){camera.getWorldDirection(camDir);
+  const cast=d=>hookRay(camera.position,d);
   let p=cast(camDir);if(p)return p;
   // aim assist: if the crosshair is just off a building, search a small cone around it (closest to the centre first, upward first)
   aimR.crossVectors(camDir,UPV).normalize();aimU.crossVectors(aimR,camDir).normalize();
@@ -1956,7 +1988,7 @@ const GSFX=(function(){let ctx=null,out=null,noise=null,hiss=null;
   let wind=null;
   function windSet(level){if(level<=0.01&&!wind)return;if(!ctx||ctx.state!=='running')return;const t=ctx.currentTime;
     if(!wind){const n=nsrc(),lp=ctx.createBiquadFilter(),g=ctx.createGain();lp.type='lowpass';lp.frequency.value=500;lp.Q.value=0.8;n.connect(lp);lp.connect(g);g.connect(out);g.gain.value=0.0001;n.start();wind={g,lp,lvl:0};}
-    if(Math.abs(level-wind.lvl)>0.02){wind.lvl=level;wind.g.gain.setTargetAtTime(Math.max(0.0001,level*0.5),t,0.15);wind.lp.frequency.setTargetAtTime(350+level*1400,t,0.15);}}
+    if(Math.abs(level-wind.lvl)>0.02){wind.lvl=level;wind.g.gain.setTargetAtTime(Math.max(0.0001,level*0.15),t,0.15);wind.lp.frequency.setTargetAtTime(350+level*1400,t,0.15);}}
   function whoosh(up){if(!init())return;const t=ctx.currentTime,n=nsrc(),bp=ctx.createBiquadFilter(),g=ctx.createGain();bp.type='bandpass';bp.Q.value=1.5;
     bp.frequency.setValueAtTime(up?500:900,t);bp.frequency.exponentialRampToValueAtTime(up?2400:2800,t+0.35);n.connect(bp);bp.connect(g);g.connect(out);env(g,t,0.04,0.6,0.4);n.start(t);n.stop(t+0.5);}
   function reel(){if(!init())return;const t=ctx.currentTime;for(let k=0;k<14;k++){const c=ctx.createOscillator(),cg=ctx.createGain(),tt=t+k*0.045;c.type='square';c.frequency.value=1700+k*60;c.connect(cg);cg.connect(out);env(cg,tt,0.001,0.07,0.012);c.start(tt);c.stop(tt+0.02);}}
@@ -2157,11 +2189,6 @@ const Music=(function(){
   function choir(t,notes,d){const end=t+d,g=ctx.createGain(),bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=900;bp.Q.value=0.9;
     g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(0.03,t+0.35);g.gain.setValueAtTime(0.03,end-0.1);g.gain.linearRampToValueAtTime(0.0001,end+0.25);bp.connect(g);g.connect(bus);
     for(const m of notes)for(const dt of[-9,0,9]){const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=hz(m);o.detune.value=dt;o.connect(bp);o.start(t);o.stop(end+0.3);}}
-  function horn(t,m,d){const f=hz(m),end=t+d,g=ctx.createGain(),lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=f*3;
-    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(0.05,t+0.25);g.gain.setValueAtTime(0.05,end-0.15);g.gain.linearRampToValueAtTime(0.0001,end);
-    const o=ctx.createOscillator();o.type='sawtooth';o.frequency.value=f;o.connect(lp);lp.connect(g);g.connect(bus);o.start(t);o.stop(end+0.05);}
-  function taiko(t,v){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(95,t);o.frequency.exponentialRampToValueAtTime(38,t+0.35);
-    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.32*v,t+0.006);g.gain.exponentialRampToValueAtTime(0.0001,t+0.6);o.connect(g);g.connect(bus);o.start(t);o.stop(t+0.65);snare(t,0.35*v);}
   function crash(t){if(!noiseBuf)snare(t,0.0001);const src=ctx.createBufferSource();src.buffer=noiseBuf;src.loop=true;const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=5000;
     const g=ctx.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.07,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+1.8);src.connect(hp);hp.connect(g);g.connect(bus);src.start(t);src.stop(t+1.9);}
   let distCurve=null;
@@ -2341,6 +2368,7 @@ const clock=new THREE.Clock();let time=0,mapTick=0,movedAt=-9,isMoving=false,inp
 const baseYaw=P.yaw;
 // Adaptive resolution: if frames are slow for a few seconds, lower the render resolution step by step
 let perfEma=0.016,perfCheck=0,pixelR=renderer.getPixelRatio();
+let shadowTick=0;renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;
 function frame(){requestAnimationFrame(frame);const rawDt=clock.getDelta();const dt=Math.min(rawDt,0.05);time+=dt;
   perfEma+=(Math.min(rawDt,0.2)-perfEma)*0.05;perfCheck+=rawDt;
   if(started&&perfCheck>3){perfCheck=0;if(perfEma>0.034&&pixelR>1){pixelR=Math.max(1,pixelR-0.25);renderer.setPixelRatio(pixelR);renderer.setSize(app.clientWidth,app.clientHeight);}}
@@ -2370,9 +2398,10 @@ function frame(){requestAnimationFrame(frame);const rawDt=clock.getDelta();const
       if(H&&dt>0){const target=mf*sp/dt;H.spd=H.spd||0;const up=Math.abs(target)>Math.abs(H.spd)||Math.sign(target)!==Math.sign(H.spd)&&target!==0;
         H.spd+=(target-H.spd)*Math.min(1,(up?3.2:0.8)*dt);if(!up&&Math.abs(H.spd)<0.3)H.spd=0;
         H.vx=fx*H.spd;H.vz=fz*H.spd;dx=H.vx*dt+rx*ms*sp*0.35;dz=H.vz*dt+rz*ms*sp*0.35;}
-      const sub=Math.max(1,Math.ceil(Math.hypot(dx,dz)/0.4));const rr=H?0.9:0.35;
+      const sub=Math.max(1,Math.ceil(Math.hypot(dx,dz)/0.4));const rr=H?0.45:0.35;
       const onRoof=GEAR.has&&P.feet>groundH(P.x,P.z)+3;STEP=onRoof?2.6:0.7;
-      const ok=(x,z)=>{if(!inBounds(x,z))return false;const s2=surfaceAt(x,z,P.feet,rr);if(s2.block)return false;if(!s2.bridge&&sdWater(x,z)<0.8)return false;
+      const ok=(x,z)=>{if(!inBounds(x,z))return false;const s2=surfaceAt(x,z,P.feet,rr);if(s2.block)return false;
+        if(H){for(const o of[0.75,-0.75]){const q=surfaceAt(x+fx*o,z+fz*o,P.feet,0.42);if(q.block)return false;}}if(!s2.bridge&&sdWater(x,z)<0.8)return false;
         if(onRoof&&s2.g<P.feet-3)return false;
         if(!onRoof){const pn=bodyPen(x,z,!!H);if(pn>0.02&&pn>pen0+0.001)return false;}return true;};
       const pen0=bodyPen(P.x,P.z,!!H);
@@ -2418,9 +2447,24 @@ function frame(){requestAnimationFrame(frame);const rawDt=clock.getDelta();const
    if(Math.abs(op-hudOp)>0.004){hudOp=op;const card=document.querySelector('.card'),mw=$('mapwrap');const coast=op>0.27&&op<1;card.style.transition=mw.style.transition=coast?'none':'';
      const f=(1-op)/0.73,mop=1-0.3*f;card.style.opacity=op<1?op.toFixed(3):'';mw.style.opacity=op<1&&!mw.classList.contains('big')?mop.toFixed(3):'';}}
   if(started){updatePlace(onB);mapTick+=dt;if(mapTick>1/20){mapTick=0;drawMap();}}
+  shadowTick=(shadowTick+1)%2;renderer.shadowMap.needsUpdate=shadowTick===0;
   renderer.render(scene,camera);}
 frame();
 window.KB_READY=true;setBeginLabel();document.body.classList.add('ready');
+/* 13  Static-mesh batching: hundreds of separate building parts become a few draw calls per material and per 160 m tile
+   (tiles keep frustum culling and the hook's ray tests cheap). Animated objects are groups or have no hook flag, so they stay separate. */
+(function(){const groups=new Map(),v=new THREE.Vector3();let before=0,after=0;
+  // materials that look the same are batched together even if they are separate objects
+  const id=t=>t?t.uuid:'-',matKey=m=>[m.type,id(m.map),id(m.normalMap),id(m.roughnessMap),m.color?m.color.getHexString():'',m.side,m.flatShading?1:0,m.transparent?1:0,m.opacity,m.roughness,m.metalness,m.envMapIntensity,m.polygonOffset?1:0].join('/');
+  scene.updateMatrixWorld(true);const cand=[];for(const o of scene.children){if(o.isGroup&&o.userData.batch)cand.push(...o.children);else cand.push(o);}
+  for(const m of cand){if(!m.isMesh||m.isInstancedMesh||!m.userData.hook||!m.geometry.attributes.normal)continue;
+    const g=m.geometry;if(!g.boundingSphere)g.computeBoundingSphere();if(g.boundingSphere.radius>300)continue;m.updateMatrixWorld();v.copy(g.boundingSphere.center).applyMatrix4(m.matrixWorld);
+    const key=matKey(m.material)+'|'+(m.castShadow?1:0)+(m.receiveShadow?1:0)+'|'+Math.floor(v.x/240)+','+Math.floor(v.z/240);let a=groups.get(key);if(!a)groups.set(key,a=[]);a.push(m);}
+  for(const list of groups.values()){before+=list.length;after++;if(list.length<2)continue;
+    const geo=mergeGeometries(list.map(m=>(m.geometry.index?m.geometry.toNonIndexed():m.geometry.clone()).applyMatrix4(m.matrixWorld)));
+    const mm=new THREE.Mesh(geo,list[0].material);mm.castShadow=list[0].castShadow;mm.receiveShadow=list[0].receiveShadow;mm.userData.hook=true;scene.add(mm);
+    for(const m of list)m.parent.remove(m);}
+  console.info('Static meshes batched:',before,'→',after);})();
 window.__kb={flightStep,GEAR,fireHook,FAMOUS,P,BR,houses,trees,counts,canStand,npcs,horses,HORSE,toggleMount,FRITZ,bodyPen,step(){trackBridges();}};
 });
 </script>
